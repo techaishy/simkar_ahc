@@ -1,103 +1,177 @@
+"use client";
+
+import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { PersonIcon, LockIcon, CalenderIcon } from "@/components/icon/login";
 
-export default function Home() {
+type LoginFormData = {
+  email: string;
+  password: string;
+};
+
+export default function Login() {
+  const form = useForm<LoginFormData>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTime = (date: Date) =>
+    date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("id-ID", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+  function onSubmit(data: LoginFormData) {
+    console.log("Data dikirim:", data);
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="relative h-screen w-screen items-center justify-center flex flex-col">
+      <div
+        className="absolute inset-0 z-10 bg-[url('https://plus.unsplash.com/premium_vector-1682303219575-c521139db33c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx2aXN1YWwtc2VhcmNofDF8fHxlbnwwfHx8fHw%3D')] 
+        bg-cover bg-center h-screen brightness-40 pointer-events-none"
+      ></div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="relative z-10 flex items-center justify-center">
+        <h1 className="text-xl md:text-3xl font-semibold m-4 text-center">
+          SELAMAT DATANG DI APLIKASI <br />{" "}
+          <span className="flex items-center justify-center">SIMKAR!!</span>
+        </h1>
+      </div>
+
+      {/* Form Login */}
+
+      <div className="relative z-10 flex items-center justify-center mt-4 mb-4">
+        <div className="bg-[#0d0d0d] p-6 md:p-8 rounded-xl shadow-md w-full max-w-md md:max-w-3xl flex-col flex items-start gap-10 px-4 max-h-screen overflow-auto">
+          <div className="pl-5 flex-1 flex flex-col item-start gap-6">
+            <div className="flex items-center space-x-1">
+              <Image
+                src="/asset/logo_ahc.jpg"
+                width={70}
+                height={70}
+                alt="logo ahc"
+                className="rounded-md mix-blend-lighten"
+              />
+
+              <div className="w-px h-12 bg-white"></div>
+              <div className=" text-2xl font-semibold pl-2 text-white leading-tight">
+                PT. Aishy Health <br />
+                Calibration
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row md:items-start w-full justify-center">
+            <div className="w-full max-w-sm pl-0 md:pl-5 order-2 md:order-none">
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-5"
+                >
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="pb-5 items-center justify-center">
+                          LOGIN NOW
+                        </FormLabel>
+
+                        <div className="flex">
+                          <div className="m-1 pt-1 absolute items-center justify-center flex">
+                            {" "}
+                            <PersonIcon />{" "}
+                          </div>
+                          <FormControl>
+                            <Input
+                              className="pl-7"
+                              placeholder="Enter your username"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex">
+                          <div className="m-1 pt-1 absolute">
+                            <LockIcon />
+                          </div>
+                          <FormControl>
+                            <Input
+                              className="pl-7"
+                              type="password"
+                              placeholder="••••••••"
+                              {...field}
+                            />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#1b5deb] text-white hover:bg-[#FFD700]/80 hover:text-black active:bg-primary/60 focus:outline-none transition duration-200 cursor-pointer"
+                  >
+                    Login
+                  </Button>
+                </form>
+              </Form>
+            </div>
+            <div className="order-1 md:order-none text-white flex flex-col justify-center items-center text-center space-y-3 p-4 pt-0 md:p-10 w-full md:w-auto">
+              <p className="text-sm italic max-w-xs text-center">
+                "Platform manajemen kantor terpadu dalam satu aplikasi –
+                SIMKAR."
+              </p>
+              <div className="text-sm md:text-lg flex items-center justify-center gap-2">
+                {" "}
+                <CalenderIcon /> {formatDate(time)}
+              </div>
+              <div className="text-xl sm:text-2xl md:text-4xl font-bold tracking-widest font-mono bg-gray-400 text-black px-4 py-2 md:px-6 md:py-3 rounded-md">
+                {formatTime(time)}
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }
