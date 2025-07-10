@@ -15,6 +15,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { PersonIcon, LockIcon, CalenderIcon } from "@/components/icon/login";
 
+import { signIn } from "next-auth/react";
+
 type LoginFormData = {
   email: string;
   password: string;
@@ -28,7 +30,26 @@ export default function Login() {
     },
   });
 
+  const onSubmit = async (data: LoginFormData) => {
+    const res = await signIn("credentials", {
+      redirect: false,
+      email: data.email,
+      password: data.password,
+    });
+
+    if (res?.ok) {
+      window.location.href = "/dashboard";
+    } else {
+      alert("Login gagal: Periksa email atau password.");
+    }
+  }
+
+  const [isClient, setIsClient] = useState(false);
   const [time, setTime] = useState(new Date());
+
+useEffect(() => {
+  setIsClient(true);
+}, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -52,10 +73,10 @@ export default function Login() {
       year: "numeric",
     });
 
-  function onSubmit(data: LoginFormData) {
-    console.log("Data dikirim:", data);
-  }
-
+    // function onSubmit(data: LoginFormData) {
+    //   console.log("Data dikirim:", data);
+    // }
+  
   return (
     <div className="relative h-screen w-screen items-center justify-center flex flex-col">
       <div
@@ -163,10 +184,10 @@ export default function Login() {
               </p>
               <div className="text-sm md:text-lg flex items-center justify-center gap-2">
                 {" "}
-                <CalenderIcon /> {formatDate(time)}
+                <CalenderIcon /> {isClient && formatDate(time)}
               </div>
               <div className="text-xl sm:text-2xl md:text-4xl font-bold tracking-widest font-mono bg-gray-400 text-black px-4 py-2 md:px-6 md:py-3 rounded-md">
-                {formatTime(time)}
+                {isClient && formatTime(time)}
               </div>
             </div>
           </div>
