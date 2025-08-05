@@ -18,26 +18,22 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/module/dashboard/components/Sidebar";
 
-// import { NavDocuments } from "@/module/dashboard/components/NavDocuments";
 import { NavMain } from "@/module/dashboard/components/NavMain";
 import NavSecondary from "@/module/dashboard/components/NavSecondary";
-import { NavUser } from "@/module/dashboard/components/NavUser";
 import Logo from "@/components/ui/logo";
 
 const data = {
   user: {
     name: "PT. Aishy Health Calibration",
     email: "calibrationaishy@gmail.com",
-    
   },
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/admin/dashboard",
       icon: IconDashboard,
     },
     {
@@ -47,12 +43,12 @@ const data = {
       items: [
         {
           title: "Absen",
-          url: "#",
+          url: "/admin/absen",
           icon: "",
         },
         {
           title: "History",
-          url: "#",
+          url: "/admin/absen/history",
           icon: "",
         },
       ],
@@ -71,7 +67,7 @@ const data = {
       title: "Pegawai",
       url: "#",
       icon: IconUsers,
-      items:[
+      items: [
         {
           title: "Data",
           url: "#",
@@ -81,14 +77,14 @@ const data = {
           title: "Jabatan",
           url: "#",
           icon: "",
-        }
+        },
       ],
     },
     {
       title: "Inventory",
       url: "#",
       icon: IconArchive,
-      items:[
+      items: [
         {
           title: "Alat Kalibrasi",
           url: "#",
@@ -98,7 +94,7 @@ const data = {
           title: "Sparepart",
           url: "#",
           icon: "",
-        }
+        },
       ],
     },
   ],
@@ -138,7 +134,7 @@ export default function AppSidebar({
                 PT. Aishy Health Calibration
               </span>
             </div>
-        
+
             <div className="p-1">
               <div className="text-xs mt-1 pb-2">
                 SISTEM MANAJEMEN KANTOR
@@ -148,11 +144,6 @@ export default function AppSidebar({
 
               <div className="w-full h-px  bg-white pb-0"></div>
             </div>
-          
-            {/* <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            ></SidebarMenuButton> */}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -164,7 +155,10 @@ export default function AppSidebar({
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={data.user} />
+      <div className="w-full text-start py-3 text-xs text-gray-400 border-t border-gray-700">
+        <p>© {2025} SIMKAR AHC</p>
+      </div>
+    
       </SidebarFooter>
     </Sidebar>
   );

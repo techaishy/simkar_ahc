@@ -1,45 +1,59 @@
 "use client";
 
-import { useState } from "react";
 import { StatCard } from "@/module/dashboard/components/StatCard";
-import DropdownFilter from "@/module/dashboard/components/DropdownFilter";
 import { ChartDisplay } from "@/module/dashboard/components/ChartDisplay";
-import { DashboardHeader } from "@/module/dashboard/components/DashboardHeader";
-import AppSidebar from "./components/AppSidebar";
 import { Users, Check, Clock, X } from "lucide-react";
+import { EmployeeAttendanceTable } from "@/module/dashboard/components/EmployeeAttedanceTable";
+
 
 export default function DashboardPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  const handleToggleSidebar = () => {
-    setSidebarOpen(prev => !prev);
-  };
   return (
-    <div className="flex min-h-screen overflow-hidden transition-all duration-300 ease-in-out">
-       <div className={sidebarOpen ? "w-64 transition-all " : "w-0 transition-all duration-300 overflow-hidden"}>
-        <AppSidebar />
-      </div>
-    
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-          onClick={handleToggleSidebar}
-        ></div>
-      )}
-      <div className="flex-1 h-screen overflow-auto px-1">
-      <DashboardHeader onToggleSidebar={handleToggleSidebar} />
-      <div className="w-full h-px  bg-black pb-0"></div>
-      <div className="px-1 pt-2 pb-2 text-sm text-gray-600">HOME &gt;&gt; DASHBOARD</div>
+    <div className="w-full min-h-screen overflow-x-hidden px-2 pb-6">
+      <div className="max-w-screen-2xl mx-auto">
+      <div className=" top-0 z-20 bg-white shadow-sm px-1 py-4">
+      <h2 className="text-xl font-bold text-gray-800">Dashboard</h2>
+    </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
-  <StatCard label="Karyawan" value="20" icon={<Users />} bgColor="bg-green-600" />
-  <StatCard label="Tepat Waktu" value="10" icon={<Check />} bgColor="bg-yellow-500" />
-  <StatCard label="Terlambat" value="10" icon={<Clock />} bgColor="bg-orange-500" />
-  <StatCard label="Tidak Hadir" value="10" icon={<X />} bgColor="bg-red-600" />
-</div>
 
-        <DropdownFilter />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2 w-full overflow-hidden">
+          
+          <StatCard
+            label="Karyawan"
+            value="20"
+            icon={<Users />}
+            bgColor="bg-blue-500"
+          />
+       
+          <StatCard
+            label="Tepat Waktu"
+            value="10"
+            icon={<Check />}
+            bgColor="bg-green-600"
+          />
+ 
+
+          <StatCard
+            label="Terlambat"
+            value="10"
+            icon={<Clock />}
+            bgColor="bg-yellow-500"
+          />
+        
+          <StatCard
+            label="Tidak Hadir"
+            value="10"
+            icon={<X />}
+            bgColor="bg-red-600"
+          />
+        
+        </div>
+     
+        <div className="pt-5">
         <ChartDisplay />
+        </div>
+
+      <EmployeeAttendanceTable></EmployeeAttendanceTable>
       </div>
     </div>
   );

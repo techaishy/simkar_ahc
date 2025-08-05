@@ -1,0 +1,64 @@
+"use client";
+
+import { Card } from "@/components/ui/card";
+
+const employeesToday = [
+  { id: 1, name: "Agus Saputra", position: "Staff HR", waktumasuk: "08:01", statusmasuk: "Tepat Waktu", waktupulang: "17.30", statuspulang: "Tepat Waktu", note:"-", location: "Kantor Banda"},
+  { id: 2, name: "Budi Santoso", position: "Admin", waktumasuk: "08:50", statusmasuk: "Terlambat", waktupulang: "20.00", statuspulang: "Lembur", note:"-", location: "RS Melati"},
+  { id: 3, name: "Cici Rahmawati", position: "Kasir", waktumasuk: "-", statusmasuk: "Tidak Hadir", waktupulang: "-", statuspulang: "Tidak Hadir", note:"Sakit", location: "-" },
+];
+
+function getStatusClass(status: string) {
+  switch (status) {
+    case "Tepat Waktu":
+      return "bg-green-600 text-white px-2 py-1 rounded-sm text-xs font-medium";
+    case "Terlambat":
+      return "bg-yellow-500 text-white px-2 py-1 rounded-sm text-xs font-medium";
+    case "Tidak Hadir":
+      return "bg-red-600 text-white px-2 py-1 rounded-sm text-xs font-medium";
+    case "Lembur":
+      return "bg-blue-600 text-white px-2 py-1 rounded-sm text-xs font-medium";
+    default:
+      return "bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium";
+  }
+}
+
+export function EmployeeAttendanceTable() {
+  return (
+    <Card className="mt-6 p-4 ">
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">Data Karyawan Masuk Hari Ini</h2>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm text-left text-gray-700">
+          <thead className="bg-gray-100 text-gray-600 font-semibold">
+            <tr>
+              <th className="px-4 py-2">No</th>
+              <th className="px-4 py-2">Nama</th>
+              <th className="px-4 py-2">Jabatan</th>
+              <th className="px-4 py-2">Waktu Masuk</th>
+              <th className="px-4 py-2">Status </th>
+              <th className="px-4 py-2">Waktu Pulang</th>
+              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2">Keterangan</th>
+              <th className="px-4 py-2">Lokasi</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white">
+            {employeesToday.map((emp, index) => (
+              <tr key={emp.id} className="border-b hover:bg-gray-50">
+                <td className="px-4 py-2">{index + 1}</td>
+                <td className="px-4 py-2">{emp.name}</td>
+                <td className="px-4 py-2">{emp.position}</td>
+                <td className="px-4 py-2">{emp.waktumasuk}</td>
+                <td className="px-4 py-2"> <span className={getStatusClass(emp.statusmasuk)}>{emp.statusmasuk}</span></td>
+                <td className="px-4 py-2">{emp.waktupulang}</td>
+                <td className="px-4 py-2"> <span className={getStatusClass(emp.statuspulang)}>{emp.statuspulang}</span></td>
+                <td className="px-4 py-2">{emp.note}</td>
+                <td className="px-4 py-2">{emp.location}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}

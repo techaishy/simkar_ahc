@@ -3,6 +3,8 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Slot } from "@radix-ui/react-slot";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 interface SidebarGroupProps {
   children: ReactNode;
@@ -67,6 +69,8 @@ interface SidebarMenuButtonProps {
     isActive?: boolean;
     asChild?: boolean;
     children?: ReactNode;
+    onClick?: () => void;
+
   }
   
   export function SidebarMenuButton({
@@ -77,8 +81,12 @@ interface SidebarMenuButtonProps {
     isActive = false,
     asChild = false,
     children,
+    onClick,
   }: SidebarMenuButtonProps) {
     const Comp = asChild ? Slot : "a";
+    const handleClick = (e: React.MouseEvent) => {
+      if (onClick) onClick(); 
+    };
   
     return (
       <Comp
@@ -88,6 +96,7 @@ interface SidebarMenuButtonProps {
           isActive ? "bg-gray-800 text-white" : "text-gray-300",
           className
         )}
+        onClick={handleClick} 
       >
         {children ? (
           children
@@ -101,7 +110,7 @@ interface SidebarMenuButtonProps {
     );
   }
 interface SidebarProps {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
   collapsible?: string;
 }
@@ -147,6 +156,7 @@ interface SidebarMenuSubButtonProps {
   href?: string;
   isActive?: boolean;
   className?: string;
+  onClick?: () => void;
   
 }
 

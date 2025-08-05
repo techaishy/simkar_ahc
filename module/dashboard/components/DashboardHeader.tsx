@@ -12,14 +12,13 @@ export function DashboardHeader({ onToggleSidebar }: DashboardHeaderProps) {
       <div className="flex items-center gap-4">
         <button
           onClick={onToggleSidebar}
-          className="rounded hover:bg-gray-200 transition"
+          className="rounded hover:bg-gray-200 transition cursor-pointer"
         >
           <Menu className="w-6 h-6 text-black" />
         </button>
         
       </div>
 
-      {/* Kanan: profil */}
       <div className="w-10 h-10 flex items-center justify-center rounded-full bg-black text-white hover:opacity-90 cursor-pointer transition">
         <User size={20} />
       </div>

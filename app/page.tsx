@@ -38,7 +38,7 @@ export default function Login() {
     });
 
     if (res?.ok) {
-      window.location.href = "/dashboard";
+      window.location.href = "/admin/dashboard";
     } else {
       alert("Login gagal: Periksa email atau password.");
     }
