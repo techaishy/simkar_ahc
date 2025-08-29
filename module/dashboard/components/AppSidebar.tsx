@@ -75,22 +75,9 @@ const data = {
     },
     {
       title: "Pegawai",
-      url: "#",
+      url: "/admin/pegawai",
       icon: IconUsers,
-      items: [
-        {
-          title: "Data",
-          url: "#",
-          icon: "",
-          roles: ["admin"] as Role[],
-        },
-        {
-          title: "Jabatan",
-          url: "#",
-          icon: "",
-          roles: ["admin"] as Role[],
-        },
-      ],
+      roles: ["admin"] as Role[],
     },
     {
       title: "Inventory",
