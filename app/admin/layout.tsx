@@ -3,12 +3,16 @@
 import { useEffect, useState } from "react";
 import AppSidebar from "@/module/dashboard/components/AppSidebar";
 import { DashboardHeader } from "@/module/dashboard/components/DashboardHeader";
+import { useSession } from "next-auth/react";
+import { Role } from "@/lib/types/auth";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session } = useSession();
+  const role: Role = (session?.user?.role as Role) || "admin";
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -27,13 +31,15 @@ export default function AdminLayout({
       {/* SIDEBAR */}
       <div
         className={`
-          fixed top-0 left-0 h-full bg-black z-40 transition-transform duration-300
+          fixed top-0 left-0 h-full bg-gradient-to-br from-gray-700 via-gray-900 to-black z-40 transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           w-64
-          lg:relative lg:transition-none lg:translate-x-0 lg:${sidebarOpen ? "" : "hidden"}
+          lg:relative lg:transition-none lg:translate-x-0 lg:${
+            sidebarOpen ? "" : "hidden"
+          }
         `}
       >
-        <AppSidebar />
+        <AppSidebar role={role} />
       </div>
 
       {/* OVERLAY HITAM UNTUK MOBILE */}

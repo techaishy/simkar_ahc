@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { Menu, User } from "lucide-react";
 

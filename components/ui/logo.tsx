@@ -5,7 +5,7 @@ export default function Logo() {
   return (
     <div className="relative">
     <Image
-      src="/asset/logo_ahc.jpg"
+      src="/asset/logo_ahc.png"
       alt="Logo"
       width={60}
       height={60}

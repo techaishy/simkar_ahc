@@ -9,6 +9,7 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
+  IconReport,
   IconArchive,
 } from "@tabler/icons-react";
 
@@ -24,6 +25,10 @@ import {
 import { NavMain } from "@/module/dashboard/components/NavMain";
 import NavSecondary from "@/module/dashboard/components/NavSecondary";
 import Logo from "@/components/ui/logo";
+import { BuildingOfficeIcon } from "@heroicons/react/24/outline";
+import {NavDocuments} from "@/module/dashboard/components/NavDocuments";
+import { Role } from "@/lib/types/auth";
+
 
 const data = {
   user: {
@@ -35,6 +40,7 @@ const data = {
       title: "Dashboard",
       url: "/admin/dashboard",
       icon: IconDashboard,
+      roles: ["admin", "manager", "owner"] as Role[],
     },
     {
       title: "Presensi",
@@ -45,23 +51,27 @@ const data = {
           title: "Absen",
           url: "/admin/absen",
           icon: "",
+          roles: ["admin", "teknisi", "manager"] as Role[],
         },
         {
           title: "History",
           url: "/admin/absen/history",
           icon: "",
+          roles: ["admin", "teknisi", "manager"] as Role[],
         },
       ],
     },
     {
       title: "Riwayat Absensi",
-      url: "#",
+      url: "/admin/riwayat_absensi",
       icon: IconChartBar,
+      roles: ["admin", "owner", "manager"] as Role[],
     },
     {
       title: "Surat Keluar",
       url: "#",
       icon: IconFolder,
+      roles: ["admin", "owner", "manager"] as Role[],
     },
     {
       title: "Pegawai",
@@ -72,11 +82,13 @@ const data = {
           title: "Data",
           url: "#",
           icon: "",
+          roles: ["admin"] as Role[],
         },
         {
           title: "Jabatan",
           url: "#",
           icon: "",
+          roles: ["admin"] as Role[],
         },
       ],
     },
@@ -89,39 +101,69 @@ const data = {
           title: "Alat Kalibrasi",
           url: "#",
           icon: "",
+          roles: ["admin", "teknisi", "manager", "owner"] as Role[],
         },
         {
           title: "Sparepart",
           url: "#",
           icon: "",
+          roles: ["admin", "teknisi"] as Role[],
         },
       ],
     },
-  ],
+ 
+{
+  title: "Satuan Kerja",
+  url: "#",
+  icon: BuildingOfficeIcon,
+  items: [
+    {
+      title: "Wilayah Kerja",
+      url: "#",
+      icon: "",
+      roles: ["admin", "manager"] as Role[],
+    },
+    {
+      title: "Data Alat",
+      url: "#",
+      icon: "",
+      roles: ["admin", "manager"] as Role[],
+    },
+  ], 
+},
+],
   navSecondary: [
     {
       title: "Settings",
       url: "#",
       icon: IconSettings,
+      roles: ["admin"] as Role[],
     },
     {
       title: "Search",
       url: "#",
       icon: IconSearch,
+      roles: ["admin"] as Role[],
     },
   ],
-  // documents: [
-  //   {
-  //     name: "Laporan",
-  //     url: "#",
-  //     icon: IconReport,
-  //   },
-  // ],
+
+  documents: [
+    {
+      name: "Laporan",
+      url: "#",
+      icon: IconReport,
+      roles: ["admin"] as Role[],
+    },
+  ],
 };
 
-export default function AppSidebar({
+type AppSidebarProps = {
+  role: Role; 
+};
+
+export default function AppSidebar({ role,
   ...props
-}: React.ComponentProps<typeof Sidebar>) {
+}: AppSidebarProps & React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -149,8 +191,9 @@ export default function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        {/* <NavDocuments items={data.documents} /> */}
+    
+      <NavMain items={data.navMain} role={role} />
+        <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
 

@@ -3,8 +3,7 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Slot } from "@radix-ui/react-slot";
-import Link from "next/link";
-import { useRouter } from "next/router";
+
 
 interface SidebarGroupProps {
   children: ReactNode;
@@ -92,7 +91,7 @@ interface SidebarMenuButtonProps {
       <Comp
         {...(!asChild ? { href } : {})}
         className={cn(
-          "flex items-center gap-3 rounded-md px-4 py-2 text-sm font-medium transition hover:bg-gray-800 hover:text-white",
+          "flex items-center gap-3 rounded px-4 py-2 font-medium transition hover:bg-gray-800 hover:text-white",
           isActive ? "bg-gray-800 text-white" : "text-gray-300",
           className
         )}
@@ -116,7 +115,7 @@ interface SidebarProps {
 }
 export function Sidebar({ children, className }: SidebarProps) {
   return (
-    <aside className={cn("bg-black text-white w-64 h-screen p-4 overflow-y-auto custom-scrollbar", className)}>
+    <aside className={cn(" text-white w-64 h-screen p-4 overflow-y-auto custom-scrollbar", className)}>
       {children}
     </aside>
   );
@@ -126,7 +125,7 @@ interface SidebarContentProps {
   className?: string;
 }
 export function SidebarContent({ children, className }: SidebarContentProps) {
-  return <div className={cn("flex flex-col gap-6", className)}>{children}</div>;
+  return <div className={cn("flex flex-col gap-4", className)}>{children}</div>;
 }
 interface SidebarFooterProps {
   children: ReactNode;
@@ -148,7 +147,7 @@ interface SidebarMenuSubProps {
 }
 
 export function SidebarMenuSub({ children, className }: SidebarMenuSubProps) {
-  return <div className={cn(" space-y-1", className)}>{children}</div>;
+  return <div className={cn(" space-y-100", className)}>{children}</div>;
 }
 interface SidebarMenuSubButtonProps {
   icon?: ReactNode;

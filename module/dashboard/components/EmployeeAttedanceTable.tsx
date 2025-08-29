@@ -9,26 +9,28 @@ const employeesToday = [
 ];
 
 function getStatusClass(status: string) {
+  const baseClass = "whitespace-nowrap rounded-sm font-medium px-1 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs";
   switch (status) {
     case "Tepat Waktu":
-      return "bg-green-600 text-white px-2 py-1 rounded-sm text-xs font-medium";
+      return `${baseClass} bg-green-600 text-white`;
     case "Terlambat":
-      return "bg-yellow-500 text-white px-2 py-1 rounded-sm text-xs font-medium";
+      return `${baseClass} bg-yellow-500 text-white`;
     case "Tidak Hadir":
-      return "bg-red-600 text-white px-2 py-1 rounded-sm text-xs font-medium";
+      return `${baseClass} bg-red-600 text-white`;
     case "Lembur":
-      return "bg-blue-600 text-white px-2 py-1 rounded-sm text-xs font-medium";
+      return `${baseClass} bg-blue-600 text-white`;
     default:
-      return "bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium";
+      return `${baseClass} bg-gray-100 text-gray-800`;
   }
 }
+
 
 export function EmployeeAttendanceTable() {
   return (
     <Card className="mt-6 p-4 ">
       <h2 className="text-xl font-semibold mb-4 text-gray-800">Data Karyawan Masuk Hari Ini</h2>
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm text-left text-gray-700">
+  <table className="w-full text-sm text-left text-gray-700">
           <thead className="bg-gray-100 text-gray-600 font-semibold">
             <tr>
               <th className="px-4 py-2">No</th>

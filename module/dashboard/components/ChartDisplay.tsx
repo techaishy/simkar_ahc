@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
@@ -13,7 +13,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { useMediaQuery } from "usehooks-ts";
-import MonthYearDropdown from "./DropdownYearMonth";
+import MonthYearDropdown from "../../../components/ui/DropdownYearMonth";
 
 const dataBar = [
   { name: "Jan", tepat: 10, terlambat: 5, tidakHadir: 3 },
@@ -66,11 +66,11 @@ export function ChartDisplay() {
   const [selectedYear, setSelectedYear] = useState("2025");
   const [mounted, setMounted] = useState(false);
 
-useEffect(() => {
-  setMounted(true);
-}, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-if (!mounted) return null;
+  if (!mounted) return null;
 
   const handleFilterChange = (month: string, year: string) => {
     setSelectedMonth(month);
@@ -81,19 +81,23 @@ if (!mounted) return null;
 
   const filteredData = isMobile
     ? dataBar.filter((d) => d.name === selectedMonthShort)
-    : dataBar;
+    : dataBar.filter((d) => true); // desktop: tampilkan semua bulan
 
   const formatXAxisLabel = (value: string) =>
     isMobile ? fullMonthMap[value] || value : value;
 
   return (
     <div className="w-full space-y-4">
-      {isMobile && <MonthYearDropdown onChange={handleFilterChange} />}
+      {/* Dropdown */}
+      <MonthYearDropdown
+        onChange={handleFilterChange}
+        showMonth={isMobile} // hanya mobile tampilkan bulan
+      />
 
       <Card className="w-full bg-white p-4 rounded-xl shadow-md">
         <h2 className="text-center text-xl font-semibold text-gray-800 mb-2">
           Statistik Kehadiran{" "}
-          {isMobile ? `${selectedMonth} ${selectedYear}` : "Tahunan"}
+          {isMobile ? `${selectedMonth} ${selectedYear}` : `Tahun ${selectedYear}`}
         </h2>
 
         <div className="w-full h-[260px] sm:h-[320px] md:h-[400px]">

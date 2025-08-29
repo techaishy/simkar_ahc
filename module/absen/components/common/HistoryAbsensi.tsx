@@ -1,9 +1,10 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import Image from "next/image";
+import Breadcrumbs from "@/components/ui/breadcrumb";
 
 type Absensi = {
   tanggal: string;
@@ -70,9 +71,11 @@ export default function HistoryAbsensi() {
 
   return (
     <div className="p-4 space-y-4">
-      <h2 className="text-xl font-bold text-gray-800">Presensi / History</h2>
+      <div className="p-6 font-semibold">
+      <Breadcrumbs />
+    </div>
 
-      <ScrollArea className="h-[400px] pr-2">
+      {/* <ScrollArea className="h-[400px] pr-2"> */}
         <div className="space-y-3">
           {riwayatAbsensi.map((absen, index) => (
             <Card key={index} className="p-4 shadow-md space-y-1">
@@ -107,7 +110,7 @@ export default function HistoryAbsensi() {
             </Card>
           ))}
         </div>
-      </ScrollArea>
+      {/* </ScrollArea> */}
 
       {/* Modal Preview Image */}
       {selectedImage && (

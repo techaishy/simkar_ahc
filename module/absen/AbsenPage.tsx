@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { UserInfoCard } from "./components/common/UserInfoCard";
-import { RingkasanHariIni } from "./components/common/Ringkasan";
 import { AbsensiButtons } from "./components/common/AbsenButton";
 import MetodeAbsensiModal from "./components/common/MetodeAbsenModal";
-import AbsensiCamera from "./components/camera/AbsenCamera";
-import AbsensiBarcode from "./components/barcode/BarcodeScanner";
 import AbsensiManual from "./components/manual/AbsenFormManual";
+import dynamic from "next/dynamic";
 
-export default function AbsensiPage() {
+const AbsensiCamera = dynamic(() => import("./components/camera/AbsenCamera"), {
+  ssr: false,
+});
+const AbsensiBarcode = dynamic(
+  () => import("./components/barcode/BarcodeScanner"),
+  { ssr: false }
+);
+
+export default function AbsensiClient() {
   const [showModal, setShowModal] = useState(false);
   const [tipeAbsen, setTipeAbsen] = useState<"masuk" | "pulang" | null>(null);
   const [method, setMethod] = useState<"selfie" | "barcode" | "manual" | null>(
@@ -27,12 +32,7 @@ export default function AbsensiPage() {
   };
 
   return (
-    <div className="w-full h-full mx-auto p-4 space-y-6 bg-white min-h-screen">
-          <div className=" top-0 z-20 bg-white shadow-sm px-0 py-1">
-          <h2 className="text-xl font-bold text-gray-800"> Presensi / Absen</h2>
-    </div>
-      <UserInfoCard />
-
+    <>
       {/* Tombol Absen */}
       <AbsensiButtons onAbsenClick={handleAbsenClick} />
 
@@ -46,14 +46,15 @@ export default function AbsensiPage() {
       )}
 
       {/* Form berdasarkan metode */}
-      {method === "selfie" && <AbsensiCamera tipe={tipeAbsen} onClose={() => setMethod(null)} />}
-      {method === "barcode" && <AbsensiBarcode tipe={tipeAbsen} onClose={() => setMethod(null)}/>}
-      {method === "manual" && tipeAbsen !== null && (
-  <AbsensiManual tipe={tipeAbsen} onClose={() => setMethod(null)} />
-)}
-
-      <RingkasanHariIni />
-    </div>
+      {method === "selfie" && (
+        <AbsensiCamera tipe={tipeAbsen} onClose={() => setMethod(null)} />
+      )}
+      {method === "barcode" && (
+        <AbsensiBarcode tipe={tipeAbsen} onClose={() => setMethod(null)} />
+      )}
+      {method === "manual" && tipeAbsen && (
+        <AbsensiManual tipe={tipeAbsen} onClose={() => setMethod(null)} />
+      )}
+    </>
   );
 }
-

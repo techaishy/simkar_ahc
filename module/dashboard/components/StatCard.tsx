@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -8,7 +8,7 @@ interface StatCardProps {
   value: number | string;
   label: string;
   className?: string;
-  bgColor?: string; 
+  bgColor?: string;
 }
 
 export default function StatCard({
@@ -16,7 +16,7 @@ export default function StatCard({
   value,
   label,
   className,
-  bgColor = "bg-green-600", 
+  bgColor = "bg-green-600",
 }: StatCardProps) {
   return (
     <div

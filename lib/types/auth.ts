@@ -1,0 +1,1 @@
+export type Role = "admin" | "teknisi" | "manager" | "owner";
