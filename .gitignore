@@ -15,7 +15,9 @@
 
 # next.js
 /.next/
+dist/
 /out/
+
 
 # production
 /build
@@ -32,6 +34,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+.env.*.local
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
 
 # vercel
 .vercel
@@ -39,3 +46,29 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/generated/prisma
+
+prisma/dev.db
+prisma/dev.sqlite
+prisma/migrations/
+prisma/*
+!/prisma/schema.prisma
+
+.DS_Store
+*.log
+*-lock.yaml
+*.tsbuildinfo
+
+Supabase CLI 
+.supabase/
+*.tsbuildinfo
+
+*.sql
+*.sqlite
+*.dump
+
+at-absensi
+
+/src/data/*
+!/src/data/menu-items.ts

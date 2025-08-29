@@ -44,11 +44,11 @@ export default function Login() {
       if (role === "admin") {
         window.location.href = "/admin/dashboard";
       } else if (role === "teknisi") {
-        window.location.href = "/admin/absen"; // redirect teknisi ke halaman absen
+        window.location.href = "/admin/absen"; 
       } else if (role === "manager") {
-        window.location.href = "/admin/dashboard"; // contoh role manager
+        window.location.href = "/admin/dashboard"; 
       } else {
-        window.location.href = "/"; // fallback untuk role lain
+        window.location.href = "/"; 
       }
     } else {
       alert("Login gagal: Periksa email atau password.");
