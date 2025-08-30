@@ -13,48 +13,19 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { PersonIcon, LockIcon, CalenderIcon } from "@/components/icon/login";
-import { signIn, getSession} from "next-auth/react";
-
 
 type LoginFormData = {
-  email: string;
+  username: string; // field username, placeholder tetap "Email"
   password: string;
 };
 
 export default function Login() {
   const form = useForm<LoginFormData>({
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
-
-  const onSubmit = async (data: LoginFormData) => {
-    const res = await signIn("credentials", {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
-
-    if (res?.ok) {
-      // Ambil session user setelah login
-      const session = await getSession();
-      const role = session?.user?.role;
-    
-      if (role === "admin") {
-        window.location.href = "/admin/dashboard";
-      } else if (role === "teknisi") {
-        window.location.href = "/admin/absen"; 
-      } else if (role === "manager") {
-        window.location.href = "/admin/dashboard"; 
-      } else {
-        window.location.href = "/"; 
-      }
-    } else {
-      alert("Login gagal: Periksa email atau password.");
-    }
-    
-  };
 
   const [isClient, setIsClient] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -85,17 +56,43 @@ export default function Login() {
       year: "numeric",
     });
 
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const json = await res.json();
+
+      if (res.ok) {
+        // Redirect sesuai role
+        const role = json.user.role;
+        if (role === "ADMIN" || role === "MANAJER" || role === "OWNER") {
+          window.location.href = "/admin/dashboard";
+        } else if (role === "TEKNISI") {
+          window.location.href = "/admin/absen";
+        } else {
+          window.location.href = "/";
+        }
+      } else {
+        alert(json.message || "Login gagal");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan saat login");
+    }
+  };
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-gray-700 via-gray-900 to-black relative">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,215,0,0.08),transparent_60%)]"></div>
+
       {/* CARD */}
       <div className="relative flex flex-col md:flex-row w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl z-10">
         {/* Panel Kiri */}
-        <div
-          className="md:w-1/2 bg-gradient-to-br from-black via-gray-950 to-gray-800 flex flex-col 
-     items-start md:items-center justify-start md:justify-center 
-     p-8 text-left md:text-center text-white"
-        >
+        <div className="md:w-1/2 bg-gradient-to-br from-black via-gray-950 to-gray-800 flex flex-col items-start md:items-center justify-start md:justify-center p-8 text-left md:text-center text-white">
           <div className="flex-1 flex flex-col gap-4 mb-8 sm:mb-0 items-start justify-start sm:justify-center">
             <div className="flex items-center space-x-2 sm:space-x-3">
               <Image
@@ -128,19 +125,15 @@ export default function Login() {
             </h2>
 
             <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-5"
-              >
-                {/* Email */}
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                {/* Username (placeholder Email) */}
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex items-center border border-gray-950 rounded-lg px-3">
                         <PersonIcon />
-
                         <FormControl>
                           <Input
                             className="border-0 focus:ring-0 text-black placeholder:text-gray-500"
@@ -162,7 +155,6 @@ export default function Login() {
                     <FormItem>
                       <div className="flex items-center border border-gray-950 rounded-lg px-3">
                         <LockIcon />
-
                         <FormControl>
                           <Input
                             className="border-0 focus:ring-0 text-black placeholder:text-gray-500"
@@ -177,7 +169,6 @@ export default function Login() {
                   )}
                 />
 
-                {/* Tombol Login */}
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-[#d2e67a] to-[#f9fc4f] text-black font-semibold py-2 rounded-lg shadow hover:bg-black hover:text-white hover:opacity-90 transition"
