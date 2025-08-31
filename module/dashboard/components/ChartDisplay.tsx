@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
@@ -14,21 +14,6 @@ import {
 } from "recharts";
 import { useMediaQuery } from "usehooks-ts";
 import MonthYearDropdown from "../../../components/ui/DropdownYearMonth";
-
-const dataBar = [
-  { name: "Jan", tepat: 10, terlambat: 5, tidakHadir: 3 },
-  { name: "Feb", tepat: 12, terlambat: 2, tidakHadir: 5 },
-  { name: "Mar", tepat: 8, terlambat: 6, tidakHadir: 4 },
-  { name: "Apr", tepat: 20, terlambat: 3, tidakHadir: 1 },
-  { name: "Mei", tepat: 15, terlambat: 2, tidakHadir: 0 },
-  { name: "Juni", tepat: 10, terlambat: 8, tidakHadir: 2 },
-  { name: "Juli", tepat: 9, terlambat: 3, tidakHadir: 7 },
-  { name: "Agst", tepat: 11, terlambat: 5, tidakHadir: 4 },
-  { name: "Sept", tepat: 14, terlambat: 4, tidakHadir: 2 },
-  { name: "Okt", tepat: 17, terlambat: 1, tidakHadir: 2 },
-  { name: "Nov", tepat: 13, terlambat: 3, tidakHadir: 1 },
-  { name: "Des", tepat: 19, terlambat: 5, tidakHadir: 2 },
-];
 
 const monthNameMap: Record<string, string> = {
   Januari: "Jan",
@@ -66,8 +51,23 @@ export function ChartDisplay() {
   const [selectedYear, setSelectedYear] = useState("2025");
   const [mounted, setMounted] = useState(false);
 
+  const [dataBar, setDataBar] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     setMounted(true);
+    async function fetchStats() {
+      try {
+        const res = await fetch("/api/attendance/stats");
+        const data = await res.json();
+        setDataBar(data);
+      } catch (err) {
+        console.error("Failed to fetch stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
   }, []);
 
   if (!mounted) return null;
@@ -81,7 +81,7 @@ export function ChartDisplay() {
 
   const filteredData = isMobile
     ? dataBar.filter((d) => d.name === selectedMonthShort)
-    : dataBar.filter((d) => true); // desktop: tampilkan semua bulan
+    : dataBar;
 
   const formatXAxisLabel = (value: string) =>
     isMobile ? fullMonthMap[value] || value : value;
@@ -89,10 +89,7 @@ export function ChartDisplay() {
   return (
     <div className="w-full space-y-4">
       {/* Dropdown */}
-      <MonthYearDropdown
-        onChange={handleFilterChange}
-        showMonth={isMobile} // hanya mobile tampilkan bulan
-      />
+      <MonthYearDropdown onChange={handleFilterChange} showMonth={isMobile} />
 
       <Card className="w-full bg-white p-4 rounded-xl shadow-md">
         <h2 className="text-center text-xl font-semibold text-gray-800 mb-2">
@@ -101,43 +98,49 @@ export function ChartDisplay() {
         </h2>
 
         <div className="w-full h-[260px] sm:h-[320px] md:h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={filteredData}
-              margin={{ top: 10, right: 20, left: 10, bottom: 30 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="name"
-                tickFormatter={formatXAxisLabel}
-                angle={isMobile ? 0 : -30}
-                textAnchor={isMobile ? "middle" : "end"}
-                dy={10}
-                tick={{ fontSize: isMobile ? 12 : 14 }}
-              />
-              <YAxis tick={{ fontSize: isMobile ? 12 : 14 }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-              />
-              <Legend
-                verticalAlign="top"
-                height={36}
-                wrapperStyle={{
-                  fontSize: 12,
-                  marginTop: -10,
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              />
-              <Bar dataKey="tepat" fill="#34D399" name="Tepat Waktu" />
-              <Bar dataKey="terlambat" fill="#FBBF24" name="Terlambat" />
-              <Bar dataKey="tidakHadir" fill="#EF4444" name="Tidak Hadir" />
-            </BarChart>
-          </ResponsiveContainer>
+          {loading ? (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              Loading chart...
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={filteredData}
+                margin={{ top: 10, right: 20, left: 10, bottom: 30 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="name"
+                  tickFormatter={formatXAxisLabel}
+                  angle={isMobile ? 0 : -30}
+                  textAnchor={isMobile ? "middle" : "end"}
+                  dy={10}
+                  tick={{ fontSize: isMobile ? 12 : 14 }}
+                />
+                <YAxis tick={{ fontSize: isMobile ? 12 : 14 }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#fff",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                />
+                <Legend
+                  verticalAlign="top"
+                  height={36}
+                  wrapperStyle={{
+                    fontSize: 12,
+                    marginTop: -10,
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                />
+                <Bar dataKey="hadir" fill="#34D399" name="Tepat Waktu" />
+                <Bar dataKey="terlambat" fill="#FBBF24" name="Terlambat" />
+                <Bar dataKey="tidakHadir" fill="#EF4444" name="Tidak Hadir" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </Card>
     </div>
