@@ -15,15 +15,18 @@ export default function PegawaiPage() {
         console.log("Hapus data dengan id:", id);
         alert("Hapus data ID: " + id);
       };
+
+    
   return (
     <div className="p-4 text-black space-y-4">
        <div className="p-4 font-semibold">
       <Breadcrumbs />
+      
     </div>
       
   
         <DataPegawaiTable onEdit={handleEdit} onDelete={handleDelete}/>
-
+     
     </div>
   )
 }
