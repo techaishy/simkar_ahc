@@ -29,7 +29,7 @@ export async function GET(req: Request) {
     
     attendances.forEach((a: typeof attendances[number]) => {
       try {
-        const monthIdx = getMonthWIB(new Date(a.date)) // return 0–11
+        const monthIdx = getMonthWIB(new Date(a.date)) 
         if (a.statusMasuk === 'TEPAT_WAKTU') stats[monthIdx].hadir++
         else if (a.statusMasuk === 'TERLAMBAT') stats[monthIdx].terlambat++
         else if (a.statusMasuk === 'TIDAK_HADIR') stats[monthIdx].tidakHadir++
@@ -38,7 +38,6 @@ export async function GET(req: Request) {
       }
     })
 
-    // format data ke array
     const data = Object.keys(stats).map(k => ({
       name: new Date(0, Number(k)).toLocaleString("id", { month: "short" }),
       ...stats[Number(k)]
