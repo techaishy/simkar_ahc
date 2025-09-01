@@ -21,7 +21,7 @@ export async function GET() {
       },
     })
    
-    const data = attendances.map(a => ({
+    const data = attendances.map((a: typeof attendances[number]) => ({
       id: a.id_at,
       name: a.user.karyawan?.name ?? "-",
       department: a.user.karyawan?.department ?? "-",
