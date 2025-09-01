@@ -27,7 +27,7 @@ export async function GET(req: Request) {
     const stats: Record<number, { hadir: number; terlambat: number; tidakHadir: number }> = {}
     for (let m = 0; m < 12; m++) stats[m] = { hadir: 0, terlambat: 0, tidakHadir: 0 }
     
-    attendances.forEach(a => {
+    attendances.forEach((a: typeof attendances[number]) => {
       try {
         const monthIdx = getMonthWIB(new Date(a.date)) // return 0–11
         if (a.statusMasuk === 'TEPAT_WAKTU') stats[monthIdx].hadir++
