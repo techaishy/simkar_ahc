@@ -21,10 +21,10 @@ const monthNameMap: Record<string, string> = {
   Maret: "Mar",
   April: "Apr",
   Mei: "Mei",
-  Juni: "Juni",
-  Juli: "Juli",
+  Juni: "Jun",
+  Juli: "Jul",
   Agustus: "Agst",
-  September: "Sept",
+  September: "Sep",
   Oktober: "Okt",
   November: "Nov",
   Desember: "Des",
@@ -36,10 +36,10 @@ const fullMonthMap: Record<string, string> = {
   Mar: "Maret",
   Apr: "April",
   Mei: "Mei",
-  Juni: "Juni",
-  Juli: "Juli",
+  Jun: "Juni",
+  Jul: "Juli",
   Agst: "Agustus",
-  Sept: "September",
+  Sep: "September",
   Okt: "Oktober",
   Nov: "November",
   Des: "Desember",
@@ -47,8 +47,17 @@ const fullMonthMap: Record<string, string> = {
 
 export function ChartDisplay() {
   const isMobile = useMediaQuery("(max-width: 1023px)");
-  const [selectedMonth, setSelectedMonth] = useState("Januari");
-  const [selectedYear, setSelectedYear] = useState("2025");
+  const monthNames = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ];
+
+  const today = new Date();
+  const currentMonth = monthNames[today.getMonth()];
+  const currentYear = String(today.getFullYear());
+
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
   const [mounted, setMounted] = useState(false);
 
   const [dataBar, setDataBar] = useState<any[]>([]);
@@ -58,7 +67,13 @@ export function ChartDisplay() {
     setMounted(true);
     async function fetchStats() {
       try {
-        const res = await fetch("/api/attendance/stats");
+        const monthIndex = monthNames.indexOf(selectedMonth) + 1; 
+        const url = isMobile
+          ? `/api/attendance/stats?month=${monthIndex}&year=${selectedYear}`
+          : `/api/attendance/stats?year=${selectedYear}`;
+
+        setLoading(true);
+        const res = await fetch(url);
         const data = await res.json();
         setDataBar(data);
       } catch (err) {
@@ -68,7 +83,7 @@ export function ChartDisplay() {
       }
     }
     fetchStats();
-  }, []);
+  }, [selectedMonth, selectedYear, isMobile]); 
 
   if (!mounted) return null;
 
@@ -76,12 +91,6 @@ export function ChartDisplay() {
     setSelectedMonth(month);
     setSelectedYear(year);
   };
-
-  const selectedMonthShort = monthNameMap[selectedMonth];
-
-  const filteredData = isMobile
-    ? dataBar.filter((d) => d.name === selectedMonthShort)
-    : dataBar;
 
   const formatXAxisLabel = (value: string) =>
     isMobile ? fullMonthMap[value] || value : value;
@@ -105,7 +114,7 @@ export function ChartDisplay() {
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={filteredData}
+                data={dataBar}
                 margin={{ top: 10, right: 20, left: 10, bottom: 30 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />

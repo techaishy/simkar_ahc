@@ -22,7 +22,7 @@ export async function GET() {
     }
   });
 
-    const karyawan: KaryawanProfile[] = karyawanRaw.map(k => ({
+    const karyawan: KaryawanProfile[] = karyawanRaw.map((k: any) => ({
       id: k.id,
       customId: k.customId,
       name: k.name,
