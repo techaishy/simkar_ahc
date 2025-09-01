@@ -67,7 +67,8 @@ model Attendance {
   date         DateTime
   clockIn      String?
   clockOut     String?
-  status       AttendanceStatus
+  statusMasuk   AttendanceMasuk
+  statusPulang  AttendancePulang
   photoIn      String?
   photoOut     String?
   latitude     Float?
@@ -186,8 +187,15 @@ enum UserStatus {
   DITANGGUHKAN
 }
 
-enum AttendanceStatus {
+enum AttendanceMasuk {
   TEPAT_WAKTU
   TERLAMBAT
   TIDAK_HADIR
 }
+
+enum AttendancePulang {
+  TEPAT_WAKTU
+  PULANG_CEPAT
+  TIDAK_HADIR
+}
+
