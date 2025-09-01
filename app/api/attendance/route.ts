@@ -22,7 +22,8 @@ export async function GET() {
     }
   });
 
-    const karyawan: KaryawanProfile[] = karyawanRaw.map((k: typeof karyawanRaw[number]) => ({
+   const karyawan: KaryawanProfile[] = karyawanRaw.map(
+    (k: typeof karyawanRaw[number]) => ({
       id: k.id,
       customId: k.customId,
       name: k.name,
@@ -30,8 +31,8 @@ export async function GET() {
       position: k.position,
       joinDate: k.joinDate,
       status: k.status,
-    }));
-
+    })
+  );
 
     // Ambil presensi hari ini
     const today = new Date().toISOString().split('T')[0];
