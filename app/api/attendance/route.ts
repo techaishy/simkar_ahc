@@ -53,26 +53,30 @@ export async function GET() {
       orderBy: { date: 'desc' }
     });
 
-    const attendance: AttendanceRecord[] = attendanceRaw.map(a => ({
-      id_at: a.id_at,
-      userId: a.userId,
-      date: a.date.toISOString(),
-      clockIn: a.clockIn ?? null,
-      clockOut: a.clockOut ?? null,
-      statusMasuk: a.statusMasuk,
-      statusPulang:a.statusPulang,
-      karyawan: a.user?.karyawan ? {
-        id: a.user.customId ?? a.user.id,
-        customId: a.user.customId ?? a.user.id,
-        name: a.user.karyawan.name,
-        department: a.user.karyawan.department,
-        position: a.user.karyawan.position,
-        joinDate: a.user.karyawan.joinDate,
-        status: a.user.karyawan.status,
-      } : null,
-      photoIn: a.photoIn ?? '/images/placeholder-user.jpg',
-      photoOut: a.photoOut ?? '/images/placeholder-user.jpg'
-    }));
+    const attendance: AttendanceRecord[] = attendanceRaw.map(
+      (a: typeof attendanceRaw[number]) => ({
+        id_at: a.id_at,
+        userId: a.userId,
+        date: a.date.toISOString(),
+        clockIn: a.clockIn ?? null,
+        clockOut: a.clockOut ?? null,
+        statusMasuk: a.statusMasuk,
+        statusPulang: a.statusPulang,
+        karyawan: a.user?.karyawan
+          ? {
+              id: a.user.customId ?? a.user.id,
+              customId: a.user.customId ?? a.user.id,
+              name: a.user.karyawan.name,
+              department: a.user.karyawan.department,
+              position: a.user.karyawan.position,
+              joinDate: a.user.karyawan.joinDate,
+              status: a.user.karyawan.status,
+            }
+          : null,
+        photoIn: a.photoIn ?? '/images/placeholder-user.jpg',
+        photoOut: a.photoOut ?? '/images/placeholder-user.jpg',
+      })
+    );
 
     return NextResponse.json({ karyawan, attendance });
   } catch (err) {
