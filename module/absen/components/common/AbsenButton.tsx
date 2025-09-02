@@ -3,15 +3,24 @@ import { IconLogin, IconLogout } from "@tabler/icons-react";
 
 type Props = {
   onAbsenClick: (tipe: "masuk" | "pulang") => void;
+  enableClockIn?: boolean;
+  enableClockOut?: boolean;
 };
 
-export const AbsensiButtons = ({ onAbsenClick }: Props) => {
+export const AbsensiButtons = ({
+  onAbsenClick,
+  enableClockIn = true,
+  enableClockOut = true,
+}: Props) => {
   return (
-    <Card className="w-full space-y-6 p-7">
+    <Card className="w-full max-w-4xl mx-auto p-7">
       <div className="flex flex-col md:flex-row gap-6">
         <button
           onClick={() => onAbsenClick("masuk")}
-          className="bg-black text-white p-6 rounded-xl shadow-lg hover:bg-gray-900 flex items-center gap-6 flex-1 min-h-[120px]"
+          disabled={!enableClockIn}
+          className={`${
+            enableClockIn ? "bg-black hover:bg-gray-900" : "bg-gray-400 cursor-not-allowed"
+          } text-white p-6 rounded-xl shadow-lg flex items-center gap-6 flex-1 min-h-[120px]`}
         >
           <IconLogin size={40} />
           <div className="text-left">
@@ -21,7 +30,10 @@ export const AbsensiButtons = ({ onAbsenClick }: Props) => {
         </button>
         <button
           onClick={() => onAbsenClick("pulang")}
-          className="bg-black text-white p-6 rounded-xl shadow-lg hover:bg-gray-900 flex items-center gap-6 flex-1 min-h-[120px]"
+          disabled={!enableClockOut}
+          className={`${
+            enableClockOut ? "bg-black hover:bg-gray-900" : "bg-gray-400 cursor-not-allowed"
+          } text-white p-6 rounded-xl shadow-lg flex items-center gap-6 flex-1 min-h-[120px]`}
         >
           <IconLogout size={40} />
           <div className="text-left">
@@ -33,4 +45,3 @@ export const AbsensiButtons = ({ onAbsenClick }: Props) => {
     </Card>
   );
 };
-

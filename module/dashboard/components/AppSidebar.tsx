@@ -27,7 +27,7 @@ import NavSecondary from "@/module/dashboard/components/NavSecondary";
 import Logo from "@/components/ui/logo";
 import { BuildingOfficeIcon } from "@heroicons/react/24/outline";
 import {NavDocuments} from "@/module/dashboard/components/NavDocuments";
-import { Role } from "@/lib/types/auth";
+import { UserRole } from "@/lib/types/user";
 
 
 const data = {
@@ -40,7 +40,7 @@ const data = {
       title: "Dashboard",
       url: "/admin/dashboard",
       icon: IconDashboard,
-      roles: ["admin", "manager", "owner"] as Role[],
+      roles: ["ADMIN", "MANAJER", "OWNER"] as UserRole[],
     },
     {
       title: "Presensi",
@@ -51,13 +51,13 @@ const data = {
           title: "Absen",
           url: "/admin/absen",
           icon: "",
-          roles: ["admin", "teknisi", "manager"] as Role[],
+          roles: ["ADMIN", "TEKNISI", "MANAJER"] as UserRole[],
         },
         {
           title: "History",
           url: "/admin/absen/history",
           icon: "",
-          roles: ["admin", "teknisi", "manager"] as Role[],
+          roles: ["ADMIN", "TEKNISI", "MANAJER"] as UserRole[],
         },
       ],
     },
@@ -65,19 +65,19 @@ const data = {
       title: "Riwayat Absensi",
       url: "/admin/riwayat_absensi",
       icon: IconChartBar,
-      roles: ["admin", "owner", "manager"] as Role[],
+      roles: ["ADMIN", "OWNER", "MANAJER"] as UserRole[],
     },
     {
       title: "Surat Keluar",
       url: "#",
       icon: IconFolder,
-      roles: ["admin", "owner", "manager"] as Role[],
+      roles: ["ADMIN", "OWNER", "MANAJER"] as UserRole[],
     },
     {
       title: "Pegawai",
       url: "/admin/pegawai",
       icon: IconUsers,
-      roles: ["admin"] as Role[],
+      roles: ["ADMIN"] as UserRole[],
     },
     {
       title: "Inventory",
@@ -88,13 +88,13 @@ const data = {
           title: "Alat Kalibrasi",
           url: "#",
           icon: "",
-          roles: ["admin", "teknisi", "manager", "owner"] as Role[],
+          roles: ["ADMIN", "TEKNISI", "MANAJER", "OWNER"] as UserRole[],
         },
         {
           title: "Sparepart",
           url: "#",
           icon: "",
-          roles: ["admin", "teknisi"] as Role[],
+          roles: ["ADMIN", "TEKNISI"] as UserRole[],
         },
       ],
     },
@@ -108,13 +108,13 @@ const data = {
       title: "Wilayah Kerja",
       url: "#",
       icon: "",
-      roles: ["admin", "manager"] as Role[],
+      roles: ["ADMIN", "MANAJER"] as UserRole[],
     },
     {
       title: "Data Alat",
       url: "#",
       icon: "",
-      roles: ["admin", "manager"] as Role[],
+      roles: ["ADMIN", "MANAJER"] as UserRole[],
     },
   ], 
 },
@@ -124,13 +124,13 @@ const data = {
       title: "Settings",
       url: "#",
       icon: IconSettings,
-      roles: ["admin"] as Role[],
+      roles: ["ADMIN"] as UserRole[],
     },
     {
       title: "Search",
       url: "#",
       icon: IconSearch,
-      roles: ["admin"] as Role[],
+      roles: ["ADMIN"] as UserRole[],
     },
   ],
 
@@ -139,13 +139,13 @@ const data = {
       name: "Laporan",
       url: "#",
       icon: IconReport,
-      roles: ["admin"] as Role[],
+      roles: ["ADMIN"] as UserRole[],
     },
   ],
 };
 
 type AppSidebarProps = {
-  role: Role; 
+  role: UserRole; 
 };
 
 export default function AppSidebar({ role,

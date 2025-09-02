@@ -9,10 +9,11 @@ import {
 
 type Props = {
   onClose: () => void;
-  onScanSuccess: (code: string) => void;
+  tipe: "masuk" | "pulang";
+  onSubmit: (fotoOrData?: any) => Promise<void>;
 };
 
-export default function BarcodeCard({ onClose, onScanSuccess }: Props) {
+export default function BarcodeCard({ onClose, tipe, onSubmit }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [scannedCode, setScannedCode] = useState<string | null>(null);
   const scannerRef = useRef<any>(null);
@@ -23,9 +24,7 @@ export default function BarcodeCard({ onClose, onScanSuccess }: Props) {
 
     const startScanner = async () => {
       try {
-        const { Html5Qrcode, Html5QrcodeScannerState } = await import(
-          "html5-qrcode"
-        );
+        const { Html5Qrcode } = await import("html5-qrcode");
 
         const devices = await Html5Qrcode.getCameras();
         if (!isMounted) return;
@@ -40,14 +39,16 @@ export default function BarcodeCard({ onClose, onScanSuccess }: Props) {
 
         await scanner.start(
           { facingMode: "environment" },
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-          },
-          (decodedText: string) => {
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          async (decodedText: string) => {
             if (isMounted && !scannedCode) {
               setScannedCode(decodedText);
-              onScanSuccess(decodedText);
+              try {
+                await onSubmit({ code: decodedText });
+              } catch (err) {
+                console.error("Gagal submit presensi:", err);
+                setError("Gagal submit presensi.");
+              }
               scanner.stop().then(() => scanner.clear());
             }
           },
@@ -75,7 +76,7 @@ export default function BarcodeCard({ onClose, onScanSuccess }: Props) {
           .catch(() => {});
       }
     };
-  }, [onScanSuccess, scannedCode]);
+  }, [onSubmit, scannedCode]);
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -90,7 +91,7 @@ export default function BarcodeCard({ onClose, onScanSuccess }: Props) {
         <div className="flex items-center justify-center gap-2 mb-4">
           <CameraIcon className="h-6 w-6 text-gray-700" />
           <h2 className="text-lg font-semibold text-gray-800 text-center">
-            Scan Barcode
+            Scan Barcode ({tipe})
           </h2>
         </div>
 
