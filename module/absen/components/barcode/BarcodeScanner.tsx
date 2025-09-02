@@ -6,19 +6,23 @@ import BarcodeCard from "./BarcodeCard";
 type Props = {
   onClose: () => void;
   tipe: "masuk" | "pulang" | null;
+  onSubmit: (fotoOrData?: any) => Promise<void>;
 };
 
-export default function AbsensiBarcode({ onClose, tipe }: Props) {
+export default function AbsensiBarcode({ onClose, tipe, onSubmit }: Props) {
   const [hasil, setHasil] = useState<string | null>(null);
+
+  if (!tipe) return null;
 
   return (
     <div className="p-4 space-y-4">
       <BarcodeCard
         onClose={onClose}
-        onScanSuccess={(code) => {
-          setHasil(code);
-          alert(`Berhasil scan barcode untuk absen ${tipe}: ${code}`);
-          onClose(); 
+        tipe={tipe}
+        onSubmit={async (data) => {
+          setHasil(data?.code || null);
+          await onSubmit(data);
+          onClose();
         }}
       />
     </div>
