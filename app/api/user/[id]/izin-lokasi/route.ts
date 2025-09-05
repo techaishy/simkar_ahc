@@ -2,19 +2,19 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { nowWIB, startOfDayWIB, endOfDayWIB } from "@/lib/timezone";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-
-    const user = await prisma.user.findUnique({
-      where: { customId: params.id },
-      include: { kantor: true },
-    });
-
-    if (!user)
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+  export async function GET(
+    req: Request,
+    context: { params: { id: string } }  
+  ) {
+    const { params } = context;           
+    try {
+      const user = await prisma.user.findUnique({
+        where: { customId: params.id },
+        include: { kantor: true },
+      });
+      if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
 
     const now = nowWIB();
     const startOfDay = startOfDayWIB(now);

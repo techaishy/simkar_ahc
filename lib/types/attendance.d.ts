@@ -7,7 +7,7 @@ export interface AttendanceRecord {
   clockIn?: string | null;
   clockOut?: string | null;
   statusMasuk:AttendanceMasuk;
-  statusPulang:AttendancePulang;
+  statusPulang?:AttendancePulang;
   kantorId?: string | null; 
   lokasiId?: string | null;
 

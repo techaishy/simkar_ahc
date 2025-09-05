@@ -2,14 +2,17 @@
 
 import { useRef, useState, useEffect } from "react";
 import { CameraIcon, XMarkIcon,  ArrowPathIcon } from "@heroicons/react/24/outline";
+import { formatTimeWIB, nowWIB, formatDateTimeWIB } from "@/lib/timezone";
 
 type Props = {
+  userId: string;  
   onClose: () => void;
   tipe: "masuk" | "pulang";
-  onSubmit: (fotoOrData?: any) => Promise<void>;
+  onSubmit?: (fotoOrData?: any) => Promise<void>;
+  onSubmitSuccess?: () => void;
 };
 
-export default function CameraCard({ onClose, tipe, onSubmit }: Props) {
+export default function CameraCard({userId, onClose, tipe, onSubmit }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,10 +93,7 @@ export default function CameraCard({ onClose, tipe, onSubmit }: Props) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Jika selfie, balik horizontal
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // Tambahkan lokasi & timestamp
     const now = new Date();
     const timestamp = now.toLocaleString("id-ID", {
       year: "numeric",
@@ -135,34 +135,41 @@ export default function CameraCard({ onClose, tipe, onSubmit }: Props) {
   };
 
   const handleSubmit = async () => {
-    if (!photo || !location) {
-      setError("Foto atau lokasi tidak tersedia.");
-      return;
-    }
-    try {
-      const res = await fetch("/api/presensi/attendance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clockIn: tipe === "masuk" ? new Date().toISOString() : null,
-          clockOut: tipe === "pulang" ? new Date().toISOString() : null,
-          photoIn: tipe === "masuk" ? photo : null,
-          photoOut: tipe === "pulang" ? photo : null,
-          latitude: location.lat,
-          longitude: location.lng,
-          location: locationName,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Gagal submit presensi");
-      alert(`✅ Presensi ${tipe} berhasil`);
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert(`❌ Gagal submit: ${(err as Error).message}`);
-    }
-  };
+  if (!photo || !location) {
+    setError("Foto atau lokasi tidak tersedia.");
+    return;
+  }
+  try {
+    const payload = {
+      userId,
+      date: new Date().toISOString(),
+      clockIn: tipe === "masuk" ? formatTimeWIB(nowWIB(), "HH:mm:ss") : null,
+      clockOut: tipe === "pulang" ? formatTimeWIB(nowWIB(), "HH:mm:ss") : null,
+      photoIn: tipe === "masuk" ? photo : null,
+      photoOut: tipe === "pulang" ? photo : null,
+      latitude: location.lat,
+      longitude: location.lng,
+      location: locationName,
+    };
 
+    console.log("📤 Data yang akan dikirim:", payload);
+
+    const res = await fetch("/api/presensi/attendance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    console.log("📥 Response dari API:", data);
+    if (!res.ok) throw new Error(data.error || "Gagal submit presensi");
+    alert(`✅ Presensi ${tipe} berhasil`);
+    onClose();
+  } catch (err) {
+    console.error(err);
+    alert(`❌ Gagal submit: ${(err as Error).message}`);
+  }
+};
   useEffect(() => {
     startCamera();
     requestLocation();

@@ -8,8 +8,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MapContainer, TileLayer, Marker, useMapEvents, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 type Props = {
   onClose: () => void;
@@ -45,19 +45,28 @@ export default function ManualCard({ onClose, tipe, onSubmit }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
+  const [isClient, setIsClient] = useState(false);
+
   const filteredPegawai = pegawaiList.filter((p) =>
     p.nama.toLowerCase().includes(nama.toLowerCase())
   );
 
+  const [position, setPosition] = useState<[number, number]>([-6.2, 106.816666]);
+
+  // Set client-only state & geolocation
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const lat = pos.coords.latitude.toFixed(6);
-        const lon = pos.coords.longitude.toFixed(6);
-        setLokasi(`${lat}, ${lon}`);
-      },
-      () => setLokasi("Gagal mendapatkan lokasi")
-    );
+    setIsClient(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lon = pos.coords.longitude.toFixed(6);
+          setLokasi(`${lat}, ${lon}`);
+          setPosition([parseFloat(lat), parseFloat(lon)]);
+        },
+        () => setLokasi("Gagal mendapatkan lokasi")
+      );
+    }
   }, []);
 
   const handleSelectPegawai = (pegawai: Pegawai) => {
@@ -74,13 +83,7 @@ export default function ManualCard({ onClose, tipe, onSubmit }: Props) {
       return;
     }
     try {
-      await onSubmit?.({
-        nama,
-        jabatan,
-        lokasi,
-        waktu,
-        keterangan,
-      });
+      await onSubmit?.({ nama, jabatan, lokasi, waktu, keterangan });
       alert(`✅ Presensi ${tipe} berhasil`);
       onClose();
     } catch (err) {
@@ -89,24 +92,6 @@ export default function ManualCard({ onClose, tipe, onSubmit }: Props) {
     }
   };
 
-  const markerIcon = new L.Icon({
-    iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-  });
-
-  function LocationMarker({ setLokasi }: { setLokasi: (value: string) => void }) {
-    const [position, setPosition] = useState<L.LatLng | null>(null);
-    useMapEvents({
-      click(e) {
-        setPosition(e.latlng);
-        setLokasi(`${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`);
-      },
-    });
-    return position ? <Marker position={position} icon={markerIcon} /> : null;
-  }
-
   const customMarker = new L.Icon({
     iconUrl: "https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=location|ff0000",
     iconSize: [40, 40],
@@ -114,7 +99,21 @@ export default function ManualCard({ onClose, tipe, onSubmit }: Props) {
     popupAnchor: [0, -40],
   });
 
-  const [position, setPosition] = useState<[number, number]>([-6.2, 106.816666]);
+  // Marker klik di map
+  function LocationMarker({ setLokasi }: { setLokasi: (value: string) => void }) {
+    const [pos, setPos] = useState<L.LatLng | null>(null);
+    if (!isClient) return null;
+
+    useMapEvents({
+      click(e) {
+        setPos(e.latlng);
+        setLokasi(`${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`);
+        setPosition([e.latlng.lat, e.latlng.lng]);
+      },
+    });
+
+    return pos ? <Marker position={pos} icon={customMarker}><Popup>Lokasi yang dipilih</Popup></Marker> : null;
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -133,7 +132,7 @@ export default function ManualCard({ onClose, tipe, onSubmit }: Props) {
           </h2>
         </div>
 
-        <ScrollArea className="h-[400px] pr-2">
+        <ScrollArea className="h-[500px] pr-2">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Nama Pegawai */}
             <div className="relative">
@@ -196,11 +195,10 @@ export default function ManualCard({ onClose, tipe, onSubmit }: Props) {
 
             {error && <div className="text-sm text-red-600 bg-red-100 border border-red-300 rounded-md p-2">{error}</div>}
 
-            {/* Lokasi */}
+            {/* Lokasi & Map */}
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm text-gray-700">
-               
- <MapPinIcon className="h-5 w-5" />
+                <MapPinIcon className="h-5 w-5" />
                 {lokasi.startsWith("Gagal") ? (
                   <span>Lokasi: {lokasi}</span>
                 ) : (
@@ -215,74 +213,23 @@ export default function ManualCard({ onClose, tipe, onSubmit }: Props) {
                 )}
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.geolocation.getCurrentPosition(
-                      (pos) => {
-                        const lat = pos.coords.latitude.toFixed(6);
-                        const lon = pos.coords.longitude.toFixed(6);
-                        setLokasi(`${lat}, ${lon}`);
-                      },
-                      () => setLokasi("Gagal mendapatkan lokasi")
-                    );
-                  }}
-                  className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm"
-                >
-                  Gunakan Lokasi Saat Ini
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setLokasi("Mengambil lokasi...")}
-                  className="px-3 py-1 rounded bg-gray-100 text-gray-700 border text-sm"
-                >
-                  Refresh Lokasi
-                </button>
-              </div>
-
-              {/* Peta */}
-              <div className="relative rounded-lg overflow-hidden border border-gray-200" style={{ height: 250 }}>
-                <div className="absolute top-2 left-2 z-20 bg-white/80 backdrop-blur-sm px-2 py-1 rounded text-xs text-gray-700 pointer-events-none">
-                  Klik pada peta untuk memilih lokasi
-                </div>
-
-                <MapContainer
-                  center={[-6.2, 106.8]} // default Jakarta
-                  zoom={13}
-                  style={{ height: "100%", width: "100%" }}
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution="&copy; OpenStreetMap contributors"
-                  />
-                  <LocationMarker setLokasi={setLokasi} />
-                  <Marker position={position} icon={customMarker}>
-                    <Popup>Lokasi yang kamu pilih</Popup>
-                  </Marker>
-                </MapContainer>
-              </div>
-
-              {/* Panel koordinat + Reset */}
-              <div className="flex items-center justify-between gap-2 mt-2">
-                <div className="text-sm text-gray-700">
-                  <div className="font-medium">Koordinat pilihan:</div>
-                  <div className="text-xs text-gray-500 break-words">{lokasi}</div>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setLokasi("Mengambil lokasi...")}
-                    className="px-3 py-1 rounded bg-red-600 border text-sm text-white"
+              {isClient && (
+                <div className="relative rounded-lg overflow-hidden border border-gray-200" style={{ height: 250 }}>
+                  <MapContainer
+                    center={position}
+                    zoom={13}
+                    style={{ height: "100%", width: "100%" }}
                   >
-                    Reset
-                  </button>
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution="&copy; OpenStreetMap contributors"
+                    />
+                    <LocationMarker setLokasi={setLokasi} />
+                  </MapContainer>
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               className="w-full px-5 py-2 rounded-md text-white font-semibold bg-black hover:bg-gray-800 transition"
