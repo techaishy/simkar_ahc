@@ -1,27 +1,18 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { startOfDay, endOfDay } from "date-fns"
+import { startOfDayWIB, endOfDayWIB } from "@/lib/timezone"
 
 export async function GET() {
   try { 
-    const today = new Date()
-    const start = startOfDay(today)
-    const end = endOfDay(today)
+    const start = startOfDayWIB(new Date())
+    const end = endOfDayWIB(new Date())
 
     const attendances = await prisma.attendance.findMany({
-      where: {
-        date: { gte: start, lte: end },
-      },
-      include: {
-        user: {
-          include: {
-            karyawan: true,
-          },
-        },
-      },
+      where: { date: { gte: start, lte: end } },
+      include: { user: { include: { karyawan: true } } },
     })
    
-    const data = attendances.map((a: typeof attendances[number]) => ({
+    const data = attendances.map(a => ({
       id: a.id_at,
       name: a.user.karyawan?.name ?? "-",
       department: a.user.karyawan?.department ?? "-",
@@ -30,6 +21,7 @@ export async function GET() {
       clockOut: a.clockOut,
       AttendanceMasuk: a.statusMasuk,
       AttendancePulang: a.statusPulang, 
+      location: a.location,
     }))
 
     return NextResponse.json(data)
