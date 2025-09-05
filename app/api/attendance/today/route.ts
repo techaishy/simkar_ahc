@@ -30,6 +30,7 @@ export async function GET() {
       clockOut: a.clockOut,
       AttendanceMasuk: a.statusMasuk,
       AttendancePulang: a.statusPulang, 
+      location: a.location,
     }))
 
     return NextResponse.json(data)
