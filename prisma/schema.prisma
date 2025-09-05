@@ -68,7 +68,7 @@ model Attendance {
   clockIn      String?
   clockOut     String?
   statusMasuk   AttendanceMasuk
-  statusPulang  AttendancePulang
+  statusPulang  AttendancePulang?
   photoIn      String?
   photoOut     String?
   latitude     Float?
