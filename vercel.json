@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "api/presensi/autoabsent/route.ts": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/presensi/autoabsent",
+      "schedule": "0 2 * * 1-5"
+    }
+  ]
+}
