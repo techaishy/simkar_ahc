@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; 
 import type {  KaryawanProfile } from '@/lib/types/user';
 import { AttendanceRecord } from '@/lib/types/attendance';
+import { startOfDayWIB, endOfDayWIB } from '@/lib/timezone';
+
+const start = startOfDayWIB(new Date());
+const end = endOfDayWIB(new Date());
 
 export async function GET() {
   try {
@@ -39,8 +43,8 @@ export async function GET() {
     const attendanceRaw = await prisma.attendance.findMany({
       where: {
         date: {
-          gte: new Date(today),
-          lt: new Date(new Date(today).getTime() + 24*60*60*1000)
+          gte: start, 
+          lt: end,
         }
       },
       include: {
