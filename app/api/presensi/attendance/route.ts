@@ -39,7 +39,7 @@ async function uploadPhotoToSupabase(photoBase64: string, tipe: 'in' | 'out', us
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    console.log("📩 Data diterima di API /attendance:", data);
+    // console.log("📩 Data diterima di API /attendance:", data);
 
     const { userId, clockIn, clockOut, photoIn, photoOut, latitude, longitude, location, lokasiId } = data;
 
