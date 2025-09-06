@@ -1,4 +1,7 @@
-import ManualCard from "./ManualCard";
+"use client"; 
+
+import dynamic from "next/dynamic";
+const ManualCard = dynamic(() => import("./ManualCard"), { ssr: false });
 
 type Props = {
   onClose: () => void;
