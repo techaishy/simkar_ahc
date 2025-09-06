@@ -4,22 +4,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react";
-import { Role } from "@/lib/types/auth";
+import { UserRole } from "@/lib/types/user";
 
 
 type NavMainItem = {
   title: string;
   url: string;
   icon: React.ElementType;
-  roles?: Role[];
+  roles?: UserRole[];
   items?: {
     title: string;
     url: string;
-    roles?: Role[];
+    roles?: UserRole[];
   }[];
 };
 
-export function NavMain({ items, role }: { items: NavMainItem[]; role: Role }) {
+export function NavMain({ items, role }: { items: NavMainItem[]; role: UserRole}) {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
   const pathname = usePathname();
 
