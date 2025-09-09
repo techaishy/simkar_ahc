@@ -4,7 +4,12 @@ import DataPegawaiTable from "./components/DataPegawaiTabel"
 import Breadcrumbs from "@/components/ui/breadcrumb"
 
 
+
+
 export default function PegawaiPage() {
+
+
+
     const handleEdit = (id: string) => {
         console.log("Edit data dengan id:", id);
         alert("Edit data ID: " + id);
@@ -23,9 +28,8 @@ export default function PegawaiPage() {
       <Breadcrumbs />
       
     </div>
-      
   
-        <DataPegawaiTable onEdit={handleEdit} onDelete={handleDelete}/>
+        <DataPegawaiTable/>
      
     </div>
   )
