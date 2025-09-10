@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; 
-import type {Karyawan } from '@/lib/types/karyawan';
+import type {  Karyawan  } from '@/lib/types/karyawan';
 import { AttendanceRecord } from '@/lib/types/attendance';
 import { startOfDayWIB, endOfDayWIB } from '@/lib/timezone';
 

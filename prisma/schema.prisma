@@ -51,7 +51,7 @@ model User {
   izinLokasi   AbsensiIzinLokasi[]
   attendances  Attendance[]
   barcodes     Barcode[]
-  karyawan     Karyawan            @relation(fields: [customId], references: [customId])
+  karyawan     Karyawan?            @relation(fields: [customId], references: [customId])
   kantor       Kantor?             @relation("KantorUsers", fields: [kantorId], references: [id])
 
   kantorTetap  Boolean     @default(false)

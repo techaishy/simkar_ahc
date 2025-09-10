@@ -2,22 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Pegawai } from "../types/pegawai";
+import { Karyawan } from "../../../lib/types/karyawan";
 import PegawaiForm from "./PegawaiForm";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  pegawai?: Pegawai;
-  onSave: (pegawai: Pegawai) => void;
+  karyawan?: Karyawan;
+  onSave: (karyawan: Karyawan) => void;
 };
 
-export default function EditPegawaiDialog({ open, onClose, pegawai, onSave }: Props) {
-  const [data, setData] = useState<Pegawai | undefined>(pegawai);
+export default function EditPegawaiDialog({ open, onClose, karyawan, onSave }: Props) {
+  const [data, setData] = useState<Karyawan | undefined>(karyawan);
 
   useEffect(() => {
-    setData(pegawai);
-  }, [pegawai]);
+    console.log("EditPegawai karyawan:", karyawan);
+    setData(karyawan);
+  }, [karyawan]);
+  
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -29,9 +31,9 @@ export default function EditPegawaiDialog({ open, onClose, pegawai, onSave }: Pr
         {data && (
           <PegawaiForm
             initialData={data}
-            onSave={(pegawaiBaru) => {
-              onSave(pegawaiBaru);
-              onClose(); // tutup modal setelah simpan
+            onSave={(KaryawanBaru) => {
+              onSave(KaryawanBaru);
+              onClose(); 
             }}
           />
         )}

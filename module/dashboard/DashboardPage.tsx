@@ -5,7 +5,7 @@ import { ChartDisplay } from "@/module/dashboard/components/ChartDisplay";
 import { Users, Check, Clock, X } from "lucide-react";
 import { EmployeeAttendanceTable } from "@/module/dashboard/components/EmployeeAttedanceTable";
 import Breadcrumbs from "@/components/ui/breadcrumb";
-import type { Karyawan } from "@/lib/types/karyawan";
+import type {  Karyawan } from "@/lib/types/karyawan";
 import type { AttendanceRecord, } from "@/lib/types/attendance";
 import { useEffect, useState } from "react";
 
