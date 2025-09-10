@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import PrintButton from "@/components/ui/printButton";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,11 +25,6 @@ import {
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import PegawaiForm from "./PegawaiForm";
 import { Pegawai } from "../types/pegawai";
-
-type Props = {
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
-};
 
 const dummyPegawai: Pegawai[] = [
   {
@@ -63,23 +59,42 @@ const dummyPegawai: Pegawai[] = [
   },
 ];
 
-export default function DataPegawaiTable({ onEdit, onDelete }: Props) {
+export default function DataPegawaiTable() {
+  const tableRef = useRef<HTMLTableElement>(null);
+
   const [pegawai, setPegawai] = useState<Pegawai[]>(dummyPegawai);
   const [selectedPegawai, setSelectedPegawai] = useState<Pegawai | null>(null);
+
+  // state modal tambah
+  const [openTambah, setOpenTambah] = useState(false);
+  // state modal edit
+  const [openEdit, setOpenEdit] = useState(false);
+
   const handleSave = (pegawaiBaru: Pegawai) => {
     setPegawai((prev) => [
       ...prev,
-      { ...pegawaiBaru, id: String(prev.length + 1) }
+      { ...pegawaiBaru, id: String(prev.length + 1) },
     ]);
+    setOpenTambah(false);
+  };
+
+  const handleUpdate = (pegawaiBaru: Pegawai) => {
+    setPegawai((prev) =>
+      prev.map((pg) => (pg.id === pegawaiBaru.id ? pegawaiBaru : pg))
+    );
+    setOpenEdit(false);
   };
 
   return (
     <Card className="p-4 w-full">
       <h2 className="text-lg font-semibold mb-4">Data Pegawai</h2>
-      <div className="flex justify-end mb-4">
-      <Dialog>
+      <div className="flex flex-wrap gap-2 justify-end mb-4">
+        {/* Tambah Pegawai */}
+        <Dialog open={openTambah} onOpenChange={setOpenTambah}>
           <DialogTrigger asChild>
-            <Button className="px-4 py-2 border-1 text-white font-semibold bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black  transition-all duration-300 shadow-md" >+ Tambah Pegawai</Button>
+            <Button className="px-4 py-2 text-white font-semibold bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black transition-all duration-300 shadow-md">
+              Tambah Data
+            </Button>
           </DialogTrigger>
           <DialogContent className="bg-gradient-to-br from-black via-gray-950 to-gray-800">
             <DialogHeader>
@@ -88,17 +103,26 @@ export default function DataPegawaiTable({ onEdit, onDelete }: Props) {
             <PegawaiForm onSave={handleSave} />
           </DialogContent>
         </Dialog>
-        </div>
+
+        <PrintButton
+          printRef={tableRef}
+          title="Data Pegawai"
+          label="Cetak Data"
+        />
+      </div>
+
+      {/* Tabel Pegawai */}
       <div className="overflow-x-auto">
-        <table className="min-w-[400px] w-full border-collapse text-xs md:text-sm">
+        <table
+          ref={tableRef}
+          className="min-w-[400px] w-full border-collapse text-xs md:text-sm"
+        >
           <thead>
             <tr className="bg-gray-100 text-left">
               <th className="p-2">ID</th>
               <th className="p-2">Nama Pegawai</th>
               <th className="p-2">NIP</th>
               <th className="p-2">Jabatan</th>
-
-              {/* Kolom tambahan hanya tampil di desktop */}
               <th className="p-2 hidden md:table-cell">NIK</th>
               <th className="p-2 hidden md:table-cell">Telpon</th>
               <th className="p-2 hidden md:table-cell">Email</th>
@@ -114,8 +138,6 @@ export default function DataPegawaiTable({ onEdit, onDelete }: Props) {
                 <td className="p-2">{p.name}</td>
                 <td className="p-2">{p.nip}</td>
                 <td className="p-2">{p.position}</td>
-
-                {/* Desktop view */}
                 <td className="p-2 hidden md:table-cell">{p.NIK}</td>
                 <td className="p-2 hidden md:table-cell">{p.phone}</td>
                 <td className="p-2 hidden md:table-cell">{p.emailPribadi}</td>
@@ -125,17 +147,27 @@ export default function DataPegawaiTable({ onEdit, onDelete }: Props) {
                   </Badge>
                 </td>
 
-                <td className="p-2 hidden md:table-cell text-right">
+                {/* Aksi */}
+                <td className="p-2 hidden md:table-cell text-right relative">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <button className="p-2 border rounded">
                         <MoreHorizontal className="h-4 w-4" />
-                      </Button>
+                      </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(p.id)}>
+                    <DropdownMenuContent
+                      align="end"
+                      side="bottom"
+                      className="bg-white text-black z-[9999] border p-2 shadow-lg"
+                    >
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedPegawai(p);
+                          setOpenEdit(true);
+                        }}
+                      >
                         <Pencil className="mr-2 h-4 w-4 text-blue-600" />
-                        <span className="text-gray-600">Edit</span>
+                        Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() =>
@@ -174,31 +206,45 @@ export default function DataPegawaiTable({ onEdit, onDelete }: Props) {
                         <div className="mt-4 space-y-2 text-sm">
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">ID</span>
-                            <span className="col-span-2">{selectedPegawai.id}</span>
+                            <span className="col-span-2">
+                              {selectedPegawai.id}
+                            </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Nama</span>
-                            <span className="col-span-2">{selectedPegawai.name}</span>
+                            <span className="col-span-2">
+                              {selectedPegawai.name}
+                            </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">NIP</span>
-                            <span className="col-span-2">{selectedPegawai.nip}</span>
+                            <span className="col-span-2">
+                              {selectedPegawai.nip}
+                            </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Jabatan</span>
-                            <span className="col-span-2">{selectedPegawai.position}</span>
+                            <span className="col-span-2">
+                              {selectedPegawai.position}
+                            </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">NIK</span>
-                            <span className="col-span-2">{selectedPegawai.NIK}</span>
+                            <span className="col-span-2">
+                              {selectedPegawai.NIK}
+                            </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Telepon</span>
-                            <span className="col-span-2">{selectedPegawai.phone}</span>
+                            <span className="col-span-2">
+                              {selectedPegawai.phone}
+                            </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Email</span>
-                            <span className="col-span-2">{selectedPegawai.emailPribadi}</span>
+                            <span className="col-span-2">
+                              {selectedPegawai.emailPribadi}
+                            </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Status</span>
@@ -224,10 +270,18 @@ export default function DataPegawaiTable({ onEdit, onDelete }: Props) {
           </tbody>
         </table>
       </div>
+
+      {/* Dialog Edit */}
+      <Dialog open={openEdit} onOpenChange={setOpenEdit}>
+        <DialogContent className="bg-gradient-to-br from-black via-gray-950 to-gray-800 sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Pegawai</DialogTitle>
+          </DialogHeader>
+          {selectedPegawai && (
+            <PegawaiForm initialData={selectedPegawai} onSave={handleUpdate} />
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
-function setData(arg0: (prev: any) => any[]) {
-  throw new Error("Function not implemented.");
-}
-
