@@ -3,32 +3,7 @@ export type UserStatus = 'AKTIF' | 'NONAKTIF' | 'DITANGGUHKAN';
 export type AttendanceMasuk = 'TEPAT_WAKTU' | 'TERLAMBAT' | 'TIDAK_HADIR';
 export type AttendancePulang = 'TEPAT_WAKTU' | 'PULANG_CEPAT' | 'TIDAK_HADIR';
 export type ApprovalStatus = 'PENDING' | 'DISETUJUI' | 'DITOLAK';
-
-export interface KaryawanProfile {
-  id: string;
-  customId: string;
-  name: string;
-  nip?: string;
-  nik?: string;
-  npwp?: string;
-  emailPribadi?: string;
-  phone?: string;
-  address?: string;
-  birthDate?: string;
-  tempatLahir?: string;
-  jenisKelamin?: string;
-  agama?: string;
-  joinDate: string;
-  position: string;
-  department: string;
-  pendidikan?: string;
-  golongan?: string;
-  image?: string;
-  kontakDarurat?: string;
-  hubunganDarurat?: string;
-  status: UserStatus;
-  lastLogin?: string;
-}
+import { Karyawan } from "./karyawan";
 
 export interface UserAccount {
   id: string;
@@ -36,37 +11,16 @@ export interface UserAccount {
   username: string;
   email: string;
   role: UserRole;
-  kantorId?: string 
+  status: UserStatus; 
+  kantorId?: string;
   passwordHash: string;
   createdAt: string;
   updatedAt: string;
-  karyawan?: KaryawanProfile;
+  karyawan?: Karyawan; 
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
 }
 
-export interface ProfileChangeRequest {
-  id: string;
-  userId: string;
-  field: string;
-  oldValue: string;
-  newValue: string;
-  requestedAt: string;
-  approvedBy?: string;
-  approvalStatus: ApprovalStatus;
-  approvalNotes?: string;
-}
-
-export interface LoginHistory {
-  id: string;
-  userId: string;
-  loginTime: string;
-  ipAddress: string;
-  device: string;
-  location?: string;
-  status: 'Success' | 'Failed';
-  failureReason?: string;
-}
 
 export interface MenuItem {
   name: string;
