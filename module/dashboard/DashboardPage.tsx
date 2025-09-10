@@ -5,13 +5,13 @@ import { ChartDisplay } from "@/module/dashboard/components/ChartDisplay";
 import { Users, Check, Clock, X } from "lucide-react";
 import { EmployeeAttendanceTable } from "@/module/dashboard/components/EmployeeAttedanceTable";
 import Breadcrumbs from "@/components/ui/breadcrumb";
-import type {  KaryawanProfile } from "@/lib/types/user";
+import type {  Karyawan } from "@/lib/types/karyawan";
 import type { AttendanceRecord, } from "@/lib/types/attendance";
 import { useEffect, useState } from "react";
 
 
 export default function DashboardPage() {
-  const [karyawan, setKaryawan] = useState<KaryawanProfile[]>([]);
+  const [karyawan, setKaryawan] = useState<Karyawan[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
 
   useEffect(() => {

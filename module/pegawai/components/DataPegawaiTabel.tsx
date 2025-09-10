@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import PrintButton from "@/components/ui/printButton";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,63 +23,40 @@ import {
 
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import PegawaiForm from "./PegawaiForm";
-import { Pegawai } from "../types/pegawai";
-
-const dummyPegawai: Pegawai[] = [
-  {
-    id: "1",
-    name: "Andi Wijaya",
-    nip: "1987654321",
-    position: "Teknisi",
-    NIK: "123456789123",
-    phone: "081234567890",
-    emailPribadi: "andi@gmail.com",
-    status: "Aktif",
-  },
-  {
-    id: "2",
-    name: "Siti Aminah",
-    nip: "1987654322",
-    position: "Manager",
-    NIK: "123456",
-    phone: "081298765432",
-    emailPribadi: "siti@gmail.com",
-    status: "Aktif",
-  },
-  {
-    id: "3",
-    name: "Budi Santoso",
-    nip: "1987654323",
-    position: "Admin",
-    NIK: "123456",
-    phone: "081212345678",
-    emailPribadi: "budi@gmail.com",
-    status: "Nonaktif",
-  },
-];
+import { Karyawan, statusLabel, statusVariant } from "../../../lib/types/karyawan";
 
 export default function DataPegawaiTable() {
-  const tableRef = useRef<HTMLTableElement>(null);
-
-  const [pegawai, setPegawai] = useState<Pegawai[]>(dummyPegawai);
-  const [selectedPegawai, setSelectedPegawai] = useState<Pegawai | null>(null);
-
-  // state modal tambah
+const tableRef = useRef<HTMLTableElement>(null);
+  const [Karyawan, setKaryawan] = useState<Karyawan[]>([]);
+  const [selectedKaryawan, setSelectedKaryawan] = useState<Karyawan | null>(null);
   const [openTambah, setOpenTambah] = useState(false);
-  // state modal edit
   const [openEdit, setOpenEdit] = useState(false);
 
-  const handleSave = (pegawaiBaru: Pegawai) => {
-    setPegawai((prev) => [
+  useEffect(() => {
+    const fetchKaryawan = async () => {
+      try {
+        const res = await fetch("/api/pegawai");
+        if (!res.ok) throw new Error("Gagal fetch Karyawan");
+        const data: Karyawan[] = await res.json();
+        setKaryawan(data);
+      } catch (error) {
+        console.error("Error fetching pegawai:", error);
+      }
+    };
+    fetchKaryawan();
+  }, []);
+
+  const handleSave = (KaryawanBaru: Karyawan) => {
+    setKaryawan((prev) => [
       ...prev,
-      { ...pegawaiBaru, id: String(prev.length + 1) },
+      { ...KaryawanBaru, id: String(prev.length + 1) },
     ]);
     setOpenTambah(false);
   };
 
-  const handleUpdate = (pegawaiBaru: Pegawai) => {
-    setPegawai((prev) =>
-      prev.map((pg) => (pg.id === pegawaiBaru.id ? pegawaiBaru : pg))
+  const handleUpdate = (KaryawanBaru:Karyawan) => {
+    setKaryawan((prev) =>
+      prev.map((pg) => (pg.id === KaryawanBaru.id ? KaryawanBaru : pg))
     );
     setOpenEdit(false);
   };
@@ -132,17 +108,17 @@ export default function DataPegawaiTable() {
             </tr>
           </thead>
           <tbody>
-            {pegawai.map((p) => (
+            {Karyawan.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50 border-t">
                 <td className="p-2">{p.id}</td>
                 <td className="p-2">{p.name}</td>
                 <td className="p-2">{p.nip}</td>
                 <td className="p-2">{p.position}</td>
-                <td className="p-2 hidden md:table-cell">{p.NIK}</td>
+                <td className="p-2 hidden md:table-cell">{p.nik}</td>
                 <td className="p-2 hidden md:table-cell">{p.phone}</td>
                 <td className="p-2 hidden md:table-cell">{p.emailPribadi}</td>
                 <td className="p-2 hidden md:table-cell">
-                  <Badge variant={p.status === "Aktif" ? "default" : "secondary"}>
+                  <Badge variant={statusVariant[p.status]}>
                     {p.status}
                   </Badge>
                 </td>
@@ -162,7 +138,7 @@ export default function DataPegawaiTable() {
                     >
                       <DropdownMenuItem
                         onClick={() => {
-                          setSelectedPegawai(p);
+                          setSelectedKaryawan(p);
                           setOpenEdit(true);
                         }}
                       >
@@ -171,7 +147,7 @@ export default function DataPegawaiTable() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() =>
-                          setPegawai(pegawai.filter((item) => item.id !== p.id))
+                          setKaryawan(Karyawan.filter((item) => item.id !== p.id))
                         }
                         className="text-red-600"
                       >
@@ -190,7 +166,7 @@ export default function DataPegawaiTable() {
                         className="text-blue-600"
                         size="sm"
                         variant="ghost"
-                        onClick={() => setSelectedPegawai(p)}
+                        onClick={() => setSelectedKaryawan(p)}
                       >
                         Lihat Detail
                       </Button>
@@ -202,62 +178,56 @@ export default function DataPegawaiTable() {
                           Informasi lengkap tentang pegawai.
                         </DialogDescription>
                       </DialogHeader>
-                      {selectedPegawai && (
+                      {selectedKaryawan && (
                         <div className="mt-4 space-y-2 text-sm">
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">ID</span>
                             <span className="col-span-2">
-                              {selectedPegawai.id}
+                              {selectedKaryawan.id}
                             </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Nama</span>
                             <span className="col-span-2">
-                              {selectedPegawai.name}
+                              {selectedKaryawan.name}
                             </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">NIP</span>
                             <span className="col-span-2">
-                              {selectedPegawai.nip}
+                              {selectedKaryawan.nip}
                             </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Jabatan</span>
                             <span className="col-span-2">
-                              {selectedPegawai.position}
+                              {selectedKaryawan.position}
                             </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">NIK</span>
                             <span className="col-span-2">
-                              {selectedPegawai.NIK}
+                              {selectedKaryawan.nik}
                             </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Telepon</span>
                             <span className="col-span-2">
-                              {selectedPegawai.phone}
+                              {selectedKaryawan.phone}
                             </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Email</span>
                             <span className="col-span-2">
-                              {selectedPegawai.emailPribadi}
+                              {selectedKaryawan.emailPribadi}
                             </span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Status</span>
                             <span className="col-span-2">
-                              <Badge
-                                variant={
-                                  selectedPegawai.status === "Aktif"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                              >
-                                {selectedPegawai.status}
-                              </Badge>
+                             <Badge variant={statusVariant[selectedKaryawan.status]}>
+                              {selectedKaryawan.status}
+                            </Badge>
                             </span>
                           </div>
                         </div>
@@ -277,8 +247,14 @@ export default function DataPegawaiTable() {
           <DialogHeader>
             <DialogTitle>Edit Pegawai</DialogTitle>
           </DialogHeader>
-          {selectedPegawai && (
-            <PegawaiForm initialData={selectedPegawai} onSave={handleUpdate} />
+          {selectedKaryawan && (
+            <PegawaiForm
+              initialData={{
+                ...selectedKaryawan,
+                customId: selectedKaryawan.id,
+              }}
+              onSave={handleUpdate}
+            />
           )}
         </DialogContent>
       </Dialog>
