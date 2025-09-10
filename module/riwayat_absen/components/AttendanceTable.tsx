@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -10,8 +9,7 @@ type Props = {
 export default function AttendanceTable({ data }: Props) {
   console.log("isi data",data)
   return (
-    <Card className="w-full overflow-auto rounded-2xl p-6">
-      <table className="w-full text-sm text-left min-w-[900px]">
+      <table className="w-full text-sm text-left min-w-[900px] ">
         <thead className="text-xs uppercase bg-gray-100 text-gray-600">
           <tr>
             <th className="px-4 py-3">Nama</th>
@@ -61,7 +59,6 @@ export default function AttendanceTable({ data }: Props) {
           ))}
         </tbody>
       </table>
-    </Card>
   );
 }
 
