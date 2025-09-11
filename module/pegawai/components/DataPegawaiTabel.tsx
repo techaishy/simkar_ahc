@@ -23,7 +23,9 @@ import {
 
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import PegawaiForm from "./PegawaiForm";
-import { Karyawan, statusLabel, statusVariant } from "../../../lib/types/karyawan";
+import type { Karyawan} from "@/lib/types/karyawan";
+import { statusLabel, statusVariant } from "@/lib/types/helper";
+
 
 export default function DataPegawaiTable() {
 const tableRef = useRef<HTMLTableElement>(null);
