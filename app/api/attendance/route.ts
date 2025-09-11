@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; 
-<<<<<<< HEAD
-import type { Karyawan } from '@/lib/types/karyawan';
-=======
 import type {Karyawan } from '@/lib/types/karyawan';
->>>>>>> riwayat-absensi
 import { AttendanceRecord } from '@/lib/types/attendance';
 import { startOfDayWIB, endOfDayWIB } from '@/lib/timezone';
 
