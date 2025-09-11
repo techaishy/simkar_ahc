@@ -1,9 +1,59 @@
 import { NextResponse } from "next/server";
-import { prisma } from '@/lib/prisma'; 
+import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+
+    const tanggalAwal = searchParams.get("tanggalAwal");
+    const tanggalAkhir = searchParams.get("tanggalAkhir");
+    const metode = searchParams.get("metode");
+    const pegawai = searchParams.get("pegawai");
+    const status = searchParams.get("status");
+
+    const where: any = {};
+
+    // Filter tanggal
+    if (tanggalAwal && tanggalAkhir) {
+      where.date = {
+        gte: new Date(tanggalAwal),
+        lte: new Date(tanggalAkhir),
+      };
+    } else if (tanggalAwal) {
+      where.date = { gte: new Date(tanggalAwal) };
+    } else if (tanggalAkhir) {
+      where.date = { lte: new Date(tanggalAkhir) };
+    }
+
+    // Filter metode (barcode / lokasi / manual)
+    if (metode === "barcode") {
+      where.OR = [{ barcodeIn: { not: null } }, { barcodeOut: { not: null } }];
+    } else if (metode === "lokasi") {
+      where.AND = [{ latitude: { not: null } }, { longitude: { not: null } }];
+    } else if (metode === "manual") {
+      where.barcodeIn = null;
+      where.latitude = null;
+    }
+
+    // Filter status
+    if (status) {
+      where.OR = [
+        { statusMasuk: { equals: status.toUpperCase() } },
+        { statusPulang: { equals: status.toUpperCase() } },
+      ];
+    }
+
+    // Filter nama pegawai
+    if (pegawai) {
+      where.user = {
+        karyawan: {
+          name: { contains: pegawai, mode: "insensitive" },
+        },
+      };
+    }
+
     const attendances = await prisma.attendance.findMany({
+      where,
       include: {
         user: {
           include: {
@@ -15,6 +65,7 @@ export async function GET() {
       },
       orderBy: { date: "desc" },
     });
+
     const result = attendances.map((a) => ({
       id_at: a.id_at,
       userId: a.userId,
@@ -25,8 +76,8 @@ export async function GET() {
       statusPulang: a.statusPulang,
       photoIn: a.photoIn ?? null,
       photoOut: a.photoOut ?? null,
-      barcodeIn:a.barcodeIn ?? null,
-      barcodeOut:a.barcodeOut ?? null,
+      barcodeIn: a.barcodeIn ?? null,
+      barcodeOut: a.barcodeOut ?? null,
       location: a.kantor?.nama ?? a.lokasiDinas?.name ?? "-",
       karyawan: {
         id: a.user.karyawan?.id ?? "-",
@@ -35,6 +86,7 @@ export async function GET() {
         position: a.user.karyawan?.position ?? "-",
       },
     }));
+
     return NextResponse.json(result);
   } catch (err) {
     console.error(err);
