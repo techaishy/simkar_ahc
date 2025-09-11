@@ -47,11 +47,28 @@ function printElement(element: HTMLElement, title?: string) {
   <meta charset="utf-8" />
   <title>${escapeHtml(title || "Cetak")}</title>
   <style>
+  .no-print {
+    display: none !important;
+  }
+
+  table { 
+    width: 100%; 
+    border-collapse: collapse; 
+  }
+  th, td { 
+    border: 1px solid #000; 
+    padding: 6px; 
+    text-align: left; 
+  }
+  th {
+    background: #f0f0f0;
+  }
     @media print { @page { margin: 16mm; } }
-    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; padding: 16px; }
+    body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; padding: 16px;  font-size: 12px; }
   </style>
 </head>
-<body>${element.outerHTML}</body>
+<h2 style="text-align:center; margin-bottom:16px;">${escapeHtml(title || "Cetak")}</h2>
+${element.outerHTML}
 </html>`;
   printHtml(html);
 }

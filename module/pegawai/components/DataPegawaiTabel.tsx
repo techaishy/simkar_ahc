@@ -26,6 +26,8 @@ import PegawaiForm from "./PegawaiForm";
 import type { Karyawan} from "@/lib/types/karyawan";
 import { statusLabel, statusVariant } from "@/lib/types/helper";
 
+import PaginationControl from "@/components/ui/PaginationControl";
+
 
 export default function DataPegawaiTable() {
 const tableRef = useRef<HTMLTableElement>(null);
@@ -33,6 +35,9 @@ const tableRef = useRef<HTMLTableElement>(null);
   const [selectedKaryawan, setSelectedKaryawan] = useState<Karyawan | null>(null);
   const [openTambah, setOpenTambah] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+ 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(7);
 
   useEffect(() => {
     const fetchKaryawan = async () => {
@@ -47,6 +52,18 @@ const tableRef = useRef<HTMLTableElement>(null);
     };
     fetchKaryawan();
   }, []);
+
+  const totalPages = Math.ceil(Karyawan.length / perPage);
+  const paginatedData = Karyawan.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
+
+  const handlePageChange = (page: number, newPerPage: number) => {
+    setCurrentPage(page);
+    setPerPage(newPerPage);
+  };
+
 
   const handleSave = (KaryawanBaru: Karyawan) => {
     setKaryawan((prev) => [
@@ -105,12 +122,12 @@ const tableRef = useRef<HTMLTableElement>(null);
               <th className="p-2 hidden md:table-cell">Telpon</th>
               <th className="p-2 hidden md:table-cell">Email</th>
               <th className="p-2 hidden md:table-cell">Status</th>
-              <th className="p-2 hidden md:table-cell">Aksi</th>
-              <th className="p-2 block md:hidden">Detail</th>
+              <th className="p-2 hidden md:table-cell no-print">Aksi</th>
+              <th className="p-2 block md:hidden no-print">Detail</th>
             </tr>
           </thead>
           <tbody>
-            {Karyawan.map((p) => (
+            {paginatedData.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50 border-t">
                 <td className="p-2">{p.id}</td>
                 <td className="p-2">{p.name}</td>
@@ -126,7 +143,7 @@ const tableRef = useRef<HTMLTableElement>(null);
                 </td>
 
                 {/* Aksi */}
-                <td className="p-2 hidden md:table-cell text-right relative">
+                <td className="p-2 hidden md:table-cell text-right relative no-print">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button className="p-2 border rounded">
@@ -161,7 +178,7 @@ const tableRef = useRef<HTMLTableElement>(null);
                 </td>
 
                 {/* Mobile: tombol detail */}
-                <td className="p-2 block md:hidden">
+                <td className="p-2 block md:hidden no-print">
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
@@ -241,6 +258,14 @@ const tableRef = useRef<HTMLTableElement>(null);
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="mt-4 flex justify-end">
+        <PaginationControl
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
       </div>
 
       {/* Dialog Edit */}

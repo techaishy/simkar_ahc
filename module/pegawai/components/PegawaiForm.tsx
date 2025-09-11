@@ -144,9 +144,9 @@ export default function PegawaiForm({ onSave, initialData }: Props) {
             <SelectTrigger>
               <SelectValue placeholder="Pilih Jenis Kelamin" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Laki-laki">Laki-laki</SelectItem>
-              <SelectItem value="Perempuan">Perempuan</SelectItem>
+            <SelectContent className="bg-gradient-to-br from-black to-gray-900 text-white ">
+              <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="Laki-laki">Laki-laki</SelectItem>
+              <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="Perempuan">Perempuan</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -202,15 +202,15 @@ export default function PegawaiForm({ onSave, initialData }: Props) {
               <SelectTrigger>
                 <SelectValue placeholder="Pilih Role" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="OWNER">Owner</SelectItem>
-                <SelectItem value="DIREKTUR">Direktur</SelectItem>
-                <SelectItem value="MANAJER">Manajer</SelectItem>
-                <SelectItem value="KARYAWAN">Karyawan</SelectItem>
-                <SelectItem value="TEKNISI">Teknisi</SelectItem>
-                <SelectItem value="KEUANGAN">Keuangan</SelectItem>
-                <SelectItem value="KEPALA_GUDANG">Kepala Gudang</SelectItem>
+              <SelectContent className="bg-gradient-to-br from-black to-gray-900 text-white ">
+                <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="ADMIN">Admin</SelectItem>
+                <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="OWNER">Owner</SelectItem>
+                <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="DIREKTUR">Direktur</SelectItem>
+                <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="MANAJER">Manajer</SelectItem>
+                <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="KARYAWAN">Karyawan</SelectItem>
+                <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="TEKNISI">Teknisi</SelectItem>
+                <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="KEUANGAN">Keuangan</SelectItem>
+                <SelectItem className="hover:bg-amber-200 cursor-pointer hover:text-black" value="KEPALA_GUDANG">Kepala Gudang</SelectItem>
               </SelectContent>
             </Select>
           </div>
