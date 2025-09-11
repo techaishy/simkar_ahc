@@ -1,4 +1,4 @@
-import type { AttendancePulang, AttendanceMasuk } from './user';
+import type { AttendancePulang, AttendanceMasuk, } from './user';
 import { Karyawan } from './karyawan';
 
 export interface AttendanceRecord {
