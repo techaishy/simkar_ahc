@@ -1,17 +1,5 @@
 import { UserStatus, UserRole } from "@/lib/types/user";
 
-export const statusLabel: Record<UserStatus, string> = {
-  AKTIF: "Aktif",
-  NONAKTIF: "Nonaktif",
-  DITANGGUHKAN: "Ditangguhkan",
-};
-
-export const statusVariant: Record<UserStatus, "default" | "secondary" | "destructive"> = {
-  AKTIF: "default",
-  NONAKTIF: "secondary",
-  DITANGGUHKAN: "destructive",
-};
-
 export interface Karyawan {
   id: string;
   customId: string;
@@ -39,9 +27,3 @@ export interface Karyawan {
 }
 
 export type KaryawanCreate = Karyawan & { role: UserRole };
-
-export const getStatusLabel = (status: Karyawan["status"]) =>
-  statusLabel[status];
-
-export const getStatusVariant = (status: Karyawan["status"]) =>
-  statusVariant[status];
