@@ -13,12 +13,23 @@ export default function RiwayatAbsenPage() {
   const itemsPerPage = 10;
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  useEffect(() => {
     const fetchAttendances = async () => {
       try {
         setLoading(true);
-        const query = new URLSearchParams(filters as any).toString();
+
+        const query = new URLSearchParams(
+          Object.fromEntries(
+            Object.entries(filters).filter(([_, v]) => v) 
+          )
+        ).toString();
+
         const res = await fetch(`/api/riwayat-presensi?${query}`);
         if (!res.ok) throw new Error("Gagal fetch data");
+
         const data: AttendanceRecord[] = await res.json();
         setAttendances(data);
       } catch (error) {

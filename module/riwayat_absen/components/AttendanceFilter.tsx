@@ -23,6 +23,7 @@ export default function AttendanceFilter({ onChange }: AttendanceFilterProps) {
     status: "",
   });
 
+  // Kirim values ke parent setiap kali berubah
   useEffect(() => {
     onChange(values);
   }, [values]);

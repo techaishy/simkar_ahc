@@ -25,7 +25,6 @@ export async function GET(req: Request) {
       where.date = { lte: new Date(tanggalAkhir) };
     }
 
-    // Filter metode (barcode / lokasi / manual)
     if (metode === "barcode") {
       where.OR = [{ barcodeIn: { not: null } }, { barcodeOut: { not: null } }];
     } else if (metode === "lokasi") {
@@ -35,15 +34,22 @@ export async function GET(req: Request) {
       where.latitude = null;
     }
 
-    // Filter status
     if (status) {
-      where.OR = [
-        { statusMasuk: { equals: status.toUpperCase() } },
-        { statusPulang: { equals: status.toUpperCase() } },
-      ];
+      const upperStatus = status.toUpperCase();
+      if (upperStatus === "TIDAK_HADIR") {
+        where.AND = [
+          { statusMasuk: null },
+          { statusPulang: null },
+          { keterangan: { in: ["IZIN", "SAKIT", "ALPHA"] } },
+        ];
+      } else {
+        where.OR = [
+          { statusMasuk: upperStatus },
+          { statusPulang: upperStatus },
+        ];
+      }
     }
 
-    // Filter nama pegawai
     if (pegawai) {
       where.user = {
         karyawan: {
@@ -85,6 +91,7 @@ export async function GET(req: Request) {
         department: a.user.karyawan?.department ?? "-",
         position: a.user.karyawan?.position ?? "-",
       },
+      keterangan: a.keterangan ?? null, // optional: biar frontend bisa tampil keterangan
     }));
 
     return NextResponse.json(result);
