@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 export interface FilterValues {
   tanggalAwal?: string;
   tanggalAkhir?: string;
-  metode?: string;   
-  pegawai?: string; 
-  status?: string;   
+  metode?: string;
+  pegawai?: string;
+  status?: string;
 }
 
 interface AttendanceFilterProps {
@@ -23,7 +23,6 @@ export default function AttendanceFilter({ onChange }: AttendanceFilterProps) {
     status: "",
   });
 
-  // Kirim values ke parent setiap kali berubah
   useEffect(() => {
     onChange(values);
   }, [values]);
@@ -36,13 +35,13 @@ export default function AttendanceFilter({ onChange }: AttendanceFilterProps) {
     }));
   };
 
-  return (
-    <div className="p-4 bg-gray-100 rounded-md space-y-4">
-      <h2 className="font-semibold">Filter Absensi</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+ return (
+    <div className="p-6 bg-white shadow-md rounded-lg space-y-6">
+      <h2 className="text-lg font-semibold text-gray-800">Filter Absensi</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Tanggal Awal */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Tanggal Awal
           </label>
           <input
@@ -50,13 +49,13 @@ export default function AttendanceFilter({ onChange }: AttendanceFilterProps) {
             name="tanggalAwal"
             value={values.tanggalAwal}
             onChange={handleChange}
-            className="mt-1 block w-full border rounded-md p-2"
+            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
         {/* Tanggal Akhir */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Tanggal Akhir
           </label>
           <input
@@ -64,31 +63,31 @@ export default function AttendanceFilter({ onChange }: AttendanceFilterProps) {
             name="tanggalAkhir"
             value={values.tanggalAkhir}
             onChange={handleChange}
-            className="mt-1 block w-full border rounded-md p-2"
+            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
-        {/* Metode Presensi */}
+        {/* Metode */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Metode
           </label>
           <select
             name="metode"
             value={values.metode}
             onChange={handleChange}
-            className="mt-1 block w-full border rounded-md p-2"
+            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Semua</option>
             <option value="barcode">Barcode</option>
-            <option value="lokasi">Lokasi</option>
+            <option value="selfie">Selfie</option>
             <option value="manual">Manual</option>
           </select>
         </div>
 
-        {/* Nama Pegawai */}
+        {/* Pegawai */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Pegawai
           </label>
           <input
@@ -97,27 +96,29 @@ export default function AttendanceFilter({ onChange }: AttendanceFilterProps) {
             value={values.pegawai}
             onChange={handleChange}
             placeholder="Cari nama pegawai"
-            className="mt-1 block w-full border rounded-md p-2"
+            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
-        {/* Status Absensi */}
+        {/* Status */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Status
           </label>
           <select
             name="status"
             value={values.status}
             onChange={handleChange}
-            className="mt-1 block w-full border rounded-md p-2"
+            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Semua</option>
-            <option value="hadir">Hadir</option>
-            <option value="terlambat">Terlambat</option>
-            <option value="izin">Izin</option>
-            <option value="sakit">Sakit</option>
-            <option value="alpha">Alpha</option>
+            {/* StatusMasuk */}
+            <option value="HADIR">Hadir</option>
+            <option value="TERLAMBAT">Terlambat</option>
+            {/* Keterangan */}
+            <option value="IZIN">Izin</option>
+            <option value="SAKIT">Sakit</option>
+            <option value="ALPHA">Alpha</option>
           </select>
         </div>
       </div>

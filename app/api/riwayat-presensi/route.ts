@@ -14,42 +14,43 @@ export async function GET(req: Request) {
     const where: any = {};
 
     // Filter tanggal
-    if (tanggalAwal && tanggalAkhir) {
+     if (tanggalAwal && tanggalAkhir) {
       where.date = {
         gte: new Date(tanggalAwal),
-        lte: new Date(tanggalAkhir),
+        lte: new Date(new Date(tanggalAkhir).setHours(23, 59, 59, 999)),
       };
     } else if (tanggalAwal) {
       where.date = { gte: new Date(tanggalAwal) };
     } else if (tanggalAkhir) {
-      where.date = { lte: new Date(tanggalAkhir) };
+      where.date = { lte: new Date(new Date(tanggalAkhir).setHours(23, 59, 59, 999)) };
     }
 
+    // Filter metode
     if (metode === "barcode") {
       where.OR = [{ barcodeIn: { not: null } }, { barcodeOut: { not: null } }];
-    } else if (metode === "lokasi") {
+    } else if (metode === "selfie") {
       where.AND = [{ latitude: { not: null } }, { longitude: { not: null } }];
     } else if (metode === "manual") {
       where.barcodeIn = null;
       where.latitude = null;
     }
 
+    // Filter status
     if (status) {
       const upperStatus = status.toUpperCase();
-      if (upperStatus === "TIDAK_HADIR") {
-        where.AND = [
-          { statusMasuk: null },
-          { statusPulang: null },
-          { keterangan: { in: ["IZIN", "SAKIT", "ALPHA"] } },
-        ];
-      } else {
-        where.OR = [
-          { statusMasuk: upperStatus },
-          { statusPulang: upperStatus },
-        ];
+
+      if (["IZIN", "SAKIT", "ALPHA"].includes(upperStatus)) {
+        // hanya filter berdasarkan keterangan saja
+        where.keterangan = upperStatus;
+      } else if (upperStatus === "HADIR") {
+        // HADIR = statusMasuk TERLAMBAT atau TEPAT_WAKTU
+        where.statusMasuk = { in: ["TERLAMBAT", "TEPAT_WAKTU"] };
+      } else if (upperStatus === "TERLAMBAT" || upperStatus === "TEPAT_WAKTU") {
+        where.statusMasuk = upperStatus;
       }
     }
 
+    // Filter nama pegawai
     if (pegawai) {
       where.user = {
         karyawan: {
@@ -58,6 +59,7 @@ export async function GET(req: Request) {
       };
     }
 
+    // Ambil data presensi
     const attendances = await prisma.attendance.findMany({
       where,
       include: {
@@ -72,14 +74,15 @@ export async function GET(req: Request) {
       orderBy: { date: "desc" },
     });
 
+    // Format hasil
     const result = attendances.map((a) => ({
       id_at: a.id_at,
       userId: a.userId,
       date: a.date,
-      clockIn: a.clockIn,
-      clockOut: a.clockOut,
-      statusMasuk: a.statusMasuk,
-      statusPulang: a.statusPulang,
+      clockIn: a.clockIn ?? null,
+      clockOut: a.clockOut ?? null,
+      statusMasuk: a.statusMasuk ?? null,
+      statusPulang: a.statusPulang ?? null,
       photoIn: a.photoIn ?? null,
       photoOut: a.photoOut ?? null,
       barcodeIn: a.barcodeIn ?? null,
@@ -91,12 +94,15 @@ export async function GET(req: Request) {
         department: a.user.karyawan?.department ?? "-",
         position: a.user.karyawan?.position ?? "-",
       },
-      keterangan: a.keterangan ?? null, // optional: biar frontend bisa tampil keterangan
+      keterangan: a.keterangan ?? null,
     }));
 
     return NextResponse.json(result);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Gagal ambil data" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Gagal ambil data", data: [] },
+      { status: 500 }
+    );
   }
 }
