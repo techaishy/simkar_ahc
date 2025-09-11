@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; 
-import type {  KaryawanProfile } from '@/lib/types/user';
+import type {Karyawan } from '@/lib/types/karyawan';
 import { AttendanceRecord } from '@/lib/types/attendance';
 import { startOfDayWIB, endOfDayWIB } from '@/lib/timezone';
 
@@ -26,7 +26,7 @@ export async function GET() {
     }
   });
 
-   const karyawan: KaryawanProfile[] = karyawanRaw.map(
+   const karyawan: Karyawan[] = karyawanRaw.map(
     (k: typeof karyawanRaw[number]) => ({
       id: k.id,
       customId: k.customId,
