@@ -23,16 +23,25 @@ import {
 
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import PegawaiForm from "./PegawaiForm";
+import ConfirmDeleteModal from "./ConfirmDeleteModal"; 
 import type { Karyawan } from "@/lib/types/karyawan";
-import { statusLabel, statusVariant } from "@/lib/types/helper";
+import { statusVariant } from "@/lib/types/helper";
+
+import PaginationControl from "@/components/ui/PaginationControl";
 
 export default function DataPegawaiTable() {
-const tableRef = useRef<HTMLTableElement>(null);
-  const [Karyawan, setKaryawan] = useState<Karyawan[]>([]);
+  const tableRef = useRef<HTMLTableElement>(null);
+  const [karyawan, setKaryawan] = useState<Karyawan[]>([]);
   const [selectedKaryawan, setSelectedKaryawan] = useState<Karyawan | null>(null);
+
   const [openTambah, setOpenTambah] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false); 
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(7);
+
+  // Ambil data pegawai dari API
   useEffect(() => {
     const fetchKaryawan = async () => {
       try {
@@ -47,19 +56,48 @@ const tableRef = useRef<HTMLTableElement>(null);
     fetchKaryawan();
   }, []);
 
-  const handleSave = (KaryawanBaru: Karyawan) => {
-    setKaryawan((prev) => [
-      ...prev,
-      { ...KaryawanBaru, id: String(prev.length + 1) },
-    ]);
+  const totalPages = Math.ceil(karyawan.length / perPage);
+  const paginatedData = karyawan.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleSave = (pegawaiBaru: Karyawan) => {
+    setKaryawan((prev) => [...prev, pegawaiBaru]);
     setOpenTambah(false);
   };
 
-  const handleUpdate = (KaryawanBaru:Karyawan) => {
+  const handleUpdate = (pegawaiUpdate: Karyawan) => {
     setKaryawan((prev) =>
-      prev.map((pg) => (pg.id === KaryawanBaru.id ? KaryawanBaru : pg))
+      prev.map((pg) => (pg.id === pegawaiUpdate.id ? pegawaiUpdate : pg))
     );
     setOpenEdit(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    console.log("isi karyawan" ,selectedKaryawan)
+    if (!selectedKaryawan) return;
+    try {
+      const res = await fetch(`/api/pegawai/${selectedKaryawan.id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setKaryawan((prev) =>
+          prev.filter((pg) => pg.customId !== selectedKaryawan.customId)
+        );
+      } else {
+        console.error("Gagal hapus pegawai");
+      }
+    } catch (error) {
+      console.error("Error deleting pegawai:", error);
+    } finally {
+      setOpenDelete(false);
+    }
   };
 
   return (
@@ -104,12 +142,12 @@ const tableRef = useRef<HTMLTableElement>(null);
               <th className="p-2 hidden md:table-cell">Telpon</th>
               <th className="p-2 hidden md:table-cell">Email</th>
               <th className="p-2 hidden md:table-cell">Status</th>
-              <th className="p-2 hidden md:table-cell">Aksi</th>
-              <th className="p-2 block md:hidden">Detail</th>
+              <th className="p-2 hidden md:table-cell no-print">Aksi</th>
+              <th className="p-2 block md:hidden no-print">Detail</th>
             </tr>
           </thead>
           <tbody>
-            {Karyawan.map((p) => (
+            {paginatedData.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50 border-t">
                 <td className="p-2">{p.id}</td>
                 <td className="p-2">{p.name}</td>
@@ -119,13 +157,11 @@ const tableRef = useRef<HTMLTableElement>(null);
                 <td className="p-2 hidden md:table-cell">{p.phone}</td>
                 <td className="p-2 hidden md:table-cell">{p.emailPribadi}</td>
                 <td className="p-2 hidden md:table-cell">
-                  <Badge variant={statusVariant[p.status]}>
-                    {p.status}
-                  </Badge>
+                  <Badge variant={statusVariant[p.status]}>{p.status}</Badge>
                 </td>
 
                 {/* Aksi */}
-                <td className="p-2 hidden md:table-cell text-right relative">
+                <td className="p-2 hidden md:table-cell text-right relative no-print">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button className="p-2 border rounded">
@@ -147,9 +183,10 @@ const tableRef = useRef<HTMLTableElement>(null);
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() =>
-                          setKaryawan(Karyawan.filter((item) => item.id !== p.id))
-                        }
+                        onClick={() => {
+                          setSelectedKaryawan(p);
+                          setOpenDelete(true);
+                        }}
                         className="text-red-600"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -160,7 +197,7 @@ const tableRef = useRef<HTMLTableElement>(null);
                 </td>
 
                 {/* Mobile: tombol detail */}
-                <td className="p-2 block md:hidden">
+                <td className="p-2 block md:hidden no-print">
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
@@ -183,52 +220,38 @@ const tableRef = useRef<HTMLTableElement>(null);
                         <div className="mt-4 space-y-2 text-sm">
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">ID</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.id}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.id}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Nama</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.name}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.name}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">NIP</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.nip}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.nip}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Jabatan</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.position}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.position}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">NIK</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.nik}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.nik}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Telepon</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.phone}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.phone}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Email</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.emailPribadi}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.emailPribadi}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Status</span>
                             <span className="col-span-2">
-                             <Badge variant={statusVariant[selectedKaryawan.status]}>
-                              {selectedKaryawan.status}
-                            </Badge>
+                              <Badge variant={statusVariant[selectedKaryawan.status]}>
+                                {selectedKaryawan.status}
+                              </Badge>
                             </span>
                           </div>
                         </div>
@@ -240,6 +263,34 @@ const tableRef = useRef<HTMLTableElement>(null);
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Kontrol pagination + dropdown jumlah data */}
+      <div className="mt-4 flex justify-between items-center">
+        {/* Dropdown jumlah data per halaman */}
+        <div className="flex items-center gap-2 text-sm">
+          <span>Tampilkan</span>
+          <select
+            value={perPage}
+            onChange={(e) => {
+              setPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="border rounded px-2 py-1 text-sm bg-white text-black"
+          >
+            <option value={7}>7</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={30}>30</option>
+          </select>
+          <span>data</span>
+        </div>
+
+        <PaginationControl
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
       </div>
 
       {/* Dialog Edit */}
@@ -259,6 +310,13 @@ const tableRef = useRef<HTMLTableElement>(null);
           )}
         </DialogContent>
       </Dialog>
+
+      <ConfirmDeleteModal
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+        onConfirm={handleConfirmDelete}
+        namaPegawai={selectedKaryawan?.name}
+      />
     </Card>
   );
 }

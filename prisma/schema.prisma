@@ -79,7 +79,7 @@ model Attendance {
   barcodeInAt  DateTime?
   barcodeOutAt DateTime?
   createdAt    DateTime         @default(now())
-  user         User             @relation(fields: [userId], references: [customId])
+  user         User             @relation(fields: [userId], references: [customId],  onDelete: Cascade)
   kantor       Kantor?          @relation(fields: [kantorId], references: [id])
   lokasiDinas  LokasiDinas?     @relation(fields: [lokasiId], references: [id])
   keterangan   Keterangan
