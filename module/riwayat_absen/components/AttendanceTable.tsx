@@ -18,7 +18,7 @@ export default function AttendanceTable({
   onPageChange,
 }: Props) {
   return (
-    <Card className="w-full overflow-auto rounded-2xl p-6 shadow-md border border-transparent space-y-4">
+    <Card className="w-full overflow-auto rounded-2xl p-6 shadow-md border border-transparent space-y-4 mt-2">
       <table className="w-full text-sm text-left min-w-[900px]">
         <thead className="text-xs uppercase bg-gray-100 text-gray-600">
           <tr>
@@ -60,35 +60,67 @@ export default function AttendanceTable({
         </tbody>
       </table>
 
-      {/* Pagination di dalam card */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-3 mt-4">
-          <button
-            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            className={`px-3 py-1 rounded ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }`}
-          >
-            Prev
-          </button>
-          <span className="font-medium text-gray-700">
-            Halaman {currentPage} dari {totalPages}
-          </span>
-          <button
-            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded ${
-              currentPage === totalPages
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }`}
-          >
-            Next
-          </button>
-        </div>
+      <div className="flex justify-center items-center gap-2 mt-4 flex-wrap">
+        {/* Tombol Previous */}
+        <button
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 rounded ${
+            currentPage === 1
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+        >
+          Prev
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => i + 1)
+          .filter((page) => {
+            return (
+              page === 1 ||
+              page === 2 ||
+              page === totalPages - 1 ||
+              page === totalPages ||
+              Math.abs(page - currentPage) <= 1
+            );
+          })
+          .map((page, idx, arr) => {
+            const prevPage = arr[idx - 1];
+            if (prevPage && page - prevPage > 1) {
+              return (
+                <span key={`ellipsis-${page}`} className="px-2 text-gray-500">
+                  …
+                </span>
+              );
+            }
+            return (
+              <button
+                key={page}
+                onClick={() => onPageChange(page)}
+                className={`px-3 py-1 rounded ${
+                  page === currentPage
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                {page}
+              </button>
+            );
+          })}
+
+        <button
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+          className={`px-3 py-1 rounded ${
+            currentPage === totalPages
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+        >
+          Next
+        </button>
+      </div>
       )}
     </Card>
   );
