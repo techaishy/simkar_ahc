@@ -3,16 +3,22 @@ import { prisma } from "@/lib/prisma";
 import type { AttendanceMasuk, AttendancePulang } from "@/lib/types/user";
 import jwt from "jsonwebtoken";
 
+export const dynamic = "force-dynamic"; 
+
 const JWT_SECRET = process.env.JWT_SECRET || "rahasia_super_aman";
 
 export async function GET(req: Request) {
   try {
-    const url = new URL(req.url);
-    const page = parseInt(url.searchParams.get("page") || "1");
+    const { searchParams } = (req as any).nextUrl;
+    const page = parseInt(searchParams.get("page") || "1");
     const limit = 6;
 
     // Ambil token dari cookie
-    const token = req.headers.get("cookie")?.split("; ").find(c => c.startsWith("token="))?.split("=")[1];
+    const token = req.headers
+      .get("cookie")
+      ?.split("; ")
+      .find((c) => c.startsWith("token="))
+      ?.split("=")[1];
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     let payload: any;
@@ -22,19 +28,18 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const userId = payload.id 
+    const userId = payload.id;
     const attendances = await prisma.attendance.findMany({
-    where: { userId },
-    include: {
+      where: { userId },
+      include: {
         lokasiDinas: true,
-        kantor: true
-    },
-    orderBy: { date: "desc" },
+        kantor: true,
+      },
+      orderBy: { date: "desc" },
     });
 
-    // Pecah tiap attendance menjadi 2 record (masuk & pulang)
     const history: any[] = [];
-    attendances.forEach(att => {
+    attendances.forEach((att) => {
       if (att.clockIn) {
         history.push({
           id: att.id_at + "_in",
