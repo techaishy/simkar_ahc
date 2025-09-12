@@ -1,20 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(req: Request) {
+export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
 
     const tanggalAwal = searchParams.get("tanggalAwal");
     const tanggalAkhir = searchParams.get("tanggalAkhir");
     const metode = searchParams.get("metode");
     const pegawai = searchParams.get("pegawai");
     const status = searchParams.get("status");
-
     const where: any = {};
 
-    // Filter tanggal
-     if (tanggalAwal && tanggalAkhir) {
+    if (tanggalAwal && tanggalAkhir) {
       where.date = {
         gte: new Date(tanggalAwal),
         lte: new Date(new Date(tanggalAkhir).setHours(23, 59, 59, 999)),
@@ -25,7 +25,6 @@ export async function GET(req: Request) {
       where.date = { lte: new Date(new Date(tanggalAkhir).setHours(23, 59, 59, 999)) };
     }
 
-    // Filter metode
     if (metode === "barcode") {
       where.OR = [{ barcodeIn: { not: null } }, { barcodeOut: { not: null } }];
     } else if (metode === "selfie") {
@@ -35,22 +34,17 @@ export async function GET(req: Request) {
       where.latitude = null;
     }
 
-    // Filter status
     if (status) {
       const upperStatus = status.toUpperCase();
-
       if (["IZIN", "SAKIT", "ALPHA"].includes(upperStatus)) {
-        // hanya filter berdasarkan keterangan saja
         where.keterangan = upperStatus;
       } else if (upperStatus === "HADIR") {
-        // HADIR = statusMasuk TERLAMBAT atau TEPAT_WAKTU
         where.statusMasuk = { in: ["TERLAMBAT", "TEPAT_WAKTU"] };
       } else if (upperStatus === "TERLAMBAT" || upperStatus === "TEPAT_WAKTU") {
         where.statusMasuk = upperStatus;
       }
     }
 
-    // Filter nama pegawai
     if (pegawai) {
       where.user = {
         karyawan: {
@@ -59,22 +53,17 @@ export async function GET(req: Request) {
       };
     }
 
-    // Ambil data presensi
+
     const attendances = await prisma.attendance.findMany({
       where,
       include: {
-        user: {
-          include: {
-            karyawan: true,
-          },
-        },
+        user: { include: { karyawan: true } },
         kantor: true,
         lokasiDinas: true,
       },
       orderBy: { date: "desc" },
     });
 
-    // Format hasil
     const result = attendances.map((a) => ({
       id_at: a.id_at,
       userId: a.userId,
