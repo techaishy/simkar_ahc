@@ -52,6 +52,7 @@ export async function GET() {
           createdAt: now,
           kantorId: user.kantorId,
           lokasiId: null,
+          keterangan:'ALPHA',
         },
       });
 
