@@ -23,19 +23,18 @@ import {
 
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import PegawaiForm from "./PegawaiForm";
-import type { Karyawan} from "@/lib/types/karyawan";
+import type { Karyawan } from "@/lib/types/karyawan";
 import { statusLabel, statusVariant } from "@/lib/types/helper";
 
 import PaginationControl from "@/components/ui/PaginationControl";
 
-
 export default function DataPegawaiTable() {
-const tableRef = useRef<HTMLTableElement>(null);
+  const tableRef = useRef<HTMLTableElement>(null);
   const [Karyawan, setKaryawan] = useState<Karyawan[]>([]);
   const [selectedKaryawan, setSelectedKaryawan] = useState<Karyawan | null>(null);
   const [openTambah, setOpenTambah] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
- 
+
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(7);
 
@@ -64,7 +63,6 @@ const tableRef = useRef<HTMLTableElement>(null);
     setPerPage(newPerPage);
   };
 
-
   const handleSave = (KaryawanBaru: Karyawan) => {
     setKaryawan((prev) => [
       ...prev,
@@ -73,7 +71,7 @@ const tableRef = useRef<HTMLTableElement>(null);
     setOpenTambah(false);
   };
 
-  const handleUpdate = (KaryawanBaru:Karyawan) => {
+  const handleUpdate = (KaryawanBaru: Karyawan) => {
     setKaryawan((prev) =>
       prev.map((pg) => (pg.id === KaryawanBaru.id ? KaryawanBaru : pg))
     );
@@ -244,9 +242,9 @@ const tableRef = useRef<HTMLTableElement>(null);
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Status</span>
                             <span className="col-span-2">
-                             <Badge variant={statusVariant[selectedKaryawan.status]}>
-                              {selectedKaryawan.status}
-                            </Badge>
+                              <Badge variant={statusVariant[selectedKaryawan.status]}>
+                                {selectedKaryawan.status}
+                              </Badge>
                             </span>
                           </div>
                         </div>
@@ -260,7 +258,27 @@ const tableRef = useRef<HTMLTableElement>(null);
         </table>
       </div>
 
-      <div className="mt-4 flex justify-end">
+      {/* Kontrol pagination + dropdown jumlah data */}
+      <div className="mt-4 flex justify-between items-center">
+        {/* Dropdown jumlah data per halaman */}
+        <div className="flex items-center gap-2 text-sm">
+          <span>Tampilkan</span>
+          <select
+            value={perPage}
+            onChange={(e) => {
+              setPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="border rounded px-2 py-1 text-sm bg-white text-black"
+          >
+            <option value={7}>7</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={30}>30</option>
+          </select>
+          <span>data</span>
+        </div>
+
         <PaginationControl
           totalPages={totalPages}
           currentPage={currentPage}
