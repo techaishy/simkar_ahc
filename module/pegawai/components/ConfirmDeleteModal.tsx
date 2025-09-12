@@ -23,8 +23,9 @@ export default function ConfirmDeleteModal({
   namaPegawai,
 }: ConfirmDeleteModalProps) {
   return (
+    
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md p-6 space-y-4">
+      <DialogContent className="sm:max-w-md p-6 space-y-4 bg-gradient-to-br from-black to-gray-900 text-white rounded-lg shadow-lg">
         <DialogHeader>
           <DialogTitle className="text-red-600 font-semibold text-lg">
             Konfirmasi Hapus
