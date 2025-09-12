@@ -23,21 +23,25 @@ import {
 
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import PegawaiForm from "./PegawaiForm";
+import ConfirmDeleteModal from "./ConfirmDeleteModal"; 
 import type { Karyawan } from "@/lib/types/karyawan";
-import { statusLabel, statusVariant } from "@/lib/types/helper";
+import { statusVariant } from "@/lib/types/helper";
 
 import PaginationControl from "@/components/ui/PaginationControl";
 
 export default function DataPegawaiTable() {
   const tableRef = useRef<HTMLTableElement>(null);
-  const [Karyawan, setKaryawan] = useState<Karyawan[]>([]);
+  const [karyawan, setKaryawan] = useState<Karyawan[]>([]);
   const [selectedKaryawan, setSelectedKaryawan] = useState<Karyawan | null>(null);
+
   const [openTambah, setOpenTambah] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false); 
 
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(7);
 
+  // Ambil data pegawai dari API
   useEffect(() => {
     const fetchKaryawan = async () => {
       try {
@@ -52,30 +56,48 @@ export default function DataPegawaiTable() {
     fetchKaryawan();
   }, []);
 
-  const totalPages = Math.ceil(Karyawan.length / perPage);
-  const paginatedData = Karyawan.slice(
+  const totalPages = Math.ceil(karyawan.length / perPage);
+  const paginatedData = karyawan.slice(
     (currentPage - 1) * perPage,
     currentPage * perPage
   );
 
-  const handlePageChange = (page: number, newPerPage: number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    setPerPage(newPerPage);
   };
 
-  const handleSave = (KaryawanBaru: Karyawan) => {
-    setKaryawan((prev) => [
-      ...prev,
-      { ...KaryawanBaru, id: String(prev.length + 1) },
-    ]);
+  const handleSave = (pegawaiBaru: Karyawan) => {
+    setKaryawan((prev) => [...prev, pegawaiBaru]);
     setOpenTambah(false);
   };
 
-  const handleUpdate = (KaryawanBaru: Karyawan) => {
+  const handleUpdate = (pegawaiUpdate: Karyawan) => {
     setKaryawan((prev) =>
-      prev.map((pg) => (pg.id === KaryawanBaru.id ? KaryawanBaru : pg))
+      prev.map((pg) => (pg.id === pegawaiUpdate.id ? pegawaiUpdate : pg))
     );
     setOpenEdit(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    console.log("isi karyawan" ,selectedKaryawan)
+    if (!selectedKaryawan) return;
+    try {
+      const res = await fetch(`/api/pegawai/${selectedKaryawan.id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setKaryawan((prev) =>
+          prev.filter((pg) => pg.customId !== selectedKaryawan.customId)
+        );
+      } else {
+        console.error("Gagal hapus pegawai");
+      }
+    } catch (error) {
+      console.error("Error deleting pegawai:", error);
+    } finally {
+      setOpenDelete(false);
+    }
   };
 
   return (
@@ -135,9 +157,7 @@ export default function DataPegawaiTable() {
                 <td className="p-2 hidden md:table-cell">{p.phone}</td>
                 <td className="p-2 hidden md:table-cell">{p.emailPribadi}</td>
                 <td className="p-2 hidden md:table-cell">
-                  <Badge variant={statusVariant[p.status]}>
-                    {p.status}
-                  </Badge>
+                  <Badge variant={statusVariant[p.status]}>{p.status}</Badge>
                 </td>
 
                 {/* Aksi */}
@@ -163,9 +183,10 @@ export default function DataPegawaiTable() {
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() =>
-                          setKaryawan(Karyawan.filter((item) => item.id !== p.id))
-                        }
+                        onClick={() => {
+                          setSelectedKaryawan(p);
+                          setOpenDelete(true);
+                        }}
                         className="text-red-600"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -199,45 +220,31 @@ export default function DataPegawaiTable() {
                         <div className="mt-4 space-y-2 text-sm">
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">ID</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.id}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.id}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Nama</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.name}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.name}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">NIP</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.nip}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.nip}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Jabatan</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.position}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.position}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">NIK</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.nik}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.nik}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Telepon</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.phone}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.phone}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Email</span>
-                            <span className="col-span-2">
-                              {selectedKaryawan.emailPribadi}
-                            </span>
+                            <span className="col-span-2">{selectedKaryawan.emailPribadi}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-2">
                             <span className="font-medium">Status</span>
@@ -303,6 +310,13 @@ export default function DataPegawaiTable() {
           )}
         </DialogContent>
       </Dialog>
+
+      <ConfirmDeleteModal
+        open={openDelete}
+        onClose={() => setOpenDelete(false)}
+        onConfirm={handleConfirmDelete}
+        namaPegawai={selectedKaryawan?.name}
+      />
     </Card>
   );
 }
