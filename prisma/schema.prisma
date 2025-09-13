@@ -82,6 +82,7 @@ model Attendance {
   user         User             @relation(fields: [userId], references: [customId])
   kantor       Kantor?          @relation(fields: [kantorId], references: [id])
   lokasiDinas  LokasiDinas?     @relation(fields: [lokasiId], references: [id])
+  keterangan   Keterangan
 }
 
 model Barcode {
@@ -199,3 +200,9 @@ enum AttendancePulang {
   TIDAK_HADIR
 }
 
+enum Keterangan {
+  HADIR
+  IZIN
+  SAKIT
+  ALPHA
+}
