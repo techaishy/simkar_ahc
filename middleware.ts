@@ -21,7 +21,7 @@ export function middleware(request: NextRequest) {
 
   try {
     const payload = jwt.verify(token, JWT_SECRET) as { role?: string }
-    if (pathname.startsWith('/dashboard') && !['ADMIN', 'MANAJER', 'OWNER'].includes(payload.role || '')) {
+    if (pathname.startsWith('/admin') && !['ADMIN', 'MANAJER', 'OWNER'].includes(payload.role || '')) {
       return NextResponse.redirect(new URL('/', request.url))
     }
 
