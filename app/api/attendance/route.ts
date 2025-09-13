@@ -39,7 +39,6 @@ export async function GET() {
   );
 
     // Ambil presensi hari ini
-    const today = new Date().toISOString().split('T')[0];
     const attendanceRaw = await prisma.attendance.findMany({
       where: {
         date: {
