@@ -4,22 +4,18 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react";
-import { Role } from "@/lib/types/auth";
-
+import { UserRole } from "@/lib/types/user";
+import { MenuItem } from "@/lib/menu-items";
 
 type NavMainItem = {
   title: string;
   url: string;
   icon: React.ElementType;
-  roles?: Role[];
-  items?: {
-    title: string;
-    url: string;
-    roles?: Role[];
-  }[];
+  roles?: UserRole[];
+  items?: NavMainItem[];
 };
 
-export function NavMain({ items, role }: { items: NavMainItem[]; role: Role }) {
+export function NavMain({ items, role }: { items: MenuItem[]; role: UserRole }) {
   const [openMenus, setOpenMenus] = useState<string[]>([]);
   const pathname = usePathname();
 
@@ -29,16 +25,30 @@ export function NavMain({ items, role }: { items: NavMainItem[]; role: Role }) {
     );
   };
 
-  const filteredItems = items
-  .map(item => ({
-    ...item,
-    items: item.items?.filter(sub => sub.roles?.includes(role)), // hanya roles yang match
-  }))
-  .filter(item => item.roles?.includes(role) || (item.items && item.items.length > 0));
+  // Map MenuItem ke NavMainItem
+  const mappedItems: NavMainItem[] = items
+    .map((item) => ({
+      title: item.name,
+      url: item.href,
+      icon: item.icon,
+      roles: item.allowedRoles,
+      items: item.items?.map((sub) => ({
+        title: sub.name,
+        url: sub.href,
+        icon: sub.icon,
+        roles: sub.allowedRoles,
+      })),
+    }))
+    // Filter berdasarkan role user
+    .map((item) => ({
+      ...item,
+      items: item.items?.filter((sub) => sub.roles?.includes(role)),
+    }))
+    .filter((item) => item.roles?.includes(role) || (item.items && item.items.length > 0));
 
   return (
     <nav className="space-y-1 px-4 py-2">
-      {filteredItems.map((item) => {
+      {mappedItems.map((item) => {
         const Icon = item.icon;
         const hasChildren = !!item.items?.length;
         const isOpen = openMenus.includes(item.title);
@@ -57,8 +67,7 @@ export function NavMain({ items, role }: { items: NavMainItem[]; role: Role }) {
                       isActiveParent
                         ? "text-black bg-gradient-to-r from-[#d2e67a] to-[#f9fc4f]"
                         : "text-gray-300 hover:text-black hover:bg-gradient-to-r hover:from-[#d2e67a] hover:to-[#f9fc4f]"
-                    }
-                  `}
+                    }`}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="ml-3 flex-1">{item.title}</span>
@@ -81,8 +90,7 @@ export function NavMain({ items, role }: { items: NavMainItem[]; role: Role }) {
                               isSubActive
                                 ? "text-black bg-gradient-to-r from-[#d2e67a] to-[#f9fc4f]"
                                 : "text-gray-300 hover:text-black hover:bg-gradient-to-r hover:from-[#d2e67a] hover:to-[#f9fc4f]"
-                            }
-                          `}
+                            }`}
                         >
                           {sub.title}
                         </Link>
@@ -99,8 +107,7 @@ export function NavMain({ items, role }: { items: NavMainItem[]; role: Role }) {
                     isActive
                       ? "text-black bg-gradient-to-r from-[#d2e67a] to-[#f9fc4f]"
                       : "text-gray-300 hover:text-black hover:bg-gradient-to-r hover:from-[#d2e67a] hover:to-[#f9fc4f]"
-                  }
-                `}
+                  }`}
               >
                 <Icon className="w-5 h-5" />
                 <span className="ml-3">{item.title}</span>
