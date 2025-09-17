@@ -24,7 +24,7 @@ export const menuItems: MenuItem[] = [
     name: 'Dashboard',
     href: '/admin/dashboard',
     icon: IconDashboard,
-    allowedRoles: ['ADMIN', 'OWNER', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN']
+    allowedRoles: ['ADMIN', 'OWNER', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'KARYAWAN']
   },
   {
     name: 'Presensi',

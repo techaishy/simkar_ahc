@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 export const runtime = "nodejs";
 
-const JWT_SECRET = process.env.JWT_SECRET || "rahasia_super_aman";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(request: Request) {
   try {
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
     const token = jwt.sign(
       { id: user.customId, username: user.username, role: user.role },
-      JWT_SECRET,
+      JWT_SECRET!,
       { expiresIn: "8h" }
     );
 

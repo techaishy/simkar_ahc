@@ -1,20 +1,16 @@
-"use client";
-
-import * as React from "react";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem } from "@/module/dashboard/components/Sidebar";
-import { NavMain } from "@/module/dashboard/components/NavMain";
-import { NavDocuments } from "@/module/dashboard/components/NavDocuments";
-import Logo from "@/components/ui/logo";
-import { UserRole } from "@/lib/types/user";
-import { menuItems, MenuItem } from "@/lib/menu-items";
+'use client';
+import * as React from 'react';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem } from '@/module/dashboard/components/Sidebar';
+import { NavMain } from '@/module/dashboard/components/NavMain';
+import { NavDocuments } from '@/module/dashboard/components/NavDocuments';
+import Logo from '@/components/ui/logo';
+import { UserRole } from '@/lib/types/user';
+import { menuItems, MenuItem } from '@/lib/menu-items';
 
 function filterMenuByRole(items: MenuItem[], role: UserRole): MenuItem[] {
   return items
     .filter(item => item.allowedRoles.includes(role))
-    .map(item => ({
-      ...item,
-      items: item.items ? filterMenuByRole(item.items, role) : [],
-    }));
+    .map(item => ({ ...item, items: item.items ? filterMenuByRole(item.items, role) : [] }));
 }
 
 type AppSidebarProps = {
@@ -32,9 +28,7 @@ export default function AppSidebar({ role, ...props }: AppSidebarProps & React.C
             <div className="m-2 flex items-start gap-2">
               <Logo />
               <div className="w-px h-10 bg-white"></div>
-              <span className="text-base font-semibold leading-tight">
-                PT. Aishy Health Calibration
-              </span>
+              <span className="text-base font-semibold leading-tight">PT. Aishy Health Calibration</span>
             </div>
             <div className="p-1">
               <div className="text-xs mt-1 pb-2">
@@ -50,7 +44,7 @@ export default function AppSidebar({ role, ...props }: AppSidebarProps & React.C
 
       <SidebarContent>
         <NavMain items={filteredMenu} role={role} />
-        <NavDocuments items={[]} /> 
+        <NavDocuments items={[]} />
       </SidebarContent>
 
       <SidebarFooter>
