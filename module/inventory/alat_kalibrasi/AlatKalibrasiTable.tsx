@@ -23,11 +23,10 @@ import {
 
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import AlatForm from "./AlatForm";
-import ConfirmDeleteModal from "./ConfirmDeleteModal"; 
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import PaginationControl from "@/components/ui/PaginationControl";
 
 import type { Alat } from "@/lib/types/alat";
-
 
 export default function DataAlatTable() {
   const tableRef = useRef<HTMLTableElement>(null);
@@ -211,7 +210,7 @@ export default function DataAlatTable() {
 
       {/* Pagination */}
       <div className="mt-4 flex justify-between items-center">
-        <div className="flex items-center gap-2 text-sm">
+        {/* <div className="flex items-center gap-2 text-sm">
           <span>Tampilkan</span>
           <select
             value={perPage}
@@ -227,11 +226,12 @@ export default function DataAlatTable() {
             <option value={30}>30</option>
           </select>
           <span>data</span>
-        </div>
+        </div> */}
 
         <PaginationControl
           totalPages={totalPages}
           currentPage={currentPage}
+          perPage={perPage}
           onPageChange={handlePageChange}
         />
       </div>
