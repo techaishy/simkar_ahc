@@ -2,7 +2,7 @@
 
 import { Menu, User, Settings, HelpCircle, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/authContext";
 
 interface DashboardHeaderProps {
   onToggleSidebar: () => void;
@@ -11,7 +11,7 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ onToggleSidebar }: DashboardHeaderProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const router = useRouter();
+  const { logout } = useAuth();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -22,11 +22,6 @@ export function DashboardHeader({ onToggleSidebar }: DashboardHeaderProps) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const handleLogout = async () => {
-  await fetch("/api/logout", { method: "POST" });
-  router.replace("/"); 
-};
 
   return (
     <header className="w-full px-6 py-3 bg-white border-b border-gray-300 flex items-center justify-between">
@@ -61,7 +56,7 @@ export function DashboardHeader({ onToggleSidebar }: DashboardHeaderProps) {
             </button>
             <div className="border-t my-1" />
              <button
-              onClick={handleLogout}
+              onClick={logout}
               className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
               <LogOut className="w-4 h-4" /> Logout
             </button>
