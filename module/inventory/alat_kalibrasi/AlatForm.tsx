@@ -27,11 +27,10 @@ export default function AlatForm({ onSave, initialData }: Props) {
       nama: "",
       kategori: "",
       merek: "",
-      nomorSeri: "",
       jumlah: 1,
       tersedia: "",
       tanggalMasuk: "",
-      status: "Tersedia",
+      status: "TERSEDIA",
     }
   );
 
@@ -99,14 +98,7 @@ export default function AlatForm({ onSave, initialData }: Props) {
           <Label className="mb-2 block">Merek/Model</Label>
           <Input name="merek" value={form.merek} onChange={handleChange} />
         </div>
-        <div>
-          <Label className="mb-2 block">Nomor Seri</Label>
-          <Input
-            name="nomorSeri"
-            value={form.nomorSeri}
-            onChange={handleChange}
-          />
-        </div>
+  
         <div>
           <Label className="mb-2 block">Jumlah</Label>
           <Input
@@ -120,8 +112,11 @@ export default function AlatForm({ onSave, initialData }: Props) {
           )}
         </div>
         <div>
-          <Label className="mb-2 block">Lokasi</Label>
-          <Input name="lokasi" value={form.tersedia} onChange={handleChange} />
+          <Label className="mb-2 block">Tersedia</Label>
+          <Input 
+          type="number"
+          name="tersedia" 
+          value={form.tersedia} onChange={handleChange} />
         </div>
         <div>
           <Label className="mb-2 block">Tanggal Masuk</Label>

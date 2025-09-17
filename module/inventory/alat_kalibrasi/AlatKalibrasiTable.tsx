@@ -136,9 +136,11 @@ export default function DataAlatTable() {
               <th className="p-2">Kode</th>
               <th className="p-2">Nama Alat</th>
               <th className="p-2">Kategori</th>
+              <th className="p-2">Merek</th>
               <th className="p-2">Jumlah</th>
-              <th className="p-2">Status</th>
               <th className="p-2 no-print">Tersedia</th>
+              <th className="p-2 no-print">Tanggal Masuk</th>
+              <th className="p-2 no-print">Status</th>
               <th className="p-2 no-print">Aksi</th>
             </tr>
           </thead>
@@ -148,14 +150,16 @@ export default function DataAlatTable() {
                 <td className="p-2">{a.kode}</td>
                 <td className="p-2">{a.nama}</td>
                 <td className="p-2">{a.kategori}</td>
-                <td className="p-2">{a.tersedia}</td>
+                <td className="p-2">{a.merek}</td>
                 <td className="p-2">{a.jumlah}</td>
+                <td className="p-2">{a.tersedia}</td>
+                <td className="p-2">{a.tanggalMasuk}</td>
                 <td className="p-2">
                   <Badge
                     className={
-                      a.status === "Tersedia"
+                      a.status === "TERSEDIA"
                         ? "bg-green-100 text-green-700"
-                        : a.status === "Dipakai"
+                        : a.status === "DIPAKAI"
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-red-100 text-red-700"
                     }

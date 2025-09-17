@@ -9,7 +9,7 @@ export interface Alat {
     jumlah: number;
     tersedia: string;
     tanggalMasuk: string; 
-    status: "Tersedia" | "Dipakai" | "Rusak";
+    status: "TERSEDIA" | "DIPAKAI" | "RUSAK";
     deskripsi?: string;
     createdAt?: string;
     updatedAt?: string;
