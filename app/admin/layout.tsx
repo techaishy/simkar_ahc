@@ -62,7 +62,6 @@ export default function AdminLayout({
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden z-10">
         <DashboardHeader onToggleSidebar={handleToggleSidebar} />
         <div className="w-full h-px bg-black pb-0"></div>
-
         <main className="flex-1 p-4 overflow-y-auto custom-scrollbar">
           <div className="max-w-full min-w-0">{children}</div>
         </main>

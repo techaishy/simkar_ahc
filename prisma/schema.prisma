@@ -108,8 +108,8 @@ model SparePart {
   supplier            String?
   foto                String?
   status              String
-  created_at          DateTime    @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime    @updatedAt @db.Timestamptz(6)
+  created_at          DateTime    @default(now()) @db.Timestamptz(0)
+  updated_at          DateTime    @updatedAt @db.Timestamptz(0)
   
   // Relations
   AlatKalibrator       AlatSparepart[]
@@ -191,8 +191,8 @@ model AlatKalibrator {
   status_vendor       String?
   kalibrasi_terakhir  DateTime?
   kategori            String?
-  created_at          DateTime    @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime    @updatedAt @db.Timestamptz(6)
+  created_at          DateTime    @default(now()) @db.Timestamptz(0)
+  updated_at          DateTime    @updatedAt @db.Timestamptz(0)
   
   // Relations
   kalibrasi           Kalibrasi[]
@@ -205,8 +205,8 @@ model Vendor {
   id                  String      @id @default(uuid()) @db.Uuid
   nama_vendor         String
   kontak              String?
-  created_at          DateTime    @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime    @updatedAt @db.Timestamptz(6)
+  created_at          DateTime    @default(now()) @db.Timestamptz(0)
+  updated_at          DateTime    @updatedAt @db.Timestamptz(0)
   
   // Relations
   kalibrasi           Kalibrasi[]
@@ -218,8 +218,8 @@ model Kalibrasi {
   id                  String      @id @default(uuid()) @db.Uuid
   tanggal_kalibrasi   DateTime
   tanggal_expired     DateTime
-  created_at          DateTime    @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime    @updatedAt @db.Timestamptz(6)
+  created_at          DateTime    @default(now()) @db.Timestamptz(0)
+  updated_at          DateTime    @updatedAt @db.Timestamptz(0)
   
   // Foreign keys
   alat_id             String      @db.Uuid
@@ -236,8 +236,8 @@ model AlatSparepart {
   id                  String      @id @default(uuid()) @db.Uuid
   jumlah              Int
   keterangan          String?
-  created_at          DateTime    @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime    @updatedAt @db.Timestamptz(6)
+  created_at          DateTime    @default(now()) @db.Timestamptz(0)
+  updated_at          DateTime    @updatedAt @db.Timestamptz(0)
   
   // Foreign keys
   alat_id             String      @db.Uuid
