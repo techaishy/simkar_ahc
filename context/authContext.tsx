@@ -9,7 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   login: async () => {},
-  logout: () => {},
+  logout: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -28,16 +28,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const res = await fetch('/api/auth/user'); 
+        const res = await fetch('/api/auth/user');
         if (!res.ok) {
-          logout();
+          await logout();
           return;
         }
         const data = await res.json();
         setUser({ ...data, customId: data.id });
       } catch (err) {
         console.error('Auth init error:', err);
-        logout();
+        await logout();
       } finally {
         setIsLoading(false);
       }
@@ -45,7 +45,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     loadUser();
   }, []);
-
 
   const login = async (username: string, password: string) => {
     setIsLoading(true);
@@ -86,11 +85,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Fungsi logout
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    router.push('/');
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' }); 
+    } catch (err) {
+      console.error('Logout API error:', err);
+    } finally {
+      localStorage.removeItem('user');
+      setUser(null);
+      router.replace('/'); 
+    }
   };
 
   return (

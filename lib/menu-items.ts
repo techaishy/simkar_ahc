@@ -105,12 +105,6 @@ export const menuItems: MenuItem[] = [
     allowedRoles: ['ADMIN', 'MANAJER']
   },
   {
-    name: 'Pengaturan Sistem',
-    href: '/admin/pengaturan',
-    icon: IconSettings,
-    allowedRoles: ['ADMIN']
-  },
-  {
     name: 'Laporan',
     href: '/admin/laporan',
     icon: IconReport,
