@@ -102,9 +102,9 @@ model AlatKalibrasi {
 model SparePart {
   id                  String      @id @default(uuid()) @db.Uuid
   nama                String
-  kode                String      @unique
+  kode                String?      @unique
   jumlah              Int
-  lokasi              String
+  lokasi              String?
   supplier            String?
   foto                String?
   status              String
@@ -114,7 +114,7 @@ model SparePart {
   // Relations
   AlatKalibrator       AlatSparepart[]
   
-  @@map("sparepart")
+  @@map("SparePart")
 }
 
 model LokasiDinas {
@@ -187,17 +187,15 @@ model AlatKalibrator {
   type                String?
   nomor_seri          String?
   fungsi_kalibrasi    String?
-  kondisi             String?
   status_vendor       String?
   kalibrasi_terakhir  DateTime?
-  kategori            String?
   created_at          DateTime    @default(now()) @db.Timestamptz(0)
   updated_at          DateTime    @updatedAt @db.Timestamptz(0)
   
   // Relations
   kalibrasi           Kalibrasi[]
   aksesoris           AlatSparepart[]
-  
+  units              AlatKalibratorUnit[]
   @@map("AlatKalibrator")
 }
 
@@ -245,9 +243,24 @@ model AlatSparepart {
   
   // Relations
   AlatKalibrator      AlatKalibrator        @relation(fields: [alat_id], references: [id], onDelete: Cascade)
-  sparepart           SparePart   @relation(fields: [sparepart_id], references: [id], onDelete: Cascade)
+  SparePart           SparePart             @relation(fields: [sparepart_id], references: [id], onDelete: Cascade)
   
   @@map("alat_sparepart")
+}
+
+model AlatKalibratorUnit {
+  id        String   @id @default(uuid()) @db.Uuid
+  alat_id   String   @db.Uuid
+  kondisi   String   @default("tersedia")
+  lokasi    String?
+  kode_unit String?  @unique
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  AlatKalibrator AlatKalibrator @relation(fields: [alat_id], references: [id], onDelete: Cascade)
+
+  @@map("AlatKalibratorUnit")
 }
 
 enum Role {
