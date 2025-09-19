@@ -1,17 +1,18 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import bcrypt from 'bcryptjs'
-export const runtime = "nodejs";
-import jwt from 'jsonwebtoken'
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'rahasia_super_aman'
+export const runtime = "nodejs";
+
+const JWT_SECRET = process.env.JWT_SECRET || "rahasia_super_aman";
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json()
+    const { username, password } = await request.json();
 
     if (!username || !password) {
-      return NextResponse.json({ error: 'Username dan password harus diisi' }, { status: 400 })
+      return NextResponse.json({ error: "Username dan password harus diisi" }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
         username: true,
         email: true,
         role: true,
-        passwordHash: true, 
+        passwordHash: true,
         karyawan: {
           select: {
             customId: true,
@@ -33,31 +34,27 @@ export async function POST(request: Request) {
           },
         },
       },
-    })
+    });
 
     if (!user) {
-      await bcrypt.compare(password, '$2a$10$fakehashforprotection')
-      return NextResponse.json({ error: 'Username atau password salah' }, { status: 401 })
+      await bcrypt.compare(password, "$2a$10$fakehashforprotection");
+      return NextResponse.json({ error: "Username atau password salah" }, { status: 401 });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash)
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      return NextResponse.json({ error: 'Username atau password salah' }, { status: 401 })
+      return NextResponse.json({ error: "Username atau password salah" }, { status: 401 });
     }
 
-    if (user.karyawan?.status !== 'AKTIF') {
-      return NextResponse.json({ error: 'Akun tidak aktif. Hubungi admin.' }, { status: 403 })
+    if (user.karyawan?.status !== "AKTIF") {
+      return NextResponse.json({ error: "Akun tidak aktif. Hubungi admin." }, { status: 403 });
     }
 
     const token = jwt.sign(
-      {
-        id: user.customId,
-        username: user.username,
-        role: user.role,
-      },
+      { id: user.customId, username: user.username, role: user.role },
       JWT_SECRET,
-      { expiresIn: '8h' }
-    )
+      { expiresIn: "8h" }
+    );
 
     const res = NextResponse.json({
       success: true,
@@ -67,25 +64,25 @@ export async function POST(request: Request) {
         email: user.email,
         role: user.role,
         karyawan: {
-          name: user.karyawan?.name || '',
-          position: user.karyawan?.position || '',
-          department: user.karyawan?.department || '',
-          image: user.karyawan?.image || '',
+          name: user.karyawan?.name || "",
+          position: user.karyawan?.position || "",
+          department: user.karyawan?.department || "",
+          image: user.karyawan?.image || "",
         },
       },
-    })
+    });
 
-    res.cookies.set('token', token, {
+    res.cookies.set("token", token, {
       httpOnly: true,
-      path: '/',
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
       maxAge: 8 * 60 * 60, 
-    })
+    });
 
-    return res
+    return res;
   } catch (error) {
-    console.error('🔴 LOGIN ERROR:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    console.error("🔴 LOGIN ERROR:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
