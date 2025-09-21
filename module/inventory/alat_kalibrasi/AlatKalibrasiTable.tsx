@@ -151,7 +151,7 @@ export default function DataAlatTable() {
                 <td className="p-2">{a.jumlah}</td>
                 <td className="p-2">
             <Link
-              href={`/admin/inventory/alat_kalibrasi/DetailView/${a.kode}`}
+              href={`/admin/inventory/alat_kalibrasi/DetailView/${a.kodeAlat}`}
               className="text-sm text-blue-600"
             >
               Lihat Detail

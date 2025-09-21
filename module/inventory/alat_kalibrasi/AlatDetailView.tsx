@@ -33,7 +33,7 @@ export default function AlatDetailView() {
         const dummyData: Alat[] = [
           {
             id: "1",
-            kode: kodeAlat,
+            kodeAlat: kodeAlat,
             kodeUnit: '$[kodeAlat]-001',
             nama: 'Timbangan Digital Precision',
             deskripsi: 'Timbangan digital dengan akurasi tinggi untuk keperluan laboratorium kalibrasi. Dilengkapi dengan fitur auto-calibration dan display LCD yang mudah dibaca. Cocok untuk pengukuran presisi hingga 0.001 gram.',
@@ -47,7 +47,7 @@ export default function AlatDetailView() {
           },
           {
             id: "2",
-            kode: kodeAlat,
+            kodeAlat: kodeAlat,
             kodeUnit: '$[kodeAlat]-002',
             nama: 'Timbangan Digital Precision',
             deskripsi: 'Timbangan digital dengan akurasi tinggi untuk keperluan laboratorium kalibrasi. Dilengkapi dengan fitur auto-calibration dan display LCD yang mudah dibaca. Cocok untuk pengukuran presisi hingga 0.001 gram.',
@@ -61,7 +61,7 @@ export default function AlatDetailView() {
           },
           {
             id: "3",
-            kode: kodeAlat,
+            kodeAlat: kodeAlat,
             kodeUnit: '$[kodeAlat]-003',
             nama: 'Timbangan Digital Precision',
             deskripsi: 'Timbangan digital dengan akurasi tinggi untuk keperluan laboratorium kalibrasi. Dilengkapi dengan fitur auto-calibration dan display LCD yang mudah dibaca. Cocok untuk pengukuran presisi hingga 0.001 gram.',
@@ -184,7 +184,7 @@ export default function AlatDetailView() {
               Kode Alat
             </label>
             <p className="text-gray-900 font-mono bg-gray-50 p-3 rounded border">
-              {alatInfo.kode}
+              {alatInfo.kodeAlat}
             </p>
           </div>
           <div>

@@ -1,7 +1,7 @@
 // Tipe utama alat kalibrasi
 export interface Alat {
     id: string;
-    kode: string;
+    kodeAlat: string;
     kodeUnit: string; 
     nama: string;
     merek?: string;

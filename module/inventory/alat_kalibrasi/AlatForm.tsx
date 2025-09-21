@@ -24,7 +24,8 @@ export default function AlatForm({ onSave, initialData }: Props) {
   const [form, setForm] = useState<Alat>(
     initialData || {
         id: "",
-      kode: "",
+      kodeAlat: "",
+      kodeUnit: "",
       nama: "",
       tanggalMasuk: "",
       merek: "",
@@ -69,7 +70,7 @@ export default function AlatForm({ onSave, initialData }: Props) {
   const validate = () => {
     const errors: Record<string, string> = {};
     if (!form.nama.trim()) errors.nama = "Nama alat wajib diisi";
-    if (!form.kode.trim()) errors.kode = "Kode alat wajib diisi";
+    if (!form.kodeAlat.trim()) errors.kode = "Kode alat wajib diisi";
     if (form.jumlah <= 0) errors.jumlah = "Jumlah harus lebih dari 0";
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -98,7 +99,7 @@ export default function AlatForm({ onSave, initialData }: Props) {
         <h3 className="font-semibold text-lg">Data Alat</h3>
         <div>
           <Label className="mb-2 block">Kode Alat</Label>
-          <Input name="kode" value={form.kode} onChange={handleChange} />
+          <Input name="kode" value={form.kodeAlat} onChange={handleChange} />
           {fieldErrors.kode && (
             <p className="text-red-500 text-sm">{fieldErrors.kode}</p>
           )}
