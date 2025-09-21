@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Alat } from "@/lib/types/alat";
+import { Value } from "@radix-ui/react-select";
 
 
 type Props = {
@@ -25,14 +26,37 @@ export default function AlatForm({ onSave, initialData }: Props) {
         id: "",
       kode: "",
       nama: "",
-      kategori: "",
-      merek: "",
-      jumlah: 1,
-      tersedia: "",
       tanggalMasuk: "",
+      merek: "",
+      nomorSeri: "",
+      type: "",
+      jumlah: 0,
       status: "TERSEDIA",
+      deskripsi: "",
     }
   );
+
+  const [jumlah, setJumlah] = useState<number>(0)
+  const [nomorSeri, setNomorSeri] = useState<string[]>([])
+
+  const handleJumlahChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Math.max(0, parseInt(e.target.value) || 0);
+    setJumlah(val)
+
+    setForm({ ...form, jumlah: val });
+
+        if (val > nomorSeri.length) {
+          setNomorSeri([...nomorSeri, ...Array(val - nomorSeri.length).fill("")])
+        } else {
+          setNomorSeri(nomorSeri.slice(0, val))
+        }
+      }
+    
+      const handleNomorSeriChange = (index: number, value: string) => {
+        const updated = [...nomorSeri]
+        updated[index] = value
+        setNomorSeri(updated)
+      }
 
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -87,42 +111,56 @@ export default function AlatForm({ onSave, initialData }: Props) {
           )}
         </div>
         <div>
-          <Label className="mb-2 block">Kategori</Label>
+          <Label className="mb-2 block">Deskripsi</Label>
           <Input
-            name="kategori"
-            value={form.kategori}
+            name="deskripsi"
+            value={form.deskripsi}
             onChange={handleChange}
           />
         </div>
         <div>
-          <Label className="mb-2 block">Merek/Model</Label>
+          <Label className="mb-2 block">Merek</Label>
           <Input name="merek" value={form.merek} onChange={handleChange} />
         </div>
-  
+        <div className="space-y-4">
         <div>
           <Label className="mb-2 block">Jumlah</Label>
           <Input
             type="number"
+            min={0}
             name="jumlah"
-            value={form.jumlah}
-            onChange={handleChange}
+            value={jumlah === 0 ? "" : jumlah}
+            onChange={handleJumlahChange}
           />
           {fieldErrors.jumlah && (
             <p className="text-red-500 text-sm">{fieldErrors.jumlah}</p>
           )}
         </div>
+
+        {Array.from({ length: jumlah }).map((_, i) => (
+        <div key={i}>
+          <Label className="mb-2 block">Nomor Seri {i + 1}</Label>
+          <Input
+            type="text"
+            value={nomorSeri[i] || ""}
+            onChange={(e) => handleNomorSeriChange(i, e.target.value)}
+          />
+        </div>
+      ))}
+
+    </div>
+
         <div>
-          <Label className="mb-2 block">Tersedia</Label>
+          <Label className="mb-2 block">Type</Label>
           <Input 
-          type="number"
-          name="tersedia" 
-          value={form.tersedia} onChange={handleChange} />
+          name="type" 
+          value={form.type} onChange={handleChange} />
         </div>
         <div>
-          <Label className="mb-2 block">Tanggal Masuk</Label>
+          <Label className="mb-2 block">Tahun Beli</Label>
           <Input
             type="date"
-            name="tanggalMasuk"
+            name="tahunBeli"
             value={form.tanggalMasuk}
             onChange={handleChange}
           />
