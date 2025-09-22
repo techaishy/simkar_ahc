@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 export const runtime = "nodejs";
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 import type { JwtPayload } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 
     let decoded: JwtPayload & { id: string };
     try {
-      decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & { id: string };
+      decoded = jwt.verify(token, JWT_SECRET!) as JwtPayload & { id: string };
     } catch {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
           },
         },
       },
-    })
+    });
 
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
@@ -56,7 +56,7 @@ export async function GET(req: Request) {
         image: user.karyawan?.image || '',
         status: user.karyawan?.status,
       },
-    })
+    });
   } catch (error: unknown) {
     console.error('🔴 USER ROUTE ERROR:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

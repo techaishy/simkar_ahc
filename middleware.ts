@@ -1,10 +1,17 @@
 export const runtime = "nodejs";
+<<<<<<< HEAD
+=======
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import jwt from 'jsonwebtoken'
+>>>>>>> 382e4efceb861cfed550617427996362683902f7
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import { menuItems, MenuItem } from "@/lib/menu-items";
 
+<<<<<<< HEAD
 const JWT_SECRET = process.env.JWT_SECRET;
 const PUBLIC_PATHS = ["/", "/api/auth/login", "/favicon.ico"];
 
@@ -30,11 +37,21 @@ export function middleware(request: NextRequest) {
 
   const token = request.cookies.get("token")?.value;
 
+=======
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  if (PUBLIC_PATHS.some(path => pathname.startsWith(path))) {
+    return NextResponse.next()
+  }
+
+  const token = request.cookies.get('token')?.value
+>>>>>>> 382e4efceb861cfed550617427996362683902f7
   if (!token) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   try {
+<<<<<<< HEAD
     const payload = jwt.verify(token, JWT_SECRET) as { role?: string };
     const matchedRoute = flattenedMenu.find((route) =>
       pathname.startsWith(route.href)
@@ -47,12 +64,27 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch {
     return NextResponse.redirect(new URL("/", request.url));
+=======
+    const payload = jwt.verify(token, JWT_SECRET) as { role?: string }
+    if (pathname.startsWith('/admin') && !['ADMIN', 'MANAJER', 'OWNER'].includes(payload.role || '')) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+
+    return NextResponse.next()
+  } catch (err) {
+    return NextResponse.redirect(new URL('/', request.url))
+>>>>>>> 382e4efceb861cfed550617427996362683902f7
   }
 }
 
 export const config = {
+<<<<<<< HEAD
   matcher: [
     "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
     "/api/protected/:path*",
   ],
 };
+=======
+  matcher: ['/admin/:path*', '/api/protected/:path*'],
+}
+>>>>>>> 382e4efceb861cfed550617427996362683902f7

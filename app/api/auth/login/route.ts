@@ -3,7 +3,12 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+<<<<<<< HEAD
 export const runtime = 'nodejs';
+=======
+export const runtime = "nodejs";
+
+>>>>>>> 382e4efceb861cfed550617427996362683902f7
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(request: Request) {
@@ -35,7 +40,19 @@ export async function POST(request: Request) {
     if (!isPasswordValid) return NextResponse.json({ error: 'Username atau password salah' }, { status: 401 });
     if (user.karyawan?.status !== 'AKTIF') return NextResponse.json({ error: 'Akun tidak aktif' }, { status: 403 });
 
+<<<<<<< HEAD
     const token = jwt.sign({ id: user.customId, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
+=======
+    if (user.karyawan?.status !== "AKTIF") {
+      return NextResponse.json({ error: "Akun tidak aktif. Hubungi admin." }, { status: 403 });
+    }
+
+    const token = jwt.sign(
+      { id: user.customId, username: user.username, role: user.role },
+      JWT_SECRET!,
+      { expiresIn: "8h" }
+    );
+>>>>>>> 382e4efceb861cfed550617427996362683902f7
 
     const res = NextResponse.json({
       success: true,
