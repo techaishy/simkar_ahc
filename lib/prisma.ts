@@ -12,6 +12,14 @@ export const prisma =
       { level: 'error', emit: 'stdout' },
       { level: 'query', emit: 'event' },
     ],
+    datasources: {
+      db: {
+        url:
+          process.env.NODE_ENV === 'production'
+            ? process.env.DATABASE_URL  
+            : process.env.DIRECT_URL,    
+      },
+    },
   })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
