@@ -48,18 +48,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadUser();
   }, []);
 
-  useEffect(() => {
-    if (isLoading || !user) return;
-
-    if (user.role === 'ADMIN' || user.role === 'OWNER' || user.role === 'MANAJER') {
-      router.push('/dashboard');
-    } else if (user.role === 'TEKNISI') {
-      router.push('/absen');
-    } else {
-      router.push('/');
-    }
-  }, [user, router, isLoading]);
-
   const login = async (username: string, password: string) => {
     setIsLoading(true);
     try {
@@ -76,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userData = { ...result.data, customId: result.data.id };
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+
       if (userData.role === 'ADMIN' || userData.role === 'OWNER' || userData.role === 'MANAJER') {
         router.replace('/dashboard');
       } else if (userData.role === 'TEKNISI') {
@@ -91,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // 🔹 Logout
   const logout = async () => {
     setIsLoading(true);
     try {
