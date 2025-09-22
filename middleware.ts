@@ -1,10 +1,13 @@
 export const runtime = "nodejs";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 >>>>>>> 382e4efceb861cfed550617427996362683902f7
+=======
+>>>>>>> presensi
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -64,6 +67,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch {
     return NextResponse.redirect(new URL("/", request.url));
+<<<<<<< HEAD
 =======
     const payload = jwt.verify(token, JWT_SECRET) as { role?: string }
     if (pathname.startsWith('/admin') && !['ADMIN', 'MANAJER', 'OWNER'].includes(payload.role || '')) {
@@ -74,17 +78,25 @@ export function middleware(request: NextRequest) {
   } catch (err) {
     return NextResponse.redirect(new URL('/', request.url))
 >>>>>>> 382e4efceb861cfed550617427996362683902f7
+=======
+>>>>>>> presensi
   }
 }
 
 export const config = {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> presensi
   matcher: [
     "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
     "/api/protected/:path*",
   ],
 };
+<<<<<<< HEAD
 =======
   matcher: ['/admin/:path*', '/api/protected/:path*'],
 }
 >>>>>>> 382e4efceb861cfed550617427996362683902f7
+=======
+>>>>>>> presensi

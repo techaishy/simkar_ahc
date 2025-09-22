@@ -1,11 +1,12 @@
-'use client';
-import * as React from 'react';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem } from '@/module/dashboard/components/Sidebar';
-import { NavMain } from '@/module/dashboard/components/NavMain';
-import { NavDocuments } from '@/module/dashboard/components/NavDocuments';
-import Logo from '@/components/ui/logo';
-import { UserRole } from '@/lib/types/user';
-import { menuItems, MenuItem } from '@/lib/menu-items';
+"use client";
+
+import * as React from "react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem } from "@/module/dashboard/components/Sidebar";
+import { NavMain } from "@/module/dashboard/components/NavMain";
+import { NavDocuments } from "@/module/dashboard/components/NavDocuments";
+import Logo from "@/components/ui/logo";
+import { UserRole } from "@/lib/types/user";
+import { menuItems, MenuItem } from "@/lib/menu-items";
 
 function filterMenuByRole(items: MenuItem[], role: UserRole): MenuItem[] {
   return items

@@ -3,8 +3,11 @@ export type UserStatus = 'AKTIF' | 'NONAKTIF' | 'DITANGGUHKAN';
 export type AttendanceMasuk = 'TEPAT_WAKTU' | 'TERLAMBAT' | 'TIDAK_HADIR';
 export type AttendancePulang = 'TEPAT_WAKTU' | 'PULANG_CEPAT' | 'TIDAK_HADIR';
 export type ApprovalStatus = 'PENDING' | 'DISETUJUI' | 'DITOLAK';
+<<<<<<< HEAD
 export type Keterangan = 'HADIR' | 'IZIN' | 'SAKIT' | 'ALPHA';
 
+=======
+>>>>>>> presensi
 import { Karyawan } from "./karyawan";
 
 export interface UserAccount {

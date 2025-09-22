@@ -1,3 +1,21 @@
+<<<<<<<<< Temporary merge branch 1
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import bcrypt from 'bcryptjs'
+export const runtime = "nodejs";
+import jwt from 'jsonwebtoken'
+
+const JWT_SECRET = process.env.JWT_SECRET || 'rahasia_super_aman'
+
+export async function POST(request: Request) {
+  try {
+    const { username, password } = await request.json()
+
+    if (!username || !password) {
+      return NextResponse.json({ error: 'Username dan password harus diisi' }, { status: 400 })
+    }
+
+=========
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
@@ -42,17 +60,7 @@ export async function POST(request: Request) {
 
 <<<<<<< HEAD
     const token = jwt.sign({ id: user.customId, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '8h' });
-=======
-    if (user.karyawan?.status !== "AKTIF") {
-      return NextResponse.json({ error: "Akun tidak aktif. Hubungi admin." }, { status: 403 });
-    }
-
-    const token = jwt.sign(
-      { id: user.customId, username: user.username, role: user.role },
-      JWT_SECRET!,
-      { expiresIn: "8h" }
-    );
->>>>>>> 382e4efceb861cfed550617427996362683902f7
+>>>>>>>>> Temporary merge branch 2
 
     const res = NextResponse.json({
       success: true,
