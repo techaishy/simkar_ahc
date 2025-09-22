@@ -4,13 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import PrintButton from "@/components/ui/printButton";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
@@ -23,11 +22,10 @@ import {
 
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import AlatForm from "./AlatForm";
-import ConfirmDeleteModal from "./ConfirmDeleteModal"; 
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import PaginationControl from "@/components/ui/PaginationControl";
 
 import type { Alat } from "@/lib/types/alat";
-
 
 export default function DataAlatTable() {
   const tableRef = useRef<HTMLTableElement>(null);
@@ -62,8 +60,9 @@ export default function DataAlatTable() {
     currentPage * perPage
   );
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page: number, perPage: number) => {
     setCurrentPage(page);
+    setPerPage(perPage);
   };
 
   const handleSave = (alatBaru: Alat) => {
@@ -132,40 +131,48 @@ export default function DataAlatTable() {
           className="min-w-[500px] w-full border-collapse text-xs md:text-sm"
         >
           <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="p-2">Kode</th>
+            <tr className="bg-gray-300 text-left">
               <th className="p-2">Nama Alat</th>
-              <th className="p-2">Kategori</th>
+              <th className="p-2">Tanggal Masuk</th>
+              <th className="p-2">Merek</th>
+              <th className="p-2">Type</th>
               <th className="p-2">Jumlah</th>
-              <th className="p-2">Status</th>
-              <th className="p-2 no-print">Tersedia</th>
+              <th className="p-2 no-print">Detail</th>
               <th className="p-2 no-print">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {paginatedData.map((a) => (
-              <tr key={a.id} className="hover:bg-gray-50 border-t">
-                <td className="p-2">{a.kode}</td>
+              <tr key={a.id} className="hover:bg-gray-50 text-left border-t">
                 <td className="p-2">{a.nama}</td>
-                <td className="p-2">{a.kategori}</td>
-                <td className="p-2">{a.tersedia}</td>
+                <td className="p-2">{a.tanggalMasuk}</td>
+                <td className="p-2">{a.merek}</td>
+                <td className="p-2">{a.type}</td>
                 <td className="p-2">{a.jumlah}</td>
                 <td className="p-2">
+            <Link
+              href={`/admin/inventory/alat_kalibrasi/DetailView/${a.kodeAlat}`}
+              className="text-sm text-blue-600"
+            >
+              Lihat Detail
+            </Link>
+          </td>
+                {/* <td className="p-2">
                   <Badge
                     className={
-                      a.status === "Tersedia"
+                      a.status === "TERSEDIA"
                         ? "bg-green-100 text-green-700"
-                        : a.status === "Dipakai"
+                        : a.status === "DIPAKAI"
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-red-100 text-red-700"
                     }
                   >
                     {a.status}
                   </Badge>
-                </td>
+                </td> */}
 
                 {/* Aksi */}
-                <td className="p-2 text-right relative no-print">
+                <td className="p-2 text-left relative no-print">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button className="p-2 border rounded">
@@ -205,32 +212,14 @@ export default function DataAlatTable() {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="mt-4 flex justify-between items-center">
-        <div className="flex items-center gap-2 text-sm">
-          <span>Tampilkan</span>
-          <select
-            value={perPage}
-            onChange={(e) => {
-              setPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="border rounded px-2 py-1 text-sm bg-white text-black"
-          >
-            <option value={7}>7</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={30}>30</option>
-          </select>
-          <span>data</span>
-        </div>
 
         <PaginationControl
           totalPages={totalPages}
           currentPage={currentPage}
+          perPage={perPage}
           onPageChange={handlePageChange}
         />
-      </div>
+  
 
       {/* Dialog Edit */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>

@@ -1,15 +1,16 @@
 // Tipe utama alat kalibrasi
 export interface Alat {
     id: string;
-    kode: string;
+    kodeAlat: string;
+    kodeUnit: string; 
     nama: string;
-    kategori: string;
     merek?: string;
-    nomorSeri?: string;
+    nomorSeri: string;
+    type: string;
     jumlah: number;
-    tersedia: string;
-    tanggalMasuk: string; 
-    status: "Tersedia" | "Dipakai" | "Rusak";
+    tanggalMasuk?: string; 
+    kondisi?: "BAIK" | "RUSAK";
+    status: "TERSEDIA" | "DIGUNAKAN" | "MAINTENANCE";
     deskripsi?: string;
     createdAt?: string;
     updatedAt?: string;
@@ -18,7 +19,7 @@ export interface Alat {
   // Form input (misalnya tambah alat baru)
   export type AlatForm = Pick<
     Alat,
-    "kode" | "nama" | "kategori" | "jumlah" | "lokasi" | "status" | "deskripsi"
+    "kode" | "nama" | "jumlah" | "status" | "deskripsi"
   >;
   
   // Data untuk tampilan tabel ringkas
