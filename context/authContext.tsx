@@ -9,7 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   login: async () => {},
-  logout: () => {},
+  logout: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -28,16 +28,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const res = await fetch('/api/auth/user'); 
+        const res = await fetch('/api/auth/user');
         if (!res.ok) {
-          logout();
+          setUser(null);
           return;
         }
         const data = await res.json();
-        setUser({ ...data, customId: data.id });
+        const userData = { ...data, customId: data.id };
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
       } catch (err) {
         console.error('Auth init error:', err);
-        logout();
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+        } catch (e) {
+        }
       } finally {
         setIsLoading(false);
       }
@@ -45,7 +50,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     loadUser();
   }, []);
-
 
   const login = async (username: string, password: string) => {
     setIsLoading(true);
@@ -57,27 +61,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       const result = await res.json();
-
-      if (!res.ok) {
-        throw new Error(result.error || 'Login gagal');
-      }
-
-      if (!result.success || !result.data) {
-        throw new Error('Response login tidak valid');
-      }
+      if (!res.ok) throw new Error(result.error || 'Login gagal');
+      if (!result.success || !result.data) throw new Error('Response login tidak valid');
 
       const userData = { ...result.data, customId: result.data.id };
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
 
       if (userData.role === 'ADMIN' || userData.role === 'OWNER' || userData.role === 'MANAJER') {
-        router.replace('/admin/dashboard');
+        router.replace('/dashboard');
       } else if (userData.role === 'TEKNISI') {
-        router.replace('/admin/absen');
+        router.replace('/absen');
       } else {
         router.replace('/');
       }
-
     } catch (err) {
       console.error('Login error:', err);
       throw err;
@@ -86,11 +83,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Fungsi logout
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    router.push('/');
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/logout', { method: 'POST' });
+      if (res.ok) console.log('[Auth] Logout API success');
+    } catch (err) {
+      console.error('[Auth] Logout fetch error:', err);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('user');
+      router.replace('/');
+      setIsLoading(false);
+    }
   };
 
   return (
