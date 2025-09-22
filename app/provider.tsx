@@ -4,6 +4,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return <AuthProvider>{children}</AuthProvider>;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 =======
 }
@@ -11,3 +12,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
 =======
 }
 >>>>>>> presensi
+=======
+}
+>>>>>>> riwayat-absensi
