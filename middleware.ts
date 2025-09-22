@@ -36,7 +36,6 @@ export function middleware(request: NextRequest) {
 
   try {
     const payload = jwt.verify(token, JWT_SECRET) as { role?: string };
-
     const matchedRoute = flattenedMenu.find((route) =>
       pathname.startsWith(route.href)
     );

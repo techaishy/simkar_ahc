@@ -39,7 +39,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('user', JSON.stringify(userData));
       } catch (err) {
         console.error('Auth init error:', err);
-        await logout();
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+        } catch (e) {
+        }
       } finally {
         setIsLoading(false);
       }
@@ -80,7 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // 🔹 Logout
   const logout = async () => {
     setIsLoading(true);
     try {
