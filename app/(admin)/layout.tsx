@@ -98,10 +98,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
 <<<<<<< HEAD
       {/* OVERLAY HITAM UNTUK MOBILE */}
+<<<<<<< HEAD
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
 =======
+=======
+=======
+>>>>>>> default
+>>>>>>> satuan-kerja
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/20 z-30 lg:hidden"
