@@ -1,16 +1,17 @@
 "use client";
 
-import DataPegawaiTable from "./components/DataPegawaiTabel";
+import React from "react";
+import DataAlatTable from "./alat_kalibrasi/AlatKalibrasiTable";
 import Breadcrumbs from "@/components/ui/breadcrumb";
 
-export default function PegawaiPage() {
+export default function InventoryPage() {
   return (
     <div className="p-4 text-black space-y-4">
       <div className="p-4 font-semibold">
         <Breadcrumbs />
       </div>
 
-      <DataPegawaiTable />
+      <DataAlatTable />
     </div>
   );
 }
