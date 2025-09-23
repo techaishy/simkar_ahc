@@ -1,60 +1,23 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
-<<<<<<< HEAD
-=======
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
->>>>>>> inventory
 
 interface PaginationControlProps {
   totalPages: number;
   currentPage: number;
-<<<<<<< HEAD
-}
-
-
-
-export default function PaginationControl({ totalPages, onPageChange }: PaginationControlProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [perPage] = useState(7);
-
-=======
-  perPage: number;
-  onPageChange: (page: number, perPage: number) => void;
+  onPageChange: (page: number) => void;
   classname?: string;
 }
 
 export default function PaginationControl({
   totalPages,
   currentPage,
-  perPage,
   onPageChange,
 }: PaginationControlProps) {
->>>>>>> inventory
   const changePage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      onPageChange(page, perPage);
+      onPageChange(page);
     }
-  };
-
-<<<<<<< HEAD
-  return (
-    <div className="flex items-center justify-between gap-4 mt-4">
-  
-      {/* Tombol Pagination */}
-      <div className="flex gap-2">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-=======
-  const changePerPage = (value: number) => {
-    // kalau ganti jumlah per page, reset ke halaman 1
-    onPageChange(1, value);
   };
 
   // 🔹 Generate daftar halaman dengan ellipsis
@@ -90,89 +53,61 @@ export default function PaginationControl({
   };
 
   return (
-    <div className="w-full mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      {/* Jumlah data per halaman */}
-      <div className="flex items-center gap-2 justify-center sm:justify-start">
-        <span className="text-sm text-gray-600">Tampilkan:</span>
-        <Select
-          value={String(perPage)}
-          onValueChange={(val) => changePerPage(Number(val))}
+    <div className="w-full mt-4 flex justify-center sm:justify-end">
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Tombol Prev */}
+        <Button
+          onClick={() => changePage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 text-sm font-medium rounded ${
+            currentPage === 1
+              ? "bg-gray-600 text-white cursor-not-allowed"
+              : "bg-white text-gray-700 border hover:bg-gray-100"
+          }`}
         >
-          <SelectTrigger className="w-[70px] text-black">
-            <SelectValue placeholder="Pilih Jumlah" />
-          </SelectTrigger>
-          <SelectContent className="text-black bg-white">
-            <SelectItem className="hover:bg-blue-500 hover:text-white" value="5">
-              5
-            </SelectItem>
-            <SelectItem className="hover:bg-blue-500 hover:text-white" value="10">
-              10
-            </SelectItem>
-            <SelectItem className="hover:bg-blue-500 hover:text-white" value="20">
-              20
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        <span className="text-sm text-gray-600">Data</span>
-      </div>
-  
-      {/* Pagination */}
-      <div className="flex justify-center sm:justify-end">
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Tombol Prev */}
->>>>>>> inventory
-          <Button
-            onClick={() => changePage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 text-sm font-medium rounded ${
-              currentPage === 1
-                ? "bg-gray-600 text-white cursor-not-allowed"
-                : "bg-white text-gray-700 border hover:bg-gray-100"
-            }`}
-          >
-            Prev
-          </Button>
-  
-          {/* Nomor Halaman */}
-          <div className="flex gap-2 flex-wrap justify-center">
-            {getPageNumbers().map((page, idx) =>
-              typeof page === "string" ? (
-                <span key={idx} className="px-3 py-2 text-gray-400 select-none">
-                  {page}
-                </span>
-              ) : (
-                <Button
-                  key={page}
-                  onClick={() => changePage(page)}
-                  className={`px-4 py-2 text-sm font-medium rounded ${
-                    currentPage === page
-                      ? "bg-blue-500 text-white hover:bg-blue-600"
-                      : "bg-white text-gray-700 border hover:bg-gray-100"
-                  }`}
-                >
-                  {page}
-                </Button>
-              )
-            )}
-          </div>
-  
-          {/* Tombol Next */}
-          <Button
-            onClick={() => changePage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`px-4 py-2 text-sm font-medium rounded ${
-              currentPage === totalPages
-                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }`}
-          >
-            Next
-          </Button>
+          Prev
+        </Button>
+
+        {/* Nomor Halaman */}
+        <div className="flex gap-2 flex-wrap justify-center">
+          {getPageNumbers().map((page, idx) =>
+            typeof page === "string" ? (
+              <span key={idx} className="px-3 py-2 text-gray-400 select-none">
+                {page}
+              </span>
+            ) : (
+              <Button
+                key={page}
+                onClick={() => changePage(page)}
+                className={`px-4 py-2 text-sm font-medium rounded ${
+                  currentPage === page
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-white text-gray-700 border hover:bg-gray-100"
+                }`}
+              >
+                {page}
+              </Button>
+            )
+          )}
         </div>
+
+        {/* Tombol Next */}
+        <Button
+          onClick={() => changePage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 text-sm font-medium rounded ${
+            currentPage === totalPages
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+        >
+          Next
+        </Button>
       </div>
     </div>
   );
-}  
+}
+
 
 // "use client";
 
