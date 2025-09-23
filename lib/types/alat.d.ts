@@ -5,7 +5,7 @@ export interface Alat {
     kodeUnit: string; 
     nama: string;
     merek?: string;
-    nomorSeri: string;
+    nomorSeri: string[];
     type: string;
     jumlah: number;
     tanggalMasuk?: string; 

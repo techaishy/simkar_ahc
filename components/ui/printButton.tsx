@@ -47,7 +47,7 @@ function printElement(element: HTMLElement, title?: string) {
   <meta charset="utf-8" />
   <title>${escapeHtml(title || "Cetak")}</title>
   <style>
-    @media print { @page { margin: 16mm; } }
+    @media print { @page { margin: 16mm; }   .no-print { display: none !important;a}
     body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; padding: 16px; }
   </style>
 </head>
