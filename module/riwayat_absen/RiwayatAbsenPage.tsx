@@ -11,20 +11,18 @@ export default function RiwayatAbsenPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterValues>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters]);
+  }, [filters, itemsPerPage]);
 
   useEffect(() => {
     const fetchAttendances = async () => {
       try {
         setLoading(true);
         const query = new URLSearchParams(
-          Object.fromEntries(
-            Object.entries(filters).filter(([_, v]) => v)
-          )
+          Object.fromEntries(Object.entries(filters).filter(([_, v]) => v))
         ).toString();
 
         const res = await fetch(`/api/riwayat-presensi?${query}`);
@@ -65,10 +63,11 @@ export default function RiwayatAbsenPage() {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
+            itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={setItemsPerPage}
           />
         )}
       </div>
     </div>
   );
 }
-

@@ -1,14 +1,19 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { AttendanceRecord } from "@/lib/types/attendance";
+import PaginationControl from "@/components/ui/PaginationControl";
 
 type Props = {
   data: AttendanceRecord[];
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  itemsPerPage: number;
+  onItemsPerPageChange: (size: number) => void;
 };
 
 export default function AttendanceTable({
@@ -16,6 +21,8 @@ export default function AttendanceTable({
   currentPage,
   totalPages,
   onPageChange,
+  itemsPerPage,
+  onItemsPerPageChange,
 }: Props) {
   return (
     <Card className="w-full overflow-auto rounded-2xl p-6 shadow-md border border-transparent space-y-4 mt-2">
@@ -35,92 +42,80 @@ export default function AttendanceTable({
           </tr>
         </thead>
         <tbody>
-          {data.map((absen) => (
-            <tr key={absen.id_at} className="border-t border-transparent hover:bg-gray-50 transition">
-              <td className="px-4 py-3 font-medium text-gray-800">{absen.karyawan?.name ?? "-"}</td>
-              <td className="px-4 py-3 text-gray-700">{absen.karyawan?.position ?? "-"}</td>
-              <td className="px-4 py-3 text-gray-700">
-                {absen.date
-                  ? format(new Date(absen.date), "dd MMMM yyyy", { locale: id })
-                  : "-"}
+          {data.length > 0 ? (
+            data.map((absen) => (
+              <tr
+                key={absen.id_at}
+                className="border-t border-transparent hover:bg-gray-50 transition"
+              >
+                <td className="px-4 py-3 font-medium text-gray-800">
+                  {absen.karyawan?.name ?? "-"}
+                </td>
+                <td className="px-4 py-3 text-gray-700">
+                  {absen.karyawan?.position ?? "-"}
+                </td>
+                <td className="px-4 py-3 text-gray-700">
+                  {absen.date
+                    ? format(new Date(absen.date), "dd MMMM yyyy", { locale: id })
+                    : "-"}
+                </td>
+                <td className="px-4 py-3 text-gray-700">
+                  {absen.clockIn ?? "-"}
+                </td>
+                <td className="px-4 py-3">
+                  <Badge variant={getBadgeVariant(absen.statusMasuk)}>
+                    {absen.statusMasuk ?? "-"}
+                  </Badge>
+                </td>
+                <td className="px-4 py-3 text-gray-700">
+                  {absen.clockOut ?? "-"}
+                </td>
+                <td className="px-4 py-3">
+                  <Badge variant={getBadgeVariant(absen.statusPulang ?? "")}>
+                    {absen.statusPulang ?? "-"}
+                  </Badge>
+                </td>
+                <td className="px-4 py-3 text-gray-700">{getMetode(absen)}</td>
+                <td className="px-4 py-3 text-gray-700">{"-"}</td>
+                <td className="px-4 py-3 text-gray-700">
+                  {absen.location ?? "-"}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={10} className="px-4 py-6 text-center text-gray-500">
+                Tidak ada data
               </td>
-              <td className="px-4 py-3 text-gray-700">{absen.clockIn ?? "-"}</td>
-              <td className="px-4 py-3">
-                <Badge variant={getBadgeVariant(absen.statusMasuk)}>{absen.statusMasuk ?? "-"}</Badge>
-              </td>
-              <td className="px-4 py-3 text-gray-700">{absen.clockOut ?? "-"}</td>
-              <td className="px-4 py-3">
-                <Badge variant={getBadgeVariant(absen.statusPulang ?? "")}>{absen.statusPulang ?? "-"}</Badge>
-              </td>
-              <td className="px-4 py-3 text-gray-700">{getMetode(absen)}</td>
-              <td className="px-4 py-3 text-gray-700">{"-"}</td>
-              <td className="px-4 py-3 text-gray-700">{absen.location ?? "-"}</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 
       {totalPages > 1 && (
-      <div className="flex justify-center items-center gap-2 mt-4 flex-wrap">
-        {/* Tombol Previous */}
-        <button
-          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-          disabled={currentPage === 1}
-          className={`px-3 py-1 rounded ${
-            currentPage === 1
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-600"
-          }`}
-        >
-          Prev
-        </button>
+        <div className="mt-4 flex items-center justify-between">
 
-        {Array.from({ length: totalPages }, (_, i) => i + 1)
-          .filter((page) => {
-            return (
-              page === 1 ||
-              page === 2 ||
-              page === totalPages - 1 ||
-              page === totalPages ||
-              Math.abs(page - currentPage) <= 1
-            );
-          })
-          .map((page, idx, arr) => {
-            const prevPage = arr[idx - 1];
-            if (prevPage && page - prevPage > 1) {
-              return (
-                <span key={`ellipsis-${page}`} className="px-2 text-gray-500">
-                  …
-                </span>
-              );
-            }
-            return (
-              <button
-                key={page}
-                onClick={() => onPageChange(page)}
-                className={`px-3 py-1 rounded ${
-                  page === currentPage
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                }`}
-              >
-                {page}
-              </button>
-            );
-          })}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">Tampilkan:</label>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+              className="border rounded px-2 py-1 text-sm text-gray-800"
+            >
+              {[7, 10, 20, 25].map((size) => (
+                <option key={size} value={size} className="text-sm text-gray-600" >
+                  {size} data
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <button
-          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-          disabled={currentPage === totalPages}
-          className={`px-3 py-1 rounded ${
-            currentPage === totalPages
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-600"
-          }`}
-        >
-          Next
-        </button>
-      </div>
+          <PaginationControl
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={onPageChange}
+          />
+        </div>
       )}
     </Card>
   );
