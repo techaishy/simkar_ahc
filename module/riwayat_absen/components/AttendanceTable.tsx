@@ -104,10 +104,11 @@ export default function AttendanceTable({
             >
               {[7, 10, 20, 25].map((size) => (
                 <option key={size} value={size} className="text-sm text-gray-600" >
-                  {size} data
+                  {size}
                 </option>
               ))}
             </select>
+            <span className="text-sm text-gray-800">data</span>
           </div>
 
           <PaginationControl
