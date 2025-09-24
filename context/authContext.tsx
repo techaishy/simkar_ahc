@@ -26,6 +26,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    if (window.location.pathname === "/") {
+      setIsLoading(false);
+      return;
+    }
+
     const loadUser = async () => {
       try {
         const res = await fetch('/api/auth/user');
@@ -41,8 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Auth init error:', err);
         try {
           await fetch('/api/auth/logout', { method: 'POST' });
-        } catch (e) {
-        }
+        } catch {}
       } finally {
         setIsLoading(false);
       }
