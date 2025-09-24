@@ -33,6 +33,7 @@ export default function AlatForm({ onSave, initialData }: Props) {
       jumlah: 0,
       status: "TERSEDIA",
       deskripsi: "",
+      units: [],
     }
   );
 
@@ -181,11 +182,10 @@ export default function AlatForm({ onSave, initialData }: Props) {
             <SelectTrigger>
               <SelectValue placeholder="Pilih Status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-gradient-to-br from-black to-gray-900 ">
               <SelectItem value="TERSEDIA">Tersedia</SelectItem>
-              <SelectItem value="DIPAKAI">Dipakai</SelectItem>
-              <SelectItem value="RUSAK">Rusak</SelectItem>
-              <SelectItem value="KALIBRASI">Kalibrasi</SelectItem>
+              <SelectItem value="DIGUNAKAN">Digunakan</SelectItem>
+              <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -198,7 +198,7 @@ export default function AlatForm({ onSave, initialData }: Props) {
                      hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black"
           disabled={loading}
         >
-          {loading ? "Menyimpan..." : initialData ? "Simpan Perubahan" : "Tambah"}
+          {loading ? "Menyimpan..." : initialData ? "Simpan Perubahan" : "T ambah"}
         </Button>
       </div>
     </form>

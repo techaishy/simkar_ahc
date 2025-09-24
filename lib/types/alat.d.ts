@@ -1,10 +1,11 @@
 // Tipe utama alat kalibrasi
+
 export interface Alat {
     id: string;
     kodeAlat: string;
     kodeUnit: string; 
     nama: string;
-    merek?: string;
+    merek: string;
     nomorSeri: string[];
     type: string;
     jumlah: number;
@@ -14,6 +15,7 @@ export interface Alat {
     deskripsi?: string;
     createdAt?: string;
     updatedAt?: string;
+    units: Unit[];
   }
   
   // Form input (misalnya tambah alat baru)

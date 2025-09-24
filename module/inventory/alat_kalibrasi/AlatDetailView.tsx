@@ -2,6 +2,17 @@
 
 import type { Alat } from "@/lib/types/alat";
 import { Card } from "@/components/ui/card";
+import { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import FormTambahUnit from "./FormTambahUnit";
+import { generateKodeUnit } from "@/lib/utils/generateKodeUnit";
 
 type AlatDetailViewProps = {
     open: boolean;
@@ -11,7 +22,8 @@ type AlatDetailViewProps = {
 
 export default function AlatDetailView({ alat}: AlatDetailViewProps) {
   if (!alat) return <p className="text-gray-500">Tidak ada data alat.</p>;
-
+  const [openTambah, setOpenTambah] = useState(false);
+  const [alatData, setAlat] = useState(alat);
 
   return (
     <div className="p-4 overflow-y-auto max-h-[80vh] custom-scrollbar">
@@ -19,6 +31,51 @@ export default function AlatDetailView({ alat}: AlatDetailViewProps) {
       
 <Card className="bg-gray-900 p-6 rounded-2xl shadow-xl">
   <h2 className="text-lg font-semibold text-white mb-4">📋 Info Alat</h2>
+
+  <div className="flex flex-wrap gap-2 justify-end mb-4 mt-4">
+     
+        {/* Tambah Alat */}
+        <Dialog open={openTambah} onOpenChange={setOpenTambah}>
+  <DialogTrigger asChild>
+    <Button className="px-3 py-2 text-white font-semibold bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black transition-all duration-300 shadow-md">
+      Tambah Unit
+    </Button>
+  </DialogTrigger>
+  <DialogContent className="bg-gradient-to-br from-black via-gray-950 to-gray-800">
+    <DialogHeader>
+      <DialogTitle>Tambah Unit Baru</DialogTitle>
+    </DialogHeader>
+    <FormTambahUnit
+  onSave={(unitBaru) => {
+    if (alat) {
+      const kodeUnit = generateKodeUnit(alat.merek, alat.units.length);
+
+      // update state alat
+      setAlat((prev) =>
+        prev
+          ? {
+              ...prev,
+              units: [
+                ...prev.units,
+                {
+                  id: prev.units.length + 1,
+                  kodeUnit,
+                  nomorSeri: unitBaru.nomorSeri,
+                  status: "TERSEDIA",
+                },
+              ],
+            }
+          : prev
+      );
+    }
+    setOpenTambah(false);
+  }}
+/>
+  </DialogContent>
+</Dialog>
+
+
+      </div>
   
   {/* Baris 1 */}
   <div className="grid grid-cols-3 gap-4 mb-4">
@@ -95,3 +152,4 @@ export default function AlatDetailView({ alat}: AlatDetailViewProps) {
     </div>
   );
 }
+
