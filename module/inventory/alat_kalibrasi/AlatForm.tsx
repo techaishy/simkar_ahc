@@ -29,11 +29,8 @@ export default function AlatForm({ onSave, initialData }: Props) {
       nama: "",
       tanggalMasuk: "",
       merek: "",
-      nomorSeri: "",
       type: "",
       jumlah: 0,
-      status: "TERSEDIA",
-      deskripsi: "",
     }
   );
 
@@ -111,14 +108,14 @@ export default function AlatForm({ onSave, initialData }: Props) {
             <p className="text-red-500 text-sm">{fieldErrors.nama}</p>
           )}
         </div>
-        <div>
+        {/* <div>
           <Label className="mb-2 block">Deskripsi</Label>
           <Input
             name="deskripsi"
             value={form.deskripsi}
             onChange={handleChange}
           />
-        </div>
+        </div> */}
         <div>
           <Label className="mb-2 block">Merek</Label>
           <Input name="merek" value={form.merek} onChange={handleChange} />
@@ -165,25 +162,6 @@ export default function AlatForm({ onSave, initialData }: Props) {
             value={form.tanggalMasuk}
             onChange={handleChange}
           />
-        </div>
-        <div>
-          <Label className="mb-2 block">Status</Label>
-          <Select
-            value={form.status}
-            onValueChange={(val: Alat["status"]) =>
-              setForm({ ...form, status: val })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="TERSEDIA">Tersedia</SelectItem>
-              <SelectItem value="DIPAKAI">Dipakai</SelectItem>
-              <SelectItem value="RUSAK">Rusak</SelectItem>
-              <SelectItem value="KALIBRASI">Kalibrasi</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 

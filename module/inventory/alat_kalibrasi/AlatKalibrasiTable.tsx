@@ -43,7 +43,7 @@ export default function DataAlatTable() {
   useEffect(() => {
     const fetchAlat = async () => {
       try {
-        const res = await fetch("/api/inventory/alat-kalibrator");
+        const res = await fetch("/api/alat");
         if (!res.ok) throw new Error("Gagal fetch alat");
         const data: Alat[] = await res.json();
         setAlat(data);
@@ -128,14 +128,15 @@ export default function DataAlatTable() {
       <div className="overflow-x-auto">
         <table
           ref={tableRef}
-          className="min-w-[400px] w-full border-collapse text-xs md:text-sm"
+          className="min-w-[500px] w-full border-collapse text-xs md:text-sm"
         >
           <thead>
             <tr className="bg-gray-300 text-left">
               <th className="p-2">Nama Alat</th>
-              <th className="p-2">Jumlah</th>
+              <th className="p-2">Tanggal Masuk</th>
               <th className="p-2">Merek</th>
               <th className="p-2">Type</th>
+              <th className="p-2">Jumlah</th>
               <th className="p-2 no-print">Detail</th>
               <th className="p-2 no-print">Aksi</th>
             </tr>
@@ -144,17 +145,33 @@ export default function DataAlatTable() {
             {paginatedData.map((a) => (
               <tr key={a.id} className="hover:bg-gray-50 text-left border-t">
                 <td className="p-2">{a.nama}</td>
-                <td className="p-2">{a.jumlah}</td>
+                <td className="p-2">{a.tanggalMasuk}</td>
                 <td className="p-2">{a.merek}</td>
                 <td className="p-2">{a.type}</td>
+                <td className="p-2">{a.jumlah}</td>
                 <td className="p-2">
-                  <Link
-                    href={`/inventory/alat_kalibrasi/DetailView/${a.id}`}
-                    className="text-sm text-blue-600"
+            <Link
+              href={`/admin/inventory/alat_kalibrasi/DetailView/${a.kodeAlat}`}
+              className="text-sm text-blue-600"
+            >
+              Lihat Detail
+            </Link>
+          </td>
+                {/* <td className="p-2">
+                  <Badge
+                    className={
+                      a.status === "TERSEDIA"
+                        ? "bg-green-100 text-green-700"
+                        : a.status === "DIPAKAI"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
+                    }
                   >
-                    Lihat Detail
-                  </Link>
-                </td>
+                    {a.status}
+                  </Badge>
+                </td> */}
+
+                {/* Aksi */}
                 <td className="p-2 text-left relative no-print">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -195,13 +212,11 @@ export default function DataAlatTable() {
         </table>
       </div>
 
-        <PaginationControl
-          totalPages={totalPages}
-          currentPage={currentPage}
-          perPage={perPage}
-          onPageChange={handlePageChange}
-        />
-  
+      <PaginationControl
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
 
       {/* Dialog Edit */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
