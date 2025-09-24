@@ -60,7 +60,5 @@ export async function GET(req: Request) {
   } catch (error: unknown) {
     console.error('🔴 USER ROUTE ERROR:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect()
   }
 }
