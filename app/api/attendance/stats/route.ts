@@ -1,11 +1,22 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { eachDayOfInterval } from 'date-fns'
 import { startOfDayWIB, endOfDayWIB, getMonthWIB } from '@/lib/timezone'
+import { requireAuth, AuthPayload } from "@/lib/requestaAuth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (!(auth as AuthPayload).id) {
+    return auth as NextResponse; 
+  }
+
+  const user = auth as AuthPayload;
+
+  if (!["ADMIN", "MANAJER", "OWNER"].includes(user.role || "")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   try {
     const { searchParams } = new URL(req.url)
     const year = Number(searchParams.get("year")) || new Date().getFullYear()
@@ -48,7 +59,6 @@ export async function GET(req: Request) {
       return NextResponse.json(data)
     }
 
-    // Statistik per bulan
     const stats: Record<number, { hadir: number; terlambat: number; tidakHadir: number }> = {}
     for (let m = 0; m < 12; m++) stats[m] = { hadir: 0, terlambat: 0, tidakHadir: 0 }
 
@@ -68,8 +78,5 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }
-
