@@ -1,35 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-if (!JWT_SECRET) throw new Error("JWT_SECRET is not set");
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
 
 export interface AuthPayload {
   id: string;
   role?: string;
+  [key: string]: any;
 }
 
 export function requireAuth(req: NextRequest): AuthPayload | NextResponse {
-  const cookieHeader = req.headers.get("cookie") || "";
-  const match = cookieHeader.match(/token=([^;]+)/);
-  const token = match?.[1];
-
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const cookieToken: string | undefined = req.cookies.get("token")?.value ?? undefined;
 
-    if (decoded && typeof decoded.id === "string") {
-      return {
-        id: decoded.id,
-        role: decoded.role,
-      };
+    const authHeader = req.headers.get("authorization") || "";
+    const token: string | undefined = cookieToken ?? (authHeader.replace("Bearer ", "") || undefined);
+
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json({ error: "Invalid token payload" }, { status: 401 });
+    const payload = jwt.verify(token, JWT_SECRET!) as unknown as AuthPayload;
+
+    return payload;
   } catch {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }
