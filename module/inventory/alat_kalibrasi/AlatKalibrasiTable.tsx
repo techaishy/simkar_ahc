@@ -212,14 +212,11 @@ export default function DataAlatTable() {
         </table>
       </div>
 
-
-        <PaginationControl
-          totalPages={totalPages}
-          currentPage={currentPage}
-          perPage={perPage}
-          onPageChange={handlePageChange}
-        />
-  
+      <PaginationControl
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
 
       {/* Dialog Edit */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
