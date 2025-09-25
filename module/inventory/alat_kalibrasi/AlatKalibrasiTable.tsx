@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
 import PrintButton from "@/components/ui/printButton";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import AlatDetailView from "./AlatDetailView";
 import {
   Dialog,
   DialogContent,
@@ -26,12 +27,16 @@ import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import PaginationControl from "@/components/ui/PaginationControl";
 
 import type { Alat } from "@/lib/types/alat";
+import SearchBar from "@/components/ui/searchbar";
 
 export default function DataAlatTable() {
   const tableRef = useRef<HTMLTableElement>(null);
   const [alat, setAlat] = useState<Alat[]>([]);
-  const [selectedAlat, setSelectedAlat] = useState<Alat | null>(null);
+  const [filteredAlat, setFilteredAlat] = useState<Alat[]>([]);
 
+  const [selectedAlat, setSelectedAlat] = useState<Alat | null>(null);
+  const [openDetail, setOpenDetail] = useState(false);
+  const [selectedDetailAlat, setSelectedDetailAlat] = useState<Alat | null>(null);
   const [openTambah, setOpenTambah] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
@@ -47,6 +52,7 @@ export default function DataAlatTable() {
         if (!res.ok) throw new Error("Gagal fetch alat");
         const data: Alat[] = await res.json();
         setAlat(data);
+        setFilteredAlat(data); // default tampil semua
       } catch (error) {
         console.error("Error fetching alat:", error);
       }
@@ -54,8 +60,8 @@ export default function DataAlatTable() {
     fetchAlat();
   }, []);
 
-  const totalPages = Math.ceil(alat.length / perPage);
-  const paginatedData = alat.slice(
+  const totalPages = Math.ceil(filteredAlat.length / perPage);
+  const paginatedData = filteredAlat.slice(
     (currentPage - 1) * perPage,
     currentPage * perPage
   );
@@ -65,15 +71,15 @@ export default function DataAlatTable() {
     setPerPage(perPage);
   };
 
-  const handleSave = (alatBaru: Alat) => {
-    setAlat((prev) => [...prev, alatBaru]);
-    setOpenTambah(false);
-  };
+    const handleSave = (alatBaru: Alat) => {
+      setAlat((prev) => [...prev, alatBaru]);
+      setFilteredAlat((prev) => [...prev, alatBaru]);
+      setOpenTambah(false);
+    };
 
   const handleUpdate = (alatUpdate: Alat) => {
-    setAlat((prev) =>
-      prev.map((a) => (a.id === alatUpdate.id ? alatUpdate : a))
-    );
+    setAlat((prev) => prev.map((a) => (a.id === alatUpdate.id ? alatUpdate : a)));
+    setFilteredAlat((prev) => prev.map((a) => (a.id === alatUpdate.id ? alatUpdate : a)));
     setOpenEdit(false);
   };
 
@@ -86,6 +92,7 @@ export default function DataAlatTable() {
 
       if (res.ok) {
         setAlat((prev) => prev.filter((a) => a.id !== selectedAlat.id));
+        setFilteredAlat((prev) => prev.filter((a) => a.id !== selectedAlat.id));
       } else {
         console.error("Gagal hapus alat");
       }
@@ -96,32 +103,48 @@ export default function DataAlatTable() {
     }
   };
 
+  const handleSearch = (query: string) => {
+    if (!query) {
+      setFilteredAlat(alat); // kalau kosong, tampil semua
+      return;
+    }
+    const lower = query.toLowerCase();
+    setFilteredAlat(
+      alat.filter(
+        (a) =>
+          a.nama.toLowerCase().includes(lower) ||
+          a.merek.toLowerCase().includes(lower) ||
+          a.type.toLowerCase().includes(lower)
+      )
+    );
+    setCurrentPage(1); // reset ke page 1 tiap kali search
+  };
+
   return (
     <Card className="p-4 w-full">
       <h2 className="text-lg font-semibold mb-4">Data Alat Kalibrasi</h2>
 
+      
+
       {/* Action */}
-      <div className="flex flex-wrap gap-2 justify-end mb-4">
+      <div className="flex flex-wrap gap-2 justify-end mb-4 mt-4">
+      <SearchBar placeholder="Cari alat kalibrasi..." onSearch={handleSearch} />
         {/* Tambah Alat */}
         <Dialog open={openTambah} onOpenChange={setOpenTambah}>
           <DialogTrigger asChild>
-            <Button className="px-4 py-2 text-white font-semibold bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black transition-all duration-300 shadow-md">
-              Tambah Alat
+            <Button className="px-3 py-2 text-white font-semibold bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black transition-all duration-300 shadow-md">
+              Alat Baru
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-gradient-to-br from-black via-gray-950 to-gray-800">
             <DialogHeader>
-              <DialogTitle>Tambah Alat</DialogTitle>
+              <DialogTitle>Tambah Data Alat</DialogTitle>
             </DialogHeader>
             <AlatForm onSave={handleSave} />
           </DialogContent>
         </Dialog>
 
-        <PrintButton
-          printRef={tableRef}
-          title="Data Alat Kalibrasi"
-          label="Cetak Data"
-        />
+        <PrintButton printRef={tableRef} title="Data Alat Kalibrasi" label="Cetak Data" />
       </div>
 
       {/* Tabel Alat */}
@@ -150,26 +173,16 @@ export default function DataAlatTable() {
                 <td className="p-2">{a.type}</td>
                 <td className="p-2">{a.jumlah}</td>
                 <td className="p-2">
-            <Link
-              href={`/admin/inventory/alat_kalibrasi/DetailView/${a.kodeAlat}`}
-              className="text-sm text-blue-600"
-            >
-              Lihat Detail
-            </Link>
-          </td>
-                {/* <td className="p-2">
-                  <Badge
-                    className={
-                      a.status === "TERSEDIA"
-                        ? "bg-green-100 text-green-700"
-                        : a.status === "DIPAKAI"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-red-100 text-red-700"
-                    }
+                  <button
+                    onClick={() => {
+                      setSelectedDetailAlat(a);
+                      setOpenDetail(true);
+                    }}
+                    className="text-sm text-blue-600 hover:underline"
                   >
-                    {a.status}
-                  </Badge>
-                </td> */}
+                    Lihat Detail
+                  </button>
+                </td>
 
                 {/* Aksi */}
                 <td className="p-2 text-left relative no-print">
@@ -217,6 +230,22 @@ export default function DataAlatTable() {
         currentPage={currentPage}
         onPageChange={(page) => setCurrentPage(page)}
       />
+
+      {/* Dialog Detail */}
+      <Dialog open={openDetail} onOpenChange={setOpenDetail}>
+        <DialogContent className="sm:max-w-[700px] bg-gradient-to-br from-black via-gray-950 to-gray-800">
+          <DialogHeader>
+            <DialogTitle>Detail Alat</DialogTitle>
+          </DialogHeader>
+          {selectedDetailAlat && (
+            <AlatDetailView
+              open={openDetail}
+              onClose={() => setOpenDetail(false)}
+              alat={selectedDetailAlat}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog Edit */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>

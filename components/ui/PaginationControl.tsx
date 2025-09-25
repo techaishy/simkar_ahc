@@ -21,7 +21,6 @@ export default function PaginationControl({
     }
   };
 
-  // 🔹 Generate daftar halaman dengan ellipsis
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
 
