@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -48,11 +47,11 @@ export default function DataAlatTable() {
   useEffect(() => {
     const fetchAlat = async () => {
       try {
-        const res = await fetch("/api/alat");
+        const res = await fetch("/api/inventory/alat-kalibrator"); 
         if (!res.ok) throw new Error("Gagal fetch alat");
         const data: Alat[] = await res.json();
         setAlat(data);
-        setFilteredAlat(data); // default tampil semua
+        setFilteredAlat(data);
       } catch (error) {
         console.error("Error fetching alat:", error);
       }
@@ -71,11 +70,11 @@ export default function DataAlatTable() {
     setPerPage(perPage);
   };
 
-    const handleSave = (alatBaru: Alat) => {
-      setAlat((prev) => [...prev, alatBaru]);
-      setFilteredAlat((prev) => [...prev, alatBaru]);
-      setOpenTambah(false);
-    };
+  const handleSave = (alatBaru: Alat) => {
+    setAlat((prev) => [...prev, alatBaru]);
+    setFilteredAlat((prev) => [...prev, alatBaru]);
+    setOpenTambah(false);
+  };
 
   const handleUpdate = (alatUpdate: Alat) => {
     setAlat((prev) => prev.map((a) => (a.id === alatUpdate.id ? alatUpdate : a)));
@@ -86,7 +85,7 @@ export default function DataAlatTable() {
   const handleConfirmDelete = async () => {
     if (!selectedAlat) return;
     try {
-      const res = await fetch(`/api/alat/${selectedAlat.id}`, {
+      const res = await fetch(`/api/inventory/alat-kalibrator/${selectedAlat.id}`, {
         method: "DELETE",
       });
 
@@ -105,7 +104,7 @@ export default function DataAlatTable() {
 
   const handleSearch = (query: string) => {
     if (!query) {
-      setFilteredAlat(alat); // kalau kosong, tampil semua
+      setFilteredAlat(alat); 
       return;
     }
     const lower = query.toLowerCase();
@@ -113,22 +112,20 @@ export default function DataAlatTable() {
       alat.filter(
         (a) =>
           a.nama.toLowerCase().includes(lower) ||
-          a.merek.toLowerCase().includes(lower) ||
           a.type.toLowerCase().includes(lower)
       )
     );
-    setCurrentPage(1); // reset ke page 1 tiap kali search
+    setCurrentPage(1); 
   };
 
   return (
     <Card className="p-4 w-full">
       <h2 className="text-lg font-semibold mb-4">Data Alat Kalibrasi</h2>
 
-      
-
       {/* Action */}
       <div className="flex flex-wrap gap-2 justify-end mb-4 mt-4">
-      <SearchBar placeholder="Cari alat kalibrasi..." onSearch={handleSearch} />
+        <SearchBar placeholder="Cari alat kalibrasi..." onSearch={handleSearch} />
+        
         {/* Tambah Alat */}
         <Dialog open={openTambah} onOpenChange={setOpenTambah}>
           <DialogTrigger asChild>

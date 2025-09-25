@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -11,33 +11,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { generateKodeUnit } from "@/lib/utils/generateKodeUnit";
 
-import type { Alat } from "@/lib/types/alat";
+export type UnitBaru = {
+  kode_unit: string;
+  nomor_seri: string;
+  status: "TERSEDIA" | "DIGUNAKAN" | "MAINTENANCE";
+  kondisi: string;
+};
 
 interface FormTambahUnitProps {
-  onSave: (data: { nomorSeri: string[]; jumlah: number }) => void;
-  initialData?: Alat; 
+  alatId: string;
+  namaAlat: string;
+  merekAlat: string;
+  existingUnitsCount: number; 
+  onSuccess: (newUnits: UnitBaru[]) => void; 
 }
 
-export default function FormTambahUnit({ onSave, initialData }: FormTambahUnitProps) {
-    const [form, setForm] = useState<Alat>(
-        initialData || {
-          id: "",
-          kodeAlat: "",
-          kodeUnit: "",
-          nama: "",
-          tanggalMasuk: "",
-          merek: "",
-          nomorSeri: [],
-          type: "",
-          jumlah: 0,
-          status: "TERSEDIA",
-          deskripsi: "",
-          units: [],
-        }
-        );
+export default function FormTambahUnit({
+  alatId,
+  namaAlat,
+  merekAlat,
+  existingUnitsCount,
+  onSuccess,
+}: FormTambahUnitProps) {
   const [jumlah, setJumlah] = useState(1);
   const [nomorSeri, setNomorSeri] = useState<string[]>([""]);
+  const [status, setStatus] = useState<UnitBaru["status"]>("TERSEDIA");
+  const [loading, setLoading] = useState(false);
 
   const handleJumlahChange = (val: number) => {
     setJumlah(val);
@@ -54,61 +55,79 @@ export default function FormTambahUnit({ onSave, initialData }: FormTambahUnitPr
     setNomorSeri(updated);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (jumlah > 0) {
-      onSave({ jumlah, nomorSeri });
+    if (jumlah <= 0) return;
+
+    setLoading(true);
+    try {
+      const units: UnitBaru[] = nomorSeri.map((ns, i) => ({
+        kode_unit: generateKodeUnit(alatId, existingUnitsCount + i),
+        nomor_seri: ns,
+        status,
+        kondisi: "Baik",
+      }));
+
+      const res = await fetch(`/api/inventory/alat-kalibrator/${alatId}/units`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ units }),
+      });
+
+      if (!res.ok) throw new Error("Gagal tambah unit");
+
+      await res.json();
+      onSuccess(units); // kirim unit baru ke parent agar langsung bisa di-merge
+    } catch (err) {
+      console.error(err);
+      alert("Gagal menambahkan unit baru");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Input jumlah unit */}
       <div>
-        <label className="block text-sm text-white">Jumlah Unit</label>
+        <Label className="mb-2 block">Jumlah Unit</Label>
         <Input
           type="number"
+          min={1}
           value={jumlah}
           onChange={(e) => handleJumlahChange(Number(e.target.value))}
-          min={1}
         />
       </div>
 
+      {/* Input nomor seri */}
       {Array.from({ length: jumlah }).map((_, i) => (
         <div key={i}>
-          <label className="block text-sm text-white">
-            Nomor Seri {i + 1}
-          </label>
+          <Label className="mb-2 block">Nomor Seri {i + 1}</Label>
           <Input
             type="text"
             value={nomorSeri[i] || ""}
             onChange={(e) => handleNomorSeriChange(i, e.target.value)}
           />
-
-          
         </div>
       ))}
 
-<div>
-          <Label className="mb-2 block">Status</Label>
-          <Select
-            value={form.status}
-            onValueChange={(val: Alat["status"]) =>
-              setForm({ ...form, status: val })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih Status" />
-            </SelectTrigger>
-            <SelectContent className="bg-gradient-to-br from-black to-gray-900 ">
-              <SelectItem value="TERSEDIA">Tersedia</SelectItem>
-              <SelectItem value="DIGUNAKAN">Digunakan</SelectItem>
-              <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      {/* Pilihan status unit */}
+      <div>
+        <Label className="mb-2 block">Status</Label>
+        <Select value={status} onValueChange={(val) => setStatus(val as UnitBaru["status"])}>
+          <SelectTrigger>
+            <SelectValue placeholder="Pilih Status" />
+          </SelectTrigger>
+          <SelectContent className="bg-gradient-to-br from-black to-gray-900">
+            <SelectItem value="TERSEDIA">Tersedia</SelectItem>
+            <SelectItem value="DIGUNAKAN">Digunakan</SelectItem>
+            <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-      <Button type="submit" className="w-full">
-        Simpan
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? "Menyimpan..." : "Simpan"}
       </Button>
     </form>
   );
