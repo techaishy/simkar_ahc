@@ -122,7 +122,7 @@ export default function DataAlatTable() {
 
   return (
     <Card className="p-4 w-full">
-      <h2 className="text-lg font-semibold mb-4">Data Alat Kalibrasi</h2>
+      <h2 className="text-lg font-semibold mb-4">Data Alat Kalibrator</h2>
 
       
 
