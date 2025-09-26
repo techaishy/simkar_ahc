@@ -115,7 +115,7 @@ interface SidebarProps {
 }
 export function Sidebar({ children, className }: SidebarProps) {
   return (
-    <aside className={cn(" text-white w-64 h-screen p-4 overflow-y-auto custom-scrollbar", className)}>
+    <aside className={cn("flex flex-col h-screen w-64 bg-gradient-to-br from-gray-700 via-gray-900 to-black text-white", className)}>
       {children}
     </aside>
   );
@@ -125,7 +125,7 @@ interface SidebarContentProps {
   className?: string;
 }
 export function SidebarContent({ children, className }: SidebarContentProps) {
-  return <div className={cn("flex flex-col gap-4", className)}>{children}</div>;
+  return <div className={cn("flex-1 overflow-y-auto custom-scrollbar px-2", className)}>{children}</div>;
 }
 interface SidebarFooterProps {
   children: ReactNode;
