@@ -43,7 +43,6 @@ export default function DataAlatTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(7);
 
-  // Ambil data alat dari API
   useEffect(() => {
     const fetchAlat = async () => {
       try {
@@ -225,7 +224,8 @@ export default function DataAlatTable() {
       <PaginationControl
         totalPages={totalPages}
         currentPage={currentPage}
-        onPageChange={(page) => setCurrentPage(page)}
+        perPage={perPage}
+        onPageChange={handlePageChange} 
       />
 
       {/* Dialog Detail */}
