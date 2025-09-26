@@ -47,7 +47,7 @@ export default function PaginationControl({
       pages.push(1);
 
       if (currentPage > 4) {
-        pages.push("...");
+        pages.push("..."); 
       }
 
       const startPage = Math.max(2, currentPage - 1);
