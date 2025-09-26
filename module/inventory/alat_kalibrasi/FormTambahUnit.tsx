@@ -62,13 +62,13 @@ export default function FormTambahUnit({
     setLoading(true);
     try {
       const units: UnitBaru[] = nomorSeri.map((ns, i) => ({
-        kode_unit: generateKodeUnit(alatId, existingUnitsCount + i),
+        kode_unit: generateKodeUnit(namaAlat, merekAlat, alatId, existingUnitsCount + i),
         nomor_seri: ns,
         status,
         kondisi: "Baik",
       }));
 
-      const res = await fetch(`/api/inventory/alat-kalibrator/${alatId}/units`, {
+      const res = await fetch(`/api/inventory/alat-kalibrator/${alatId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ units }),
@@ -77,7 +77,7 @@ export default function FormTambahUnit({
       if (!res.ok) throw new Error("Gagal tambah unit");
 
       await res.json();
-      onSuccess(units); // kirim unit baru ke parent agar langsung bisa di-merge
+      onSuccess(units); 
     } catch (err) {
       console.error(err);
       alert("Gagal menambahkan unit baru");

@@ -110,8 +110,8 @@ export default function DataAlatTable() {
     setFilteredAlat(
       alat.filter(
         (a) =>
-          a.nama.toLowerCase().includes(lower) ||
-          a.type.toLowerCase().includes(lower)
+          a.nama_alat.toLowerCase().includes(lower) ||
+          (a.type ?? "").toLowerCase().includes(lower)
       )
     );
     setCurrentPage(1); 
@@ -163,9 +163,9 @@ export default function DataAlatTable() {
           <tbody>
             {paginatedData.map((a) => (
               <tr key={a.id} className="hover:bg-gray-50 text-left border-t">
-                <td className="p-2">{a.nama}</td>
-                <td className="p-2">{a.tanggalMasuk}</td>
-                <td className="p-2">{a.merek}</td>
+                <td className="p-2">{a.nama_alat}</td>
+                <td className="p-2">{a.tahun_pembelian}</td>
+                <td className="p-2">{a.merk}</td>
                 <td className="p-2">{a.type}</td>
                 <td className="p-2">{a.jumlah}</td>
                 <td className="p-2">
@@ -265,7 +265,7 @@ export default function DataAlatTable() {
         open={openDelete}
         onClose={() => setOpenDelete(false)}
         onConfirm={handleConfirmDelete}
-        namaAlat={selectedAlat?.nama}
+        namaAlat={selectedAlat?.nama_alat}
       />
     </Card>
   );

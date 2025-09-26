@@ -20,14 +20,14 @@ export async function GET() {
 
     const data: Alat[] = alatKalibrators.map(a => ({
       id: a.id,
-      kodeAlat: a.kode_barcode ?? "-",
-      kodeUnit: "-", 
-      nama: a.nama_alat,
-      merek: a.merk ?? "-",
+      kode_barcode: a.kode_barcode ?? "-",
+      nama_alat: a.nama_alat,
+      merk: a.merk ?? "-",
       type: a.type ?? "-",
       jumlah: a.jumlah ?? 0,
-      tanggalMasuk: a.created_at.toISOString().split("T")[0],
-    }))
+      created_at: a.created_at.toISOString(),
+      updated_at: a.updated_at.toISOString(),
+    }));
 
     return NextResponse.json(data)
   } catch (error) {

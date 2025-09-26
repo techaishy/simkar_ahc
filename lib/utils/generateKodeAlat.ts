@@ -1,7 +1,19 @@
-export function generateKodeAlat(nama: string, merek: string, nomorUrut: number) {
- 
-  const namaInisial = nama.trim().substring(0, 3).toUpperCase();
-  const merekInisial = merek.trim().substring(0, 3).toUpperCase();
-  const nomor = String(nomorUrut).padStart(3, "0");
-  return `${namaInisial}-${merekInisial}-${nomor}`;
+export function generateKodeUnit(
+  nama: string,
+  merek: string,
+  id: string,
+  totalUnits: number
+): string {
+
+  const namaPrefix =
+    nama.trim().substring(0, 3).toUpperCase() || "RDN";
+
+  const merekPrefix =
+    merek.trim()
+      ? merek.trim().substring(0, 3).toUpperCase()
+      : "NON"; 
+
+  const idPrefix = id.replace(/[^a-zA-Z0-9]/g, "").substring(0, 3).toUpperCase();
+
+  return `${namaPrefix}-${merekPrefix}-${idPrefix}`;
 }
