@@ -190,7 +190,7 @@ export default function ManualCard({ onClose, tipe, onSubmit }: Props) {
             {/* Keterangan */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
-              <textarea placeholder="Tambahkan keterangan (opsional)" value={keterangan} onChange={e => setKeterangan(e.target.value)} className="w-full p-2 border border-gray-900 text-black rounded text-sm" rows={3} />
+              <textarea placeholder="Tambahkan keterangan Kendala absen" value={keterangan} onChange={e => setKeterangan(e.target.value)} className="w-full p-2 border border-gray-900 text-black rounded text-sm" rows={3} />
             </div>
 
             {error && <div className="text-sm text-red-600 bg-red-100 border border-red-300 rounded-md p-2">{error}</div>}
