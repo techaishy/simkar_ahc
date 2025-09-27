@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/presensi/autoabsent/route.ts": {
+    "api/presensi/autoabsent/*": {
       "runtime": "@vercel/node@3.0.0",
       "maxDuration": 60
     }
