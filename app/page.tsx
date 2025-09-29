@@ -63,9 +63,9 @@ export default function Login() {
 
         // Redirect sesuai role
         if (role === "ADMIN" || role === "MANAJER" || role === "OWNER") {
-          router.replace("/admin/dashboard");
+          router.replace("/dashboard");
         } else if (role === "TEKNISI") {
-          router.replace("/admin/absen");
+          router.replace("/absen");
         } else {
           router.replace("/");
         }
