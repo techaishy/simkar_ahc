@@ -62,6 +62,23 @@ export default function SuratTugasForm() {
       nomorSurat
     }))
   }
+
+  const handleSubmit = () => {
+    const newSurat = {
+      ...formData,
+      employees,
+      statusOwner: "Pending",
+      statusManager: "Pending",
+      createdAt: new Date().toISOString(),
+    };
+  
+    const existing = JSON.parse(localStorage.getItem("riwayat_surat") || "[]");
+    existing.push(newSurat);
+    localStorage.setItem("riwayat_surat", JSON.stringify(existing));
+  
+    console.log("Submit payload:", newSurat);
+    alert("Berhasil submit & disimpan ke Riwayat!");
+  };
   
 
   const handlePrint = () => {
@@ -257,6 +274,8 @@ export default function SuratTugasForm() {
               >
                 +
               </button>
+
+            
 
               {/* Detail Perjalanan */}
               <div className="border-t pt-6">
@@ -485,6 +504,13 @@ export default function SuratTugasForm() {
                     </tbody>
                   </table>
                 </div>
+                <button
+                type="button"
+                onClick={handleSubmit}
+                className="mt-4 w-full px-4 py-3 bg-gradient-to-br from-black to-gray-900 hover:from-[#d2e67a] hover:to-[#f9fc4f] transition-all duration-300 text-white rounded-sm hover:text-black font-semibold"
+              >
+                Submit
+              </button> 
               </div>
             </div>
           </Card>
