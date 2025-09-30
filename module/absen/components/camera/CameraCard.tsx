@@ -79,6 +79,10 @@ export default function CameraCard({ userId,isWithinRadius, onClose, tipe }: Pro
   };
 
   const takePhoto = async () => {
+    if (!isWithinRadius) {
+      alert("❌ Anda berada di luar radius presensi. Tidak bisa mengambil foto.");
+      return;
+    }
     if (!videoRef.current || !location) {
       alert("Lokasi belum tersedia. Harap aktifkan GPS atau tunggu beberapa detik.");
       return;
