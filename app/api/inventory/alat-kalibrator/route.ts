@@ -1,43 +1,5 @@
-import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import type { Alat } from "@/lib/types/alat"
-
-export async function GET() {
-  try {
-    const alatKalibrators = await prisma.alatKalibrator.findMany({
-      select: {
-        id: true,
-        kode_barcode: true,
-        nama_alat: true,
-        merk: true,
-        type: true,
-        jumlah: true,
-        created_at: true,
-        updated_at: true,
-      },
-      orderBy: { created_at: "desc" },
-    })
-
-    const data: Alat[] = alatKalibrators.map(a => ({
-      id: a.id,
-      kode_barcode: a.kode_barcode ?? "-",
-      nama_alat: a.nama_alat,
-      merk: a.merk ?? "-",
-      type: a.type ?? "-",
-      jumlah: a.jumlah ?? 0,
-      created_at: a.created_at.toISOString(),
-      updated_at: a.updated_at.toISOString(),
-    }));
-
-    return NextResponse.json(data)
-  } catch (error) {
-    console.error("Error fetching alat kalibrator:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch alat kalibrator" },
-      { status: 500 }
-    )
-  }
-}
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -50,7 +12,7 @@ export async function POST(req: Request) {
         merk,
         type,
         jumlah,
-        created_at: new Date(tanggal_masuk), 
+        created_at: new Date(tanggal_masuk),
       },
     });
 

@@ -26,7 +26,7 @@ export async function GET(
             kondisi: true,
             created_at: true,
             updated_at: true,
-            status: true,    
+            status:true,
           },
         },
       },

@@ -17,6 +17,7 @@ type AlatDetailViewProps = {
   open: boolean;
   onClose: () => void;
   alat: Alat | null;
+  alatId?: string;
 };
 
 export default function AlatDetailView({ alat, open, onClose }: AlatDetailViewProps) {
@@ -136,7 +137,7 @@ export default function AlatDetailView({ alat, open, onClose }: AlatDetailViewPr
               <td className="p-2">{u.kode_unit}</td>
               <td className="p-2">{u.nomor_seri || "-"}</td>
               <td className="p-2">{u.kondisi}</td>
-              <td className="p-2">{u.status}</td>
+              <td className="p-2">{u.status.toLowerCase()}</td>
             </tr>
           ))}
         </tbody>
