@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React,  { useState, useEffect }  from 'react'
 import { Printer, Download, User, MapPin, Calendar, Clock, Car } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import type { FormSuratKeluar } from '@/lib/types/suratkeluar'
@@ -21,7 +21,24 @@ export default function SuratTugasForm() {
     agenda: ''
   })
 
-  const [employees, setEmployees] = useState([{ nama: '', jabatan: '', alamat: '' }])
+    const [employees, setEmployees] = useState<Employee[]>([])
+    const [employeeOptions, setEmployeeOptions] = useState<Employee[]>([])
+    const [emplocationOptions, setlocationOptions] = useState<[]>([])
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const res = await fetch('/api/surat-keluar/data')
+          const data = await res.json()
+          setEmployeeOptions(data.employees)
+          setlocationOptions(data.location)
+        } catch (err) {
+          console.error('Gagal ambil data:', err)
+        }
+      }
+      fetchData()
+    }, [])
+
 
     const handleEmployeeChange = (index: number, field: keyof Employee, value: string) => {
     setEmployees(prev => {
@@ -31,9 +48,12 @@ export default function SuratTugasForm() {
     })
   }
 
-  const addEmployee = () => {
-    setEmployees(prev => [...prev, { nama: '', jabatan: '', alamat: '' }])
-  }
+    const addEmployee = () => {
+      setEmployees(prev => [
+        ...prev,
+        { nama: '', jabatan: '', alamat: '' } 
+      ])
+    }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -159,7 +179,7 @@ export default function SuratTugasForm() {
           </html>
         `)
         printWindow.document.close()
-        printWindow.print()
+        
       }
     }
   }
@@ -173,6 +193,8 @@ export default function SuratTugasForm() {
     }
     return today.toLocaleDateString('id-ID', options)
   }
+
+  const [showSuggestions, setShowSuggestions] = useState<boolean[]>([])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -221,61 +243,108 @@ export default function SuratTugasForm() {
 
               {/* Data Pegawai */}
               {employees.map((emp, index) => (
-                <div key={index} className="mb-4 border-b pb-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nama Lengkap
-                  </label>
-                  <input
-                    type="text"
-                    name="nama"
-                    value={emp.nama}
-                    onChange={(e) => handleEmployeeChange(index, 'nama', e.target.value)}
-                    className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="Masukkan nama lengkap"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Jabatan
-                  </label>
-                  <input
-                    type="text"
-                    name="jabatan"
-                    value={emp.jabatan}
-                    onChange={(e) => handleEmployeeChange(index, 'jabatan', e.target.value)}
-                    className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="Masukkan jabatan"
-                  />
-                </div>
-              </div>
+              <div key={index} className="mb-4 border-b pb-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Nama Pegawai */}
+                  <div className="relative">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nama Pegawai
+                    </label>
+                    <input
+                      type="text"
+                      value={emp.nama}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        handleEmployeeChange(index, "nama", val)
+                        setShowSuggestions((prev) => {
+                          const copy = [...prev]
+                          copy[index] = !!val.trim()
+                          return copy
+                        })
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Alamat
-                </label>
-                <textarea
-                  name="alamat"
-                  value={emp.alamat}
-                  onChange={(e) => handleEmployeeChange(index, 'alamat', e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                  placeholder="Masukkan alamat lengkap"
-                />
-              </div>
-              </div>
+                        if (!val.trim()) {
+                          handleEmployeeChange(index, "jabatan", "")
+                          handleEmployeeChange(index, "alamat", "")
+                        } else {
+                          const match = employeeOptions.find(
+                            (opt) => opt.nama.toLowerCase() === val.toLowerCase()
+                          )
+                          if (!match) {
+                            handleEmployeeChange(index, "jabatan", "")
+                            handleEmployeeChange(index, "alamat", "")
+                          }
+                        }
+                      }}
+                      className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg"
+                      placeholder="Ketik nama pegawai..."
+                    />
+                    {/* Dropdown suggestion */}
+                    {showSuggestions[index] && emp.nama && (
+                      <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-auto">
+                        {employeeOptions
+                          .filter((opt) =>
+                            opt.nama.toLowerCase().includes(emp.nama.toLowerCase())
+                          )
+                          .map((opt, i) => (
+                            <li
+                              key={i}
+                              onClick={() => {
+                                handleEmployeeChange(index, "nama", opt.nama)
+                                handleEmployeeChange(index, "jabatan", opt.jabatan)
+                                handleEmployeeChange(index, "alamat", opt.alamat)
+                                setShowSuggestions((prev) => {
+                                  const copy = [...prev]
+                                  copy[index] = false
+                                  return copy
+                                })
+                              }}
+                              className="px-4 py-2 cursor-pointer hover:bg-blue-100"
+                            >
+                              {opt.nama}
+                            </li>
+                          ))}
+                      </ul>
+                    )}
+                  </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Jabatan
+                      </label>
+                      <input
+                        type="text"
+                        name="jabatan"
+                        value={emp.jabatan ? emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase() : ""}
+                        readOnly
+                        className="w-full px-4 py-3 border text-gray-900 border-gray-200 bg-gray-100 
+                                  rounded-lg focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Alamat
+                    </label>
+                    <textarea
+                      name="alamat"
+                      value={emp.alamat}
+                      readOnly
+                      rows={3}
+                      className="w-full px-4 py-3 border text-gray-900 border-gray-200 bg-gray-100 
+                                rounded-lg resize-none focus:outline-none"
+                    />
+                  </div>
+                </div>
               ))}
 
-<button
+              <button
                 type="button"
                 onClick={addEmployee}
                 className="px-3 py-2 bg-gradient-to-br hover:text-black from-black to-gray-900 hover:from-[#d2e67a] hover:to-[#f9fc4f] transition-all duration-300 border-purple-200 rounded-sm text-white"
               >
                 +
               </button>
-
-            
 
               {/* Detail Perjalanan */}
               <div className="border-t pt-6">
@@ -353,7 +422,7 @@ export default function SuratTugasForm() {
                       Akomodasi
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       name="akomodasi"
                       value={formData.akomodasi}
                       onChange={handleInputChange}
@@ -389,13 +458,6 @@ export default function SuratTugasForm() {
                 </div>
                 <h2 className="text-xl font-semibold text-gray-800">Preview Surat</h2>
               </div>
-              <button
-                onClick={handlePrint}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-black to-gray-900 hover:from-[#d2e67a] hover:to-[#f9fc4f] transition-all duration-300 border-purple-200 rounded-sm text-white hover:text-black"
-              >
-                <Printer className="h-4 w-4" />
-                Print
-              </button>
             </div>
 
             <div 
@@ -404,16 +466,17 @@ export default function SuratTugasForm() {
               style={{ fontFamily: 'Times New Roman, serif' }}
             >
 
-<div className="flex items-center mb-4 pb-4 border-b-4 border-black">
-    <div className="w-20 h-20 flex-shrink-0">
-      <img src="/asset/logoahc.png" alt="Logo" className="w-full h-full object-contain" />
-    </div>
-    <div className="flex-1 text-center">
-      <div className="text-lg font-bold">PT. AISHY HEALTH CALIBRATION</div>
-      <div>Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam, Kab. Aceh Besar, Prov. Aceh</div>
-      <div>Telp: 08116834151 - 082267016423 | Email: calibrationaishy@gmai.com</div>
-    </div>
-  </div>
+            <div className="flex items-center mb-4 pb-4 border-b-4 border-black">
+                <div className="w-20 h-20 flex-shrink-0">
+                  <img src="/asset/logoahc.png" alt="Logo" className="w-full h-full object-contain" />
+                </div>
+                <div className="flex-1 text-center">
+                  <div className="text-lg font-bold">PT. AISHY HEALTH CALIBRATION</div>
+                  <div>Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam, Kab. Aceh Besar, Prov. Aceh</div>
+                  <div>Telp: 08116834151 - 082267016423 | Email: calibrationaishy@gmai.com</div>
+                </div>
+              </div>
+
               {/* Header */}
               <div className="text-center mb-8">
                 <div className="font-bold text-base text-gray-900 underline mb-4">
@@ -441,7 +504,7 @@ export default function SuratTugasForm() {
                 <td className=" p-2"></td>
                 <td className="p-2 font-medium">Jabatan</td>
                 <td className="p-2">:</td>
-                <td className="p-2">{emp.jabatan || '...............................'}</td>
+                <td className="p-2">{emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase() || '...............................'}</td>
               </tr>
               <tr>
                 <td className="p-2"></td>
@@ -453,7 +516,6 @@ export default function SuratTugasForm() {
           </table>
         </div>
       ))}
-
 
                 <p className="mb-6">
                   Untuk dapat melaksanakan tugas perjalanan dinas ke wilayah kerja{' '}
