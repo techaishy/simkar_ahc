@@ -216,7 +216,7 @@ export default function MenuSuratKeluar() {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             Butuh bantuan?{" "}
-            <a href="#" className="text-blue-600 hover:underline">
+            <a href="https://wa.me/6282274517496" className="text-blue-600 hover:underline">
               Hubungi Administrator
             </a>
           </p>

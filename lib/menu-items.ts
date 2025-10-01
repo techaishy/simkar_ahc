@@ -54,7 +54,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     name: 'Surat Keluar',
-    href: '/surat-keluar',
+    href: '/surat_keluar',
     icon: IconFolder,
     allowedRoles: ['ADMIN', 'OWNER', 'MANAJER']
   },
