@@ -199,7 +199,7 @@ const RiwayatSurat = () => {
                       <td></td>
                       <td><strong>Jabatan</strong></td>
                       <td>:</td>
-                      <td>${emp.jabatan}</td>
+                      <td>${emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase()}</td>
                     </tr>
                     <tr>
                       <td></td>

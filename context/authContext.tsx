@@ -26,18 +26,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    if (window.location.pathname === "/") {
+      setIsLoading(false);
+      return;
+    }
+
     const loadUser = async () => {
       try {
         const res = await fetch('/api/auth/user');
         if (!res.ok) {
-          await logout();
+          setUser(null);
           return;
         }
         const data = await res.json();
-        setUser({ ...data, customId: data.id });
+        const userData = { ...data, customId: data.id };
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
       } catch (err) {
         console.error('Auth init error:', err);
-        await logout();
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+        } catch {}
       } finally {
         setIsLoading(false);
       }
@@ -56,27 +65,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       const result = await res.json();
-
-      if (!res.ok) {
-        throw new Error(result.error || 'Login gagal');
-      }
-
-      if (!result.success || !result.data) {
-        throw new Error('Response login tidak valid');
-      }
+      if (!res.ok) throw new Error(result.error || 'Login gagal');
+      if (!result.success || !result.data) throw new Error('Response login tidak valid');
 
       const userData = { ...result.data, customId: result.data.id };
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
 
       if (userData.role === 'ADMIN' || userData.role === 'OWNER' || userData.role === 'MANAJER') {
-        router.replace('/admin/dashboard');
+        router.replace('/dashboard');
       } else if (userData.role === 'TEKNISI') {
-        router.replace('/admin/absen');
+        router.replace('/absen');
       } else {
         router.replace('/');
       }
-
     } catch (err) {
       console.error('Login error:', err);
       throw err;
@@ -86,14 +88,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    setIsLoading(true);
     try {
-      await fetch('/api/auth/logout', { method: 'POST' }); 
+      const res = await fetch('/api/auth/logout', { method: 'POST' });
+      if (res.ok) console.log('[Auth] Logout API success');
     } catch (err) {
-      console.error('Logout API error:', err);
+      console.error('[Auth] Logout fetch error:', err);
     } finally {
-      localStorage.removeItem('user');
       setUser(null);
-      router.replace('/'); 
+      localStorage.removeItem('user');
+      router.replace('/');
+      setIsLoading(false);
     }
   };
 
