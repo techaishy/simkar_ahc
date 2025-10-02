@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, Printer, Trash2, Search, Filter, FileText } from 'lucide-react';
+import { FormSuratKeluar } from '@/lib/types/suratkeluar';
+import { Employee } from '@/lib/types/suratkeluar';
+// interface Employee {
+//   nama: string;
+//   jabatan: string;
+//   alamat: string;
+// }
 
-interface Employee {
-  nama: string;
-  jabatan: string;
-  alamat: string;
-}
-
-interface SuratData {
-  nomorSurat: string;
-  wilayahKerja: string;
-  tanggalBerangkat: string;
-  jamBerangkat: string;
-  kendaraan: string;
-  akomodasi: string;
-  agenda: string;
-  employees: Employee[];
-  statusOwner: string;
-  statusManager: string;
-  createdAt: string;
-}
+// interface SuratData {
+//   nomorSurat: string;
+//   wilayahKerja: string;
+//   tanggalBerangkat: string;
+//   jamBerangkat: string;
+//   kendaraan: string;
+//   akomodasi: string;
+//   agenda: string;
+//   employees: Employee[];
+//   statusOwner: string;
+//   statusManager: string;
+//   createdAt: string;
+// }
 
 const RiwayatSurat = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('semua');
-  const [suratData, setSuratData] = useState<SuratData[]>([]);
-  const [selectedSurat, setSelectedSurat] = useState<SuratData | null>(null);
+  const [suratData, setSuratData] = useState<FormSuratKeluar[]>([]);
+  const [selectedSurat, setSelectedSurat] = useState<FormSuratKeluar | null>(null);
   const [showModal, setShowModal] = useState(false);
 
   // Load data dari localStorage saat komponen mount
@@ -66,13 +67,13 @@ const RiwayatSurat = () => {
   };
 
   // Fungsi lihat detail
-  const handleLihatDetail = (surat: SuratData) => {
+  const handleLihatDetail = (surat: FormSuratKeluar) => {
     setSelectedSurat(surat);
     setShowModal(true);
   };
 
   // Fungsi print
-  const handlePrint = (surat: SuratData) => {
+  const handlePrint = (surat: FormSuratKeluar) => {
     const printWindow = window.open('', '', 'width=800,height=600');
     if (printWindow) {
       const formatDate = (dateString: string) => {

@@ -18,7 +18,11 @@ export default function SuratTugasForm() {
     jamBerangkat: '',
     kendaraan: '',
     akomodasi: '',
-    agenda: ''
+    agenda: '',
+    employees: [],
+    statusOwner: '',
+    statusManager: '',
+    createdAt: '',
   })
 
     const [employees, setEmployees] = useState<Employee[]>([])

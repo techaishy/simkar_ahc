@@ -10,6 +10,10 @@ export interface FormSuratKeluar {
     kendaraan: string
     akomodasi: string
     agenda: string
+    employees: Employee[]
+    statusOwner: string
+    statusManager: string
+    createdAt: string
   }
 
  export interface Employee {
@@ -18,12 +22,3 @@ export interface FormSuratKeluar {
       alamat: string
     }
 
-// export interface FormSuratKeluar {
-//     nomorSurat: string
-//     wilayahKerja: string
-//     tanggalBerangkat: string
-//     jamBerangkat: string
-//     kendaraan: string
-//     akomodasi: string
-//     agenda: string
-//   }
