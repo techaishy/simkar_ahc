@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Alat, AlatUnit } from "@/lib/types/alat";
+import { generateKodeUnit } from "@/lib/utils/generateKodeUnit";
 
 type Props = {
   onSave: (data: Alat, units: AlatUnit[]) => void;
   initialData?: Alat;
+  onClose?: () => void;
 };
 
-export default function AlatForm({ onSave, initialData }: Props) {
+export default function AlatForm({ onSave, initialData, onClose }: Props) {
   const [form, setForm] = useState<Alat>(
     initialData || {
       id: "",
@@ -103,7 +105,12 @@ export default function AlatForm({ onSave, initialData }: Props) {
       const units: AlatUnit[] = nomorSeri.map((ns, i) => ({
         id: "",
         alat_id: alatData.id,
-        kode_unit: `${alatData.kode_barcode}-${i + 1}`,
+        kode_unit: generateKodeUnit(
+          alatData.nama_alat,
+          alatData.merk ?? "NON",
+          alatData.id,
+          i 
+        ),
         nomor_seri: ns,
         kondisi: "Baik",
         status: "TERSEDIA",
@@ -116,6 +123,10 @@ export default function AlatForm({ onSave, initialData }: Props) {
       });
 
       if (!unitRes.ok) throw new Error("Gagal menambahkan unit");
+      
+      if (onSave) {
+        onSave(alatData, units);
+      }
 
       alert("Alat dan unit berhasil disimpan!");
       setForm({
@@ -131,6 +142,9 @@ export default function AlatForm({ onSave, initialData }: Props) {
       });
       setJumlah(0);
       setNomorSeri([]);
+
+      if (onClose) onClose();
+      
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Terjadi kesalahan");

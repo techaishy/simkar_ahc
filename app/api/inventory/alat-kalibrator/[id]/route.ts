@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse,  NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(
@@ -70,7 +70,7 @@ export async function POST(
       data: units.map((u: any) => ({
         kode_unit: u.kode_unit,
         nomor_seri: u.nomor_seri,
-        status: u.status || "Tersedia",
+        status: u.status || "TERSEDIA",
         kondisi: u.kondisi || "Baik",
         alat_id: id,
       })),
@@ -83,5 +83,24 @@ export async function POST(
       { error: "Gagal menambahkan unit baru" },
       { status: 500 }
     );
+  }
+}
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
+
+  try {
+    await prisma.alatKalibratorUnit.deleteMany({
+      where: { alat_id: id },
+    });
+
+    await prisma.alatKalibrator.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: "Alat berhasil dihapus" });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ message: "Gagal hapus alat" }, { status: 500 });
   }
 }

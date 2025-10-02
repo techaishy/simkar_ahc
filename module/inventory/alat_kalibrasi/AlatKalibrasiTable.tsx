@@ -70,7 +70,7 @@ export default function DataAlatTable() {
   };
 
   const handleSave = (alatBaru: Alat) => {
-    setAlat((prev) => [...prev, alatBaru]);
+    setAlat((prev) => [...prev, alatBaru,]);
     setFilteredAlat((prev) => [...prev, alatBaru]);
     setOpenTambah(false);
   };
@@ -136,7 +136,7 @@ export default function DataAlatTable() {
             <DialogHeader>
               <DialogTitle>Tambah Data Alat</DialogTitle>
             </DialogHeader>
-            <AlatForm onSave={handleSave} />
+            <AlatForm onSave={handleSave} onClose={() => setOpenTambah(false)}/>
           </DialogContent>
         </Dialog>
 

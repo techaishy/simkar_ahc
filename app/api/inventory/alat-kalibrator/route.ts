@@ -25,7 +25,6 @@ export async function GET() {
   }
 }
 
-// POST create alat baru
 export async function POST(req: Request) {
   try {
     const body = await req.json();
