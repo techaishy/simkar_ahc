@@ -82,19 +82,58 @@ export default function AlatForm({ onSave, initialData }: Props) {
 
     setLoading(true);
     try {
-      // Siapkan units untuk dikirim ke API
+      const alatRes = await fetch("/api/inventory/alat-kalibrator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nama_alat: form.nama_alat,
+          merk: form.merk,
+          type: form.type,
+          jumlah: form.jumlah,
+          tanggal_masuk: form.created_at,
+          kode_barcode: form.kode_barcode,
+        }),
+      });
+
+      if (!alatRes.ok) throw new Error("Gagal membuat alat");
+
+      const alatData: Alat = await alatRes.json();
+
+      // Siapkan units
       const units: AlatUnit[] = nomorSeri.map((ns, i) => ({
         id: "",
-        alat_id: form.id,
-        kode_unit: `${form.kode_barcode}-${i + 1}`,
+        alat_id: alatData.id,
+        kode_unit: `${alatData.kode_barcode}-${i + 1}`,
         nomor_seri: ns,
         kondisi: "Baik",
         status: "TERSEDIA",
       }));
 
-      onSave(form, units);
-    } catch (err) {
+      const unitRes = await fetch(`/api/inventory/alat-kalibrator/${alatData.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ units }),
+      });
+
+      if (!unitRes.ok) throw new Error("Gagal menambahkan unit");
+
+      alert("Alat dan unit berhasil disimpan!");
+      setForm({
+        id: "",
+        kode_barcode: "",
+        nama_alat: "",
+        merk: "",
+        type: "",
+        jumlah: 0,
+        created_at: "",
+        updated_at: "",
+        units: [],
+      });
+      setJumlah(0);
+      setNomorSeri([]);
+    } catch (err: any) {
       console.error(err);
+      alert(err.message || "Terjadi kesalahan");
     } finally {
       setLoading(false);
     }
