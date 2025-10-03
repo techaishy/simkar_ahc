@@ -25,7 +25,7 @@ import AlatForm from "./AlatForm";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import PaginationControl from "@/components/ui/PaginationControl";
 
-import type { Alat } from "@/lib/types/alat";
+import type { Alat, AlatUnit } from "@/lib/types/alat";
 import SearchBar from "@/components/ui/searchbar";
 
 export default function DataAlatTable() {
@@ -69,9 +69,12 @@ export default function DataAlatTable() {
     setPerPage(perPage);
   };
 
-  const handleSave = (alatBaru: Alat) => {
-    setAlat((prev) => [...prev, alatBaru,]);
-    setFilteredAlat((prev) => [...prev, alatBaru]);
+  const handleSave = (alatBaru: Alat, units: AlatUnit[]) => {
+    // sinkron jumlah dengan jumlah unit yang baru ditambahkan
+    const alatDenganJumlah = { ...alatBaru, jumlah: units.length };
+
+    setAlat((prev) => [...prev, alatDenganJumlah]);
+    setFilteredAlat((prev) => [...prev, alatDenganJumlah]);
     setOpenTambah(false);
   };
 

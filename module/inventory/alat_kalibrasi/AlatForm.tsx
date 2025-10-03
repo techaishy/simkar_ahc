@@ -100,8 +100,6 @@ export default function AlatForm({ onSave, initialData, onClose }: Props) {
       if (!alatRes.ok) throw new Error("Gagal membuat alat");
 
       const alatData: Alat = await alatRes.json();
-
-      // Siapkan units
       const units: AlatUnit[] = nomorSeri.map((ns, i) => ({
         id: "",
         alat_id: alatData.id,
@@ -129,6 +127,7 @@ export default function AlatForm({ onSave, initialData, onClose }: Props) {
       }
 
       alert("Alat dan unit berhasil disimpan!");
+      
       setForm({
         id: "",
         kode_barcode: "",
