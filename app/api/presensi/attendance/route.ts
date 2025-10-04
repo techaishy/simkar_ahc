@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { AttendanceMasuk, AttendancePulang } from "@prisma/client";
 import { nowWIB, startOfDayWIB, endOfDayWIB, isWeekendWIB } from "@/lib/timezone";
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabaseServer';
 
 function getStatusMasuk(now: Date, hasIzinLokasi: boolean, isSecondClockIn: boolean): AttendanceMasuk {
   const minutes = now.getHours() * 60 + now.getMinutes();
@@ -39,7 +39,6 @@ async function uploadPhotoToSupabase(photoBase64: string, tipe: 'in' | 'out', us
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    // console.log("📩 Data diterima di API /attendance:", data);
 
     const { userId, clockIn, clockOut, photoIn, photoOut, latitude, longitude, location, lokasiId } = data;
 
@@ -158,6 +157,7 @@ export async function POST(request: Request) {
         createdAt: now,
         kantorId: validKantorId,
         lokasiId: validLokasiId,
+        keterangan: 'HADIR',
       },
     });
 

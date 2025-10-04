@@ -7,11 +7,13 @@ type Props = {
   onClose: () => void;
   tipe: "masuk" | "pulang" | null;
   onSubmit: (fotoOrData?: any) => Promise<void>;
+  isWithinRadius: boolean;
 };
 
-export default function AbsensiCamera({ onClose, tipe, onSubmit }: Props) {
+export default function AbsensiCamera({ onClose, tipe, onSubmit, isWithinRadius }: Props) {
   if (!tipe) return null;
   const { user, isLoading } = useAuth();
+  
   if (isLoading) {
     return <p>Loading...</p>;
   }
@@ -19,7 +21,7 @@ export default function AbsensiCamera({ onClose, tipe, onSubmit }: Props) {
   return (
     <div className="p-4 space-y-4">
       {user?.customId && (
-        <CameraCard userId={user?.customId} onClose={onClose} tipe={tipe} onSubmit={onSubmit} />
+        <CameraCard userId={user?.customId} onClose={onClose} tipe={tipe} onSubmit={onSubmit} isWithinRadius={isWithinRadius} />
         )}
     </div>
   );

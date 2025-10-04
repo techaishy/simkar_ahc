@@ -1,14 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { AttendanceMasuk, AttendancePulang } from "@/lib/types/user";
 import jwt from "jsonwebtoken";
+export const dynamic = "force-dynamic";
+const JWT_SECRET = process.env.JWT_SECRET;
 
-const JWT_SECRET = process.env.JWT_SECRET || "rahasia_super_aman";
-
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  if (!JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
   try {
-    const url = new URL(req.url);
-    const page = parseInt(url.searchParams.get("page") || "1");
+    const { searchParams } = req.nextUrl;
+    const page = parseInt(searchParams.get("page") || "1");
     const limit = 6;
 
     // Ambil token dari cookie
@@ -58,9 +59,12 @@ export async function GET(req: Request) {
           metode: att.photoOut ? "selfie" : att.barcodeOut ? "barcode" : "manual",
           lokasi: att.lokasiDinas?.name || att.kantor?.nama || "-",
           location: att.location || "-",
-          imageUrl: att.photoIn || null,
+          imageUrl: att.photoOut || null,
         });
       }
+
+      console.log("photoIn URL:", att.photoIn);
+      console.log("photoOut URL:", att.photoOut);
     });
 
     // Pagination

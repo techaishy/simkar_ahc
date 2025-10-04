@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { CameraIcon, XMarkIcon,  ArrowPathIcon } from "@heroicons/react/24/outline";
-import { formatTimeWIB, nowWIB, formatDateTimeWIB } from "@/lib/timezone";
+import { CameraIcon, XMarkIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { formatTimeWIB, nowWIB } from "@/lib/timezone";
 
 type Props = {
   userId: string;  
@@ -10,17 +10,18 @@ type Props = {
   tipe: "masuk" | "pulang";
   onSubmit?: (fotoOrData?: any) => Promise<void>;
   onSubmitSuccess?: () => void;
+  isWithinRadius: boolean;
 };
 
-export default function CameraCard({userId, onClose, tipe, onSubmit }: Props) {
+export default function CameraCard({ userId,isWithinRadius, onClose, tipe }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationName, setLocationName] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Ambil lokasi GPS
   const requestLocation = () => {
     if (!navigator.geolocation) return;
 
@@ -78,6 +79,10 @@ export default function CameraCard({userId, onClose, tipe, onSubmit }: Props) {
   };
 
   const takePhoto = async () => {
+    if (!isWithinRadius) {
+      alert("❌ Anda berada di luar radius presensi. Tidak bisa mengambil foto.");
+      return;
+    }
     if (!videoRef.current || !location) {
       alert("Lokasi belum tersedia. Harap aktifkan GPS atau tunggu beberapa detik.");
       return;
@@ -135,41 +140,48 @@ export default function CameraCard({userId, onClose, tipe, onSubmit }: Props) {
   };
 
   const handleSubmit = async () => {
-  if (!photo || !location) {
-    setError("Foto atau lokasi tidak tersedia.");
-    return;
-  }
-  try {
-    const payload = {
-      userId,
-      date: new Date().toISOString(),
-      clockIn: tipe === "masuk" ? formatTimeWIB(nowWIB(), "HH:mm:ss") : null,
-      clockOut: tipe === "pulang" ? formatTimeWIB(nowWIB(), "HH:mm:ss") : null,
-      photoIn: tipe === "masuk" ? photo : null,
-      photoOut: tipe === "pulang" ? photo : null,
-      latitude: location.lat,
-      longitude: location.lng,
-      location: locationName,
-    };
+    if (isSubmitting) return;
+    if (!photo || !location) {
+      setError("Foto atau lokasi tidak tersedia.");
+      return;
+    }
 
-    console.log("📤 Data yang akan dikirim:", payload);
+    setIsSubmitting(true);
 
-    const res = await fetch("/api/presensi/attendance", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const payload = {
+        userId,
+        date: new Date().toISOString(),
+        clockIn: tipe === "masuk" ? formatTimeWIB(nowWIB(), "HH:mm:ss") : null,
+        clockOut: tipe === "pulang" ? formatTimeWIB(nowWIB(), "HH:mm:ss") : null,
+        photoIn: tipe === "masuk" ? photo : null,
+        photoOut: tipe === "pulang" ? photo : null,
+        latitude: location.lat,
+        longitude: location.lng,
+        location: locationName,
+      };
 
-    const data = await res.json();
-    console.log("📥 Response dari API:", data);
-    if (!res.ok) throw new Error(data.error || "Gagal submit presensi");
-    alert(`✅ Presensi ${tipe} berhasil`);
-    onClose();
-  } catch (err) {
-    console.error(err);
-    alert(`❌ Gagal submit: ${(err as Error).message}`);
-  }
-};
+      console.log("📤 Data yang akan dikirim:", payload);
+
+      const res = await fetch("/api/presensi/attendance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      console.log("📥 Response dari API:", data);
+      if (!res.ok) throw new Error(data.error || "Gagal submit presensi");
+      alert(`✅ Presensi ${tipe} berhasil`);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert(`❌ Gagal submit: ${(err as Error).message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     startCamera();
     requestLocation();
@@ -236,11 +248,15 @@ export default function CameraCard({userId, onClose, tipe, onSubmit }: Props) {
           {photo && (
             <button
               onClick={handleSubmit}
+              disabled={isSubmitting || !isWithinRadius}
               className={`w-full px-5 py-2 rounded-md text-white font-semibold transition duration-200 ${
-                tipe === "masuk" ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"
+                tipe === "masuk"
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-              {tipe === "masuk" ? "Absen Masuk" : "Absen Pulang"}
+              {!isWithinRadius ? "Diluar Radius Presensi": isSubmitting ? 
+              "Mengirim..." : tipe === "masuk" ? "Absen Masuk" : "Absen Pulang"}
             </button>
           )}
         </div>
