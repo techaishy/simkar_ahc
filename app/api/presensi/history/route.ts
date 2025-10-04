@@ -1,24 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { AttendanceMasuk, AttendancePulang } from "@/lib/types/user";
 import jwt from "jsonwebtoken";
+export const dynamic = "force-dynamic";
+const JWT_SECRET = process.env.JWT_SECRET;
 
-export const dynamic = "force-dynamic"; 
-
-const JWT_SECRET = process.env.JWT_SECRET || "rahasia_super_aman";
-
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  if (!JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
   try {
-    const { searchParams } = (req as any).nextUrl;
+    const { searchParams } = req.nextUrl;
     const page = parseInt(searchParams.get("page") || "1");
     const limit = 6;
 
     // Ambil token dari cookie
-    const token = req.headers
-      .get("cookie")
-      ?.split("; ")
-      .find((c) => c.startsWith("token="))
-      ?.split("=")[1];
+    const token = req.headers.get("cookie")?.split("; ").find(c => c.startsWith("token="))?.split("=")[1];
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     let payload: any;
@@ -28,18 +23,19 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const userId = payload.id;
+    const userId = payload.id 
     const attendances = await prisma.attendance.findMany({
-      where: { userId },
-      include: {
+    where: { userId },
+    include: {
         lokasiDinas: true,
-        kantor: true,
-      },
-      orderBy: { date: "desc" },
+        kantor: true
+    },
+    orderBy: { date: "desc" },
     });
 
+    // Pecah tiap attendance menjadi 2 record (masuk & pulang)
     const history: any[] = [];
-    attendances.forEach((att) => {
+    attendances.forEach(att => {
       if (att.clockIn) {
         history.push({
           id: att.id_at + "_in",
@@ -63,7 +59,7 @@ export async function GET(req: Request) {
           metode: att.photoOut ? "selfie" : att.barcodeOut ? "barcode" : "manual",
           lokasi: att.lokasiDinas?.name || att.kantor?.nama || "-",
           location: att.location || "-",
-          imageUrl: att.photoIn || null,
+          imageUrl: att.photoOut || null,
         });
       }
     });

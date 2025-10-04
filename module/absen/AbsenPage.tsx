@@ -28,7 +28,7 @@ export default function AbsensiClient({ userId }: Props) {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [lokasiList, setLokasiList] = useState<Lokasi[]>([]);
   const [selectedLokasi, setSelectedLokasi] = useState<Lokasi | null>(null);
-
+  const [distance, setDistance] = useState<number | null>(null);
   const [currentMetode, setCurrentMetode] = useState<"selfie" | "barcode" | "manual">("manual");
 
   
@@ -58,19 +58,14 @@ export default function AbsensiClient({ userId }: Props) {
 
     const fetchData = async () => {
       try {
-        console.log("Fetch izin lokasi untuk userId:", userId);
         const res = await fetch(`/api/user/${userId}/izin-lokasi`);
         if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
         const data = await res.json();
 
-        console.log("Data izin lokasi diterima:", data);
         setLokasiList(data.lokasi);
-
-        // Pilih lokasi terdekat
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             (pos) => {
-              console.log("Geolocation berhasil:", pos.coords);
               const userPos = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
               setUserLocation(userPos);
 
@@ -78,32 +73,45 @@ export default function AbsensiClient({ userId }: Props) {
               let minDistance = Infinity;
 
               data.lokasi.forEach((loc: Lokasi) => {
-                const distance = getDistanceMeter(
+                const d = getDistanceMeter(
                   userPos.latitude,
                   userPos.longitude,
                   loc.latitude,
                   loc.longitude
                 );
-                console.log(`Jarak ke lokasi ${loc.nama}: ${distance.toFixed(2)} meter`);
-                if (distance <= loc.radiusMeter && distance < minDistance) {
+                if (d <= loc.radiusMeter && d < minDistance) {
                   closest = loc;
-                  minDistance = distance;
+                  minDistance = d;
                 }
               });
 
-              console.log("Lokasi terpilih:", closest ?? data.lokasi[0]);
-              setSelectedLokasi(closest ?? data.lokasi[0]);
+              if (closest) {
+                setSelectedLokasi(closest);
+                setDistance(minDistance);
+              } else {
+                const fallback = data.lokasi[0];
+                setSelectedLokasi(fallback);
+                setDistance(
+                  getDistanceMeter(
+                    userPos.latitude,
+                    userPos.longitude,
+                    fallback.latitude,
+                    fallback.longitude
+                  )
+                );
+              }
             },
-            (err) => {
-              console.error("Gagal mendapatkan lokasi:", err.message);
-              console.log("Fallback ke lokasi pertama:", data.lokasi[0]);
-              setSelectedLokasi(data.lokasi[0]);
+            () => {
+              const fallback = data.lokasi[0];
+              setSelectedLokasi(fallback);
+              setDistance(null);
             },
             { enableHighAccuracy: true }
           );
         } else {
-          console.warn("Geolocation tidak tersedia, fallback ke lokasi pertama:", data.lokasi[0]);
-          setSelectedLokasi(data.lokasi[0]);
+          const fallback = data.lokasi[0];
+          setSelectedLokasi(fallback);
+          setDistance(null);
         }
       } catch (err) {
         console.error("Gagal ambil izin lokasi:", err);
@@ -112,6 +120,34 @@ export default function AbsensiClient({ userId }: Props) {
 
     fetchData();
   }, [userId]);
+
+  useEffect(() => {
+    if (!selectedLokasi) return;
+
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const userPos = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+        setUserLocation(userPos);
+
+        const d = getDistanceMeter(
+          userPos.latitude,
+          userPos.longitude,
+          selectedLokasi.latitude,
+          selectedLokasi.longitude
+        );
+        setDistance(d);
+      },
+      (err) => {
+        console.warn("Gagal update lokasi realtime:", err);
+      },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [selectedLokasi]);
+
 
   const handleAbsenClick = (tipe: "masuk" | "pulang") => {
     console.log("Klik tombol absen:", tipe);
@@ -167,6 +203,17 @@ export default function AbsensiClient({ userId }: Props) {
 
       if (!res.ok) throw new Error(data.error || "Gagal submit presensi");
       alert(`✅ Presensi ${tipeAbsen} berhasil`);
+
+      if (tipeAbsen === "masuk") {
+        setSelectedLokasi((prev) =>
+          prev ? { ...prev, enableClockIn: false } : prev
+        );
+      } else if (tipeAbsen === "pulang") {
+        setSelectedLokasi((prev) =>
+          prev ? { ...prev, enableClockOut: false } : prev
+        );
+      }
+
       handleCloseModal();
     } catch (err) {
       console.error(err);
@@ -174,10 +221,28 @@ export default function AbsensiClient({ userId }: Props) {
     }
   };
 
-  return (
+  const isWithinRadius =
+    distance !== null && selectedLokasi
+      ? distance <= selectedLokasi.radiusMeter
+      : false;
+
+return (
     <div className="max-w-4xl mx-auto space-y-6 p-6">
+    
+    {/* Info jarak dan lokasi */}
+    <div className="text-center text-sm text-gray-600">
+      {distance !== null && selectedLokasi ? (
+        <p>
+          Anda berada <b>{Math.round(distance)} m</b> dari{" "}
+          <b>{selectedLokasi.nama}</b> (radius {selectedLokasi.radiusMeter} m)
+        </p>
+      ) : (
+        <p>Sedang mengambil lokasi Anda...</p>
+      )}
+    </div>
+    
       {/* Tombol absen */}
-     <AbsensiButtons
+      <AbsensiButtons
         onAbsenClick={handleAbsenClick}
         enableClockIn={selectedLokasi?.enableClockIn}
         enableClockOut={selectedLokasi?.enableClockOut}
@@ -187,11 +252,7 @@ export default function AbsensiClient({ userId }: Props) {
       {showMetode && tipeAbsen && (
         <MetodeAbsensiModal
           tipeAbsen={tipeAbsen}
-          onSelect={(metode) => {
-            setCurrentMetode(metode);
-            setShowMetode(false);
-            setShowModal(true);
-          }}
+          onSelect={handleSelectMetode}
           onClose={() => setShowMetode(false)}
         />
       )}
@@ -199,9 +260,30 @@ export default function AbsensiClient({ userId }: Props) {
       {/* Modal absen */}
       {showModal && tipeAbsen && (
         <>
-          {currentMetode === "selfie" && <AbsensiCamera onClose={handleCloseModal} tipe={tipeAbsen} onSubmit={handleSubmitAttendance} />}
-          {currentMetode === "barcode" && <AbsensiBarcode onClose={handleCloseModal} tipe={tipeAbsen} onSubmit={handleSubmitAttendance} />}
-          {currentMetode === "manual" && <AbsensiManual onClose={handleCloseModal} tipe={tipeAbsen} onSubmit={handleSubmitAttendance} />}
+          {currentMetode === "selfie" && (
+            <AbsensiCamera
+              onClose={handleCloseModal}
+              tipe={tipeAbsen}
+              onSubmit={handleSubmitAttendance}
+              isWithinRadius={isWithinRadius}
+            />
+          )}
+          {currentMetode === "barcode" && (
+            <AbsensiBarcode
+              onClose={handleCloseModal}
+              tipe={tipeAbsen}
+              onSubmit={handleSubmitAttendance}
+              // isWithinRadius={isWithinRadius}
+            />
+          )}
+          {currentMetode === "manual" && (
+            <AbsensiManual
+              onClose={handleCloseModal}
+              tipe={tipeAbsen}
+              onSubmit={handleSubmitAttendance}
+              // isWithinRadius={isWithinRadius}
+            />
+          )}
         </>
       )}
     </div>

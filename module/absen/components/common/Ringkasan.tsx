@@ -10,7 +10,7 @@ export function RingkasanHariIni() {
       <div className="space-y-3 text-sm md:text-base">
         <div className="flex items-center gap-2">
           <CheckCircle className="text-green-500 w-5 h-5" />
-          <span>Absen Masuk: 07:35 WIB</span>
+          <span>Absen Masuk: 08:00 WIB</span>
         </div>
         <div className="flex items-center gap-2">
           <XCircle className="text-red-500 w-5 h-5" />
