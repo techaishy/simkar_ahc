@@ -36,7 +36,7 @@ export default function PaginationControl({
   };
 
   const handlePerPageChange = (value: string) => {
-    const newPerPage = parseInt(value,5);
+    const newPerPage = parseInt(value,10);
     setPerPage(newPerPage);
     setCurrentPage(1);
     onPageChange(1, newPerPage);
@@ -77,38 +77,29 @@ export default function PaginationControl({
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-600">Tampilkan</span>
         <Select value={perPage.toString()} onValueChange={handlePerPageChange}>
-          <SelectTrigger className="w-[80px]">
+          <SelectTrigger className="w-[80px] bg-white border text-gray-800 dark:bg-gray-800 dark:text-gray-100">
             <SelectValue placeholder="5" />
           </SelectTrigger>
-           <SelectContent className="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
-            <SelectItem
-              value="5"
-              className="hover:bg-primary/80 focus:bg-primary focus:text-primary-foreground"
-            >
-              5
-            </SelectItem>
-            <SelectItem
-              value="10"
-              className="hover:bg-primary/80 focus:bg-primary focus:text-primary-foreground"
-            >
-              10
-            </SelectItem>
-            <SelectItem
-              value="20"
-              className="hover:bg-primary/80 focus:bg-primary focus:text-primary-foreground"
-            >
-              20
-            </SelectItem>
-            <SelectItem
-              value="50"
-              className="hover:bg-primary/80 focus:bg-primary focus:text-primary-foreground"
-            >
-              50
-            </SelectItem>
+          <SelectContent className="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+            {["5", "10", "20", "50"].map((value) => (
+              <SelectItem
+                key={value}
+                value={value}
+                className="
+                  hover:bg-primary/80 focus:bg-primary
+                  aria-selected:bg-primary aria-selected:text-white
+                  aria-selected:hover:bg-primary aria-selected:hover:text-white
+                "
+              >
+                {value}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <span className="text-sm text-gray-600">per halaman</span>
       </div>
+
+
 
       {/* Pagination */}
       <div className="flex items-center gap-2 flex-wrap justify-center">

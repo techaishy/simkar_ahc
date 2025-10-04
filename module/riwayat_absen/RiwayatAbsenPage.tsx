@@ -11,11 +11,11 @@ export default function RiwayatAbsenPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterValues>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(10);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters, itemsPerPage]);
+  }, [filters, perPage]);
 
   useEffect(() => {
     const fetchAttendances = async () => {
@@ -40,11 +40,16 @@ export default function RiwayatAbsenPage() {
     fetchAttendances();
   }, [filters]);
 
-  const totalPages = Math.ceil(attendances.length / itemsPerPage);
+  const totalPages = Math.ceil(attendances.length / perPage);
   const paginatedData = attendances.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    (currentPage - 1) * perPage,
+    currentPage * perPage
   );
+
+  const handlePageChange = (page: number, perPage: number) => {
+    setCurrentPage(page);
+    setPerPage(perPage);
+  };
 
   return (
     <div className="w-full min-h-screen overflow-x-hidden px-2 pb-6">
@@ -62,9 +67,8 @@ export default function RiwayatAbsenPage() {
             data={paginatedData}
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            itemsPerPage={itemsPerPage}
-            onItemsPerPageChange={setItemsPerPage}
+            perPage={perPage}
+            onPageChange={handlePageChange}
           />
         )}
       </div>
