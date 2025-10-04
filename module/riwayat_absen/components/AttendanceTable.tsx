@@ -11,18 +11,16 @@ type Props = {
   data: AttendanceRecord[];
   currentPage: number;
   totalPages: number;
-  onPageChange: (page: number) => void;
-  itemsPerPage: number;
-  onItemsPerPageChange: (size: number) => void;
+  perPage: number;
+  onPageChange: (page: number, perPage: number) => void;
 };
 
 export default function AttendanceTable({
   data,
   currentPage,
   totalPages,
+  perPage,
   onPageChange,
-  itemsPerPage,
-  onItemsPerPageChange,
 }: Props) {
   return (
     <Card className="w-full overflow-auto rounded-2xl p-6 shadow-md border border-transparent space-y-4 mt-2">
@@ -93,30 +91,12 @@ export default function AttendanceTable({
       </table>
 
       {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between">
-
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">Tampilkan:</label>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-              className="border rounded px-2 py-1 text-sm text-gray-800"
-            >
-              {[7, 10, 20, 25].map((size) => (
-                <option key={size} value={size} className="text-sm text-gray-600" >
-                  {size}
-                </option>
-              ))}
-            </select>
-            <span className="text-sm text-gray-800">data</span>
-          </div>
-
-          <PaginationControl
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={onPageChange}
-          />
-        </div>
+        <PaginationControl
+          totalPages={totalPages}
+          currentPage={currentPage}
+          perPage={perPage}
+          onPageChange={onPageChange}
+        />
       )}
     </Card>
   );
