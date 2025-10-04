@@ -1,33 +1,27 @@
-// Tipe utama alat kalibrasi
 export interface Alat {
-    id: string;
-    kodeAlat: string;
-    kodeUnit: string; 
-    nama: string;
-    merek?: string;
-    nomorSeri: string;
-    type: string;
-    jumlah: number;
-    tanggalMasuk?: string; 
-    kondisi?: "BAIK" | "RUSAK";
-    status: "TERSEDIA" | "DIGUNAKAN" | "MAINTENANCE";
-    deskripsi?: string;
-    createdAt?: string;
-    updatedAt?: string;
-  }
-  
-  // Form input (misalnya tambah alat baru)
-  export type AlatForm = Pick<
-    Alat,
-    "kode" | "nama" | "jumlah" | "status" | "deskripsi"
-  >;
-  
-  // Data untuk tampilan tabel ringkas
-  export type AlatView = Pick<
-    Alat,
-    "id" | "kode" | "nama" | "kategori" | "jumlah" | "lokasi" | "status"
-  >;
-  
-  // Data lengkap (misalnya untuk detail page)
-  export interface AlatFull extends Alat {}
-  
+  id: string;
+  kode_barcode?: string;        
+  nama_alat: string;          
+  jumlah?: number;              
+  tahun_pembelian?: number;     
+  merk?: string;               
+  type?: string;                
+  fungsi_kalibrasi?: string;   
+  status_vendor?: string;       
+  kalibrasi_terakhir?: string;  
+  created_at?: string;         
+  updated_at?: string;          
+
+  units?: AlatUnit[];          
+}
+
+export interface AlatUnit {
+  id: string;
+  alat_id: string;             
+  kondisi: string;             
+  status: "TERSEDIA" | "DIGUNAKAN" | "MAINTENANCE";              
+  kode_unit?: string;          
+  nomor_seri?: string;          
+  created_at?: string;          
+  updated_at?: string;          
+}
