@@ -62,8 +62,9 @@ export default function DataPegawaiTable() {
     currentPage * perPage
   );
 
-  const handlePageChange = (page: number) => {
+ const handlePageChange = (page: number, perPage: number) => {
     setCurrentPage(page);
+    setPerPage(perPage);
   };
 
   const handleSave = (pegawaiBaru: Karyawan) => {
@@ -265,33 +266,12 @@ export default function DataPegawaiTable() {
         </table>
       </div>
 
-      {/* Kontrol pagination + dropdown jumlah data */}
-      <div className="mt-4 flex justify-between items-center">
-        {/* Dropdown jumlah data per halaman */}
-        <div className="flex items-center gap-2 text-sm">
-          <span>Tampilkan</span>
-          <select
-            value={perPage}
-            onChange={(e) => {
-              setPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="border rounded px-2 py-1 text-sm bg-white text-black"
-          >
-            <option value={7}>7</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={30}>30</option>
-          </select>
-          <span>data</span>
-        </div>
-
         <PaginationControl
           totalPages={totalPages}
           currentPage={currentPage}
-          onPageChange={handlePageChange}
+          perPage={perPage}
+          onPageChange={handlePageChange} 
         />
-      </div>
 
       {/* Dialog Edit */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>

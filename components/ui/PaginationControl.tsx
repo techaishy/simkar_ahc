@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState , useEffect} from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -22,7 +22,11 @@ export default function PaginationControl({
   onPageChange,
 }: PaginationControlProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(5);
+
+  useEffect(() => {
+    onPageChange(1, perPage);
+  }, []);  
 
   const changePage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -32,7 +36,7 @@ export default function PaginationControl({
   };
 
   const handlePerPageChange = (value: string) => {
-    const newPerPage = parseInt(value, 10);
+    const newPerPage = parseInt(value,5);
     setPerPage(newPerPage);
     setCurrentPage(1);
     onPageChange(1, newPerPage);
@@ -74,7 +78,7 @@ export default function PaginationControl({
         <span className="text-sm text-gray-600">Tampilkan</span>
         <Select value={perPage.toString()} onValueChange={handlePerPageChange}>
           <SelectTrigger className="w-[80px]">
-            <SelectValue placeholder="10" />
+            <SelectValue placeholder="5" />
           </SelectTrigger>
            <SelectContent className="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
             <SelectItem
