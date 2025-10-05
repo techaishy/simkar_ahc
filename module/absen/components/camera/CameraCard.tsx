@@ -10,9 +10,10 @@ type Props = {
   tipe: "masuk" | "pulang";
   onSubmit?: (fotoOrData?: any) => Promise<void>;
   onSubmitSuccess?: () => void;
+  isWithinRadius: boolean;
 };
 
-export default function CameraCard({ userId, onClose, tipe }: Props) {
+export default function CameraCard({ userId,isWithinRadius, onClose, tipe }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +79,10 @@ export default function CameraCard({ userId, onClose, tipe }: Props) {
   };
 
   const takePhoto = async () => {
+    if (!isWithinRadius) {
+      alert("❌ Anda berada di luar radius presensi. Tidak bisa mengambil foto.");
+      return;
+    }
     if (!videoRef.current || !location) {
       alert("Lokasi belum tersedia. Harap aktifkan GPS atau tunggu beberapa detik.");
       return;
@@ -243,14 +248,15 @@ export default function CameraCard({ userId, onClose, tipe }: Props) {
           {photo && (
             <button
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isWithinRadius}
               className={`w-full px-5 py-2 rounded-md text-white font-semibold transition duration-200 ${
                 tipe === "masuk"
                   ? "bg-green-600 hover:bg-green-700"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-              {isSubmitting ? "Mengirim..." : tipe === "masuk" ? "Absen Masuk" : "Absen Pulang"}
+              {!isWithinRadius ? "Diluar Radius Presensi": isSubmitting ? 
+              "Mengirim..." : tipe === "masuk" ? "Absen Masuk" : "Absen Pulang"}
             </button>
           )}
         </div>

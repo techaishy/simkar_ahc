@@ -250,7 +250,8 @@ model AlatSparepart {
 model AlatKalibratorUnit {
   id        String   @id @default(uuid()) @db.Uuid
   alat_id   String   @db.Uuid
-  kondisi   String   @default("tersedia")
+  kondisi   String   @default("Baik")
+  status    String   @default("TERSEDIA")
   kode_unit String?  @unique
   nomor_seri String?
   created_at DateTime @default(now()) @db.Timestamptz(6)
