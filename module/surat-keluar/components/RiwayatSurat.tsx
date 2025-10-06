@@ -466,30 +466,15 @@ const role = userData?.role;
         </div>
         </div>
 
-        <div className='mt-4 flex justify-between items-center'>
-          <div className='flex item-center text-black gap-2 text-sm'>
-            <span>Tampilkan</span>
-            <select 
-            value={perPage}
-            onChange={(e) => {
-              setPerPage(Number(e.target.value));
-              setCurrentPage(1); 
-            }} 
-            className='border rounded px-2 py-1 text-sm bg-white text-black'>
-              <option value={7}>7</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={30}>30</option>
-            </select>
-            <span>data</span>
-          </div>
-           {/* Pagination Control */}
-        <PaginationControl 
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-           />
+        <div className="mt-4 flex justify-end">
+          <PaginationControl
+            totalPages={totalPages}
+            currentPage={currentPage}
+            perPage={perPage}
+            onPageChange={handlePageChange}
+          />
         </div>
+
 
        
 
