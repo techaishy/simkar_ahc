@@ -24,7 +24,7 @@ export default function SuratTugasForm() {
     agenda: '',
     employees: [],
     statusOwner: '',
-    statusManager: '',
+    statusAdm: '',
     createdAt: '',
   })
 
@@ -112,7 +112,7 @@ export default function SuratTugasForm() {
       employees,
       pembuatSuratId: user?.customId,
       statusOwner: "Pending",
-      statusManager: "Pending",
+      statusAdm: "Pending",
       createdAt: new Date().toISOString(),
     };
 
@@ -142,89 +142,6 @@ export default function SuratTugasForm() {
     }
   };
   
-
-  const handlePrint = () => {
-    const printContent = document.getElementById('letterPreview')
-    if (printContent) {
-      const printWindow = window.open('', '', 'width=800,height=600')
-      if (printWindow) {
-        let htmlContent = printContent.innerHTML
-
-        htmlContent = htmlContent.replace(
-          /<img[^>]*>/g,
-          `<img 
-             src="/asset/logoahc.png"
-             style="width:80px; height:auto;"
-          />`
-        )
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Surat Tugas Perjalanan Dinas</title>
-              <style>
-                body { 
-                  font-family: 'Times New Roman', serif; 
-                  margin: 20px;
-                  font-size: 12pt;
-                  line-height: 1;
-                }
-
-                .img { max-width: 100px; height: auto; }
-
-                .letter-content { 
-                  max-width: 800px; 
-                  margin: 0 auto; 
-                }
-                table { 
-                  border-collapse: collapse; 
-                  width: 100%; 
-                }
-                td { 
-                  border: 1px solid black;
-                  padding: 8px; 
-                }
-                .text-center { text-align: center; }
-                .font-bold { font-weight: bold; }
-                .underline { text-decoration: underline; }
-                .mb-4 { margin-bottom: 16px; }
-                .mb-6 { margin-bottom: 24px; }
-                .mb-8 { margin-bottom: 32px; }
-                .mb-16 { margin-bottom: 64px; }
-                .mb-20 { margin-bottom: 80px; }
-                @media print { 
-                  body { margin: 0; }
-                  .no-print { display: none; }
-                }
-              </style>
-            </head>
-            <body>
-              <div class="letter-content">${printContent.innerHTML}</div>
-                    <script>
-              
-              const images = Array.from(document.images);
-              let loaded = 0;
-              if (images.length === 0) {
-                window.print();
-                window.close();
-              } else {
-                images.forEach(img => {
-                  img.onload = () => {
-                    loaded++;
-                    if (loaded === images.length) {
-                      setTimeout(() => { window.print(); window.close(); }, 200);
-                    }
-                  }
-                });
-              }
-            </script>
-            </body>
-          </html>
-        `)
-        printWindow.document.close()
-        
-      }
-    }
-  }
 
   const getCurrentDate = () => {
     const today = new Date()

@@ -14,7 +14,7 @@ export interface FormSuratKeluar {
     agenda: string
     employees: Employee[]
     statusOwner: string
-    statusManager: string
+    statusAdm: string
     createdAt: string
   }
 

@@ -48,6 +48,8 @@ export default function Login() {
         router.replace("/dashboard");
       } else if (user.role === "TEKNISI") {
         router.replace("/absen");
+      }else if (user.role === "KEUANGAN") {
+        router.replace("/surat_keluar/approval_surat");
       } else {
         router.replace("/");
       }

@@ -1,47 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { Eye, Printer, Trash2, Search, Filter, FileText } from 'lucide-react';
-import { FormSuratKeluar } from '@/lib/types/suratkeluar';
-import PaginationControl from '@/components/ui/PaginationControl';
-
+import React, { useState, useEffect } from "react";
+import { Eye, Printer, Trash2, Search, Filter, FileText } from "lucide-react";
+import { FormSuratKeluar } from "@/lib/types/suratkeluar";
+import PaginationControl from "@/components/ui/PaginationControl";
 
 const RiwayatSurat = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('semua');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("semua");
   const [suratData, setSuratData] = useState<FormSuratKeluar[]>([]);
-  const [selectedSurat, setSelectedSurat] = useState<FormSuratKeluar | null>(null);
+  const [selectedSurat, setSelectedSurat] = useState<FormSuratKeluar | null>(
+    null
+  );
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(7); 
+  const [perPage, setPerPage] = useState(7);
   const userData = JSON.parse(localStorage.getItem("user") || "{}");
-const role = userData?.role;
+  const role = userData?.role;
 
   // Load data dari localStorage saat komponen mount
   useEffect(() => {
     loadData();
   }, []);
 
-  const filteredData = suratData.filter(item => {
-    const firstEmployee = item.employees[0]?.nama || '';
-    const matchSearch = 
+  const filteredData = suratData.filter((item) => {
+    const firstEmployee = item.employees[0]?.nama || "";
+    const matchSearch =
       item.nomorSurat.toLowerCase().includes(searchTerm.toLowerCase()) ||
       firstEmployee.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchFilter = filterStatus === 'semua' || 
-      item.statusOwner === filterStatus || 
-      item.statusManager === filterStatus;
-    
+
+    const matchFilter =
+      filterStatus === "semua" ||
+      item.statusOwner === filterStatus ||
+      item.statusAdm === filterStatus;
+
     return matchSearch && matchFilter;
   });
 
   const totalPages = Math.ceil(filteredData.length / perPage);
-  const paginatedData = filteredData.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
   const loadData = () => {
-    const data = localStorage.getItem('riwayat_surat');
+    const data = localStorage.getItem("riwayat_surat");
     if (data) {
       setSuratData(JSON.parse(data));
     }
@@ -49,45 +54,54 @@ const role = userData?.role;
 
   // Fungsi untuk mendapatkan style badge status
   const getStatusBadge = (status: string) => {
-    const baseClass = 'px-3 py-1 rounded-full text-xs font-semibold';
-    switch(status) {
-      case 'Disetujui':
+    const baseClass = "px-3 py-1 rounded-full text-xs font-semibold";
+    switch (status) {
+      case "Disetujui":
         return `${baseClass} bg-green-100 text-green-700`;
-      case 'Ditolak':
+      case "Ditolak":
         return `${baseClass} bg-red-100 text-red-700`;
-      case 'Pending':
-      case 'Menunggu':
+      case "Pending":
+      case "Menunggu":
         return `${baseClass} bg-yellow-100 text-yellow-700`;
       default:
         return `${baseClass} bg-gray-100 text-gray-700`;
     }
   };
 
-  const handleApproval = (surat: FormSuratKeluar, status: 'approve' | 'reject') => {
-    const updatedData = suratData.map(item =>
+  const handleApproval = (
+    surat: FormSuratKeluar,
+    status: "approve" | "reject"
+  ) => {
+    const updatedData = suratData.map((item) =>
       item.nomorSurat === surat.nomorSurat
         ? {
             ...item,
-            statusOwner: role === 'OWNER'
-              ? (status === 'approve' ? 'Disetujui' : 'Ditolak')
-              : item.statusOwner,
-            statusManager: role === 'MANAJER'
-              ? (status === 'approve' ? 'Disetujui' : 'Ditolak')
-              : item.statusManager,
+            statusOwner:
+              role === "OWNER"
+                ? status === "approve"
+                  ? "Disetujui"
+                  : "Ditolak"
+                : item.statusOwner,
+            statusAdm:
+              role === "KEUANGAN"
+                ? status === "approve"
+                  ? "Disetujui"
+                  : "Ditolak"
+                : item.statusAdm,
           }
         : item
     );
-  
+
     setSuratData(updatedData);
-    localStorage.setItem('riwayat_surat', JSON.stringify(updatedData));
+    localStorage.setItem("riwayat_surat", JSON.stringify(updatedData));
   };
 
   // Fungsi hapus surat
   const handleHapus = (index: number) => {
-    if (confirm('Apakah Anda yakin ingin menghapus surat ini?')) {
+    if (confirm("Apakah Anda yakin ingin menghapus surat ini?")) {
       const newData = suratData.filter((_, i) => i !== index);
       setSuratData(newData);
-      localStorage.setItem('riwayat_surat', JSON.stringify(newData));
+      localStorage.setItem("riwayat_surat", JSON.stringify(newData));
     }
   };
 
@@ -99,22 +113,34 @@ const role = userData?.role;
 
   // Fungsi print
   const handlePrint = (surat: FormSuratKeluar) => {
-    const printWindow = window.open('', '', 'width=800,height=600');
+    const printWindow = window.open("", "_blank", "width=800,height=600");
+
     if (printWindow) {
+      //fungsi untuk tanda tangan
+      const ownerTTD =
+        surat.statusOwner === "Disetujui"
+          ? `<img src="/TTD/owner.jpg" style="width: 300px; height: 100px; margin-bottom: 0px;" />`
+          : `<div style="height: 0px;"></div>`;
+
+      const admTTD =
+        surat.statusAdm === "Disetujui"
+          ? `<img src="/TTD/adm.jpg" style="width: 200px; height: 100px; margin-bottom: 0px;" />`
+          : `<div style="height: 0px;"></div>`;
+
       const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
+        return new Date(dateString).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
         });
       };
 
       const getCurrentDate = () => {
         const today = new Date();
-        return today.toLocaleDateString('id-ID', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
+        return today.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
         });
       };
 
@@ -213,7 +239,9 @@ const role = userData?.role;
               <div style="text-align: justify; margin-top: 24px;">
                 <p style="margin-bottom: 16px;">Dengan ini memberikan tugas kepada:</p>
 
-                ${surat.employees.map((emp, index) => `
+                ${surat.employees
+                  .map(
+                    (emp, index) => `
                   <table class="detail-table" style="margin-bottom: 16px;">
                     <tr>
                       <td style="width: 30px;">${index + 1}.</td>
@@ -225,7 +253,10 @@ const role = userData?.role;
                       <td></td>
                       <td><strong>Jabatan</strong></td>
                       <td>:</td>
-                      <td>${emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase()}</td>
+                      <td>${
+                        emp.jabatan.charAt(0).toUpperCase() +
+                        emp.jabatan.slice(1).toLowerCase()
+                      }</td>
                     </tr>
                     <tr>
                       <td></td>
@@ -234,7 +265,9 @@ const role = userData?.role;
                       <td>${emp.alamat}</td>
                     </tr>
                   </table>
-                `).join('')}
+                `
+                  )
+                  .join("")}
 
                 <p style="margin: 16px 0;">
                   Untuk dapat melaksanakan tugas perjalanan dinas ke wilayah kerja 
@@ -256,22 +289,29 @@ const role = userData?.role;
                 </p>
 
                 <!-- Signature -->
-                <table class="signature-table">
-                  <tr>
-                    <td>
-                      <div>Lhokseumawe, ${getCurrentDate()}</div>
-                      <div class="font-bold" style="margin-top: 8px;">PT. Aishy Health Calibration</div>
-                      <div class="signature-space"></div>
-                      <div class="font-bold underline">Khairul Fahmi</div>
-                      <div>MANAGER TEKNIK</div>
-                    </td>
-                    <td>
-                      <div class="signature-space" style="margin-top: 40px;"></div>
-                      <div class="font-bold underline">Bpk. Zulfikar S.Kep. M.Kes</div>
-                      <div>OWNER</div>
-                    </td>
-                  </tr>
-                </table>
+          
+                <table style="width: 100%; margin-top: 20px;">
+  <tr>
+    <td style="text-align: center; vertical-align: top; width: 50%;">
+    <div>Lhokseumawe, ${getCurrentDate()}</div>
+    <div class="font-bold" style="margin-top: 8px;">PT. Aishy Health Calibration</div>
+    <div class="signature-space">${admTTD}
+    <div>
+        <strong>Keuangan</strong><br />
+        <div style="margin-top: 2px;">Muhammad Iqbal</div></div></div>
+    </td>
+
+    <td style="text-align: center; vertical-align: top; width: 50%;">
+    <div class="signature-space" style="margin-top: 45px;">${ownerTTD}
+      <div>
+        <strong>Owner</strong><br />
+        <div style="margin-top: 2px;">Bpk. Zulfikar S.Kep, M.Kes</div></div>
+      </div>
+    </td>
+   
+  </tr>
+</table>
+
               </div>
             </div>
             <script>
@@ -304,20 +344,6 @@ const role = userData?.role;
     }
   };
 
-  // Filter data
-  // const filteredData = suratData.filter(item => {
-  //   const firstEmployee = item.employees[0]?.nama || '';
-  //   const matchSearch = 
-  //     item.nomorSurat.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     firstEmployee.toLowerCase().includes(searchTerm.toLowerCase());
-    
-  //   const matchFilter = filterStatus === 'semua' || 
-  //     item.statusOwner === filterStatus || 
-  //     item.statusManager === filterStatus;
-    
-  //   return matchSearch && matchFilter;
-  // });
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -327,7 +353,9 @@ const role = userData?.role;
             <FileText className="w-8 h-8 text-blue-600" />
             <h1 className="text-3xl font-bold text-gray-800">Approval Surat</h1>
           </div>
-          <p className="text-gray-600">Kelola dan pantau semua surat perjalanan dinas</p>
+          <p className="text-gray-600">
+            Kelola dan pantau semua surat perjalanan dinas
+          </p>
         </div>
 
         {/* Filter dan Search */}
@@ -381,7 +409,7 @@ const role = userData?.role;
                     Status Owner
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Status Manager
+                    Status Adm. Keuangan
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Aksi
@@ -389,22 +417,27 @@ const role = userData?.role;
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                
                 {filteredData.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                    <td
+                      colSpan={6}
+                      className="px-6 py-12 text-center text-gray-500"
+                    >
                       <FileText className="w-12 h-12 mx-auto mb-2 text-gray-300" />
                       <p>Tidak ada data ditemukan</p>
                     </td>
                   </tr>
                 ) : (
                   paginatedData.map((item, index) => (
-                    <tr key={index} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">
                         {item.nomorSurat}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
-                        {item.employees[0]?.nama || '-'}
+                        {item.employees[0]?.nama || "-"}
                         {item.employees.length > 1 && (
                           <span className="ml-2 text-xs text-gray-500">
                             (+{item.employees.length - 1} lainnya)
@@ -412,10 +445,10 @@ const role = userData?.role;
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
-                        {new Date(item.createdAt).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
+                        {new Date(item.createdAt).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
                         })}
                       </td>
                       <td className="px-6 py-4">
@@ -424,8 +457,8 @@ const role = userData?.role;
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={getStatusBadge(item.statusManager)}>
-                          {item.statusManager}
+                        <span className={getStatusBadge(item.statusAdm)}>
+                          {item.statusAdm}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -453,9 +486,6 @@ const role = userData?.role;
                           </button>
                         </div>
                       </td>
-
-
-
                     </tr>
                   ))
                 )}
@@ -463,7 +493,7 @@ const role = userData?.role;
             </table>
           </div>
         </div>
-        </div>
+      </div>
         <div className="mt-4 flex justify-end">
           <PaginationControl
             totalPages={totalPages}
@@ -478,141 +508,160 @@ const role = userData?.role;
 
       {/* Modal Detail */}
       {showModal && selectedSurat && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-800">Detail Surat</h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
-                >
-                  ×
-                </button>
-              </div>
+        <div className="fixed inset-0 flex bg-black/50 items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            {/* HEADER */}
+            <div className="p-6 border-b flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Detail Surat
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
             </div>
-            
-            <div className="p-6 space-y-4">
+
+            {/* CONTENT */}
+            <div className="p-6 space-y-6">
+              {/* Nomor Surat */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 mb-1">Nomor Surat</h3>
-                <p className="text-gray-900">{selectedSurat.nomorSurat}</p>
+                <h3 className="text-sm font-semibold text-gray-600">
+                  Nomor Surat
+                </h3>
+                <p className="text-gray-800">{selectedSurat.nomorSurat}</p>
               </div>
 
+              {/* Pegawai */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 mb-2">Pegawai</h3>
-                {selectedSurat.employees.map((emp, idx) => (
-                  <div key={idx} className="mb-3 p-3 bg-gray-50 rounded-lg">
-                    <p className="font-medium text-gray-900">{idx + 1}. {emp.nama}</p>
-                    <p className="text-sm text-gray-600">Jabatan: {emp.jabatan}</p>
-                    <p className="text-sm text-gray-600">Alamat: {emp.alamat}</p>
-                  </div>
-                ))}
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                  Pegawai
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedSurat.employees.map((emp, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 rounded-lg bg-gray-100 border shadow-sm"
+                    >
+                      <p className="font-medium text-gray-900">{emp.nama}</p>
+                      <p className="text-sm text-gray-600">
+                        Jabatan: {emp.jabatan}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Alamat: {emp.alamat}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* Informasi Umum */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">Tujuan</h3>
-                  <p className="text-gray-900">{selectedSurat.wilayahKerja}</p>
+                  <h3 className="text-sm font-semibold text-gray-600 mb-1">
+                    Tujuan
+                  </h3>
+                  <p className="text-gray-800">{selectedSurat.wilayahKerja}</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">Tanggal Berangkat</h3>
-                  <p className="text-gray-900">
-                    {new Date(selectedSurat.tanggalBerangkat).toLocaleDateString('id-ID', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
+                  <h3 className="text-sm font-semibold text-gray-600 mb-1">
+                    Tanggal Berangkat
+                  </h3>
+                  <p className="text-gray-800">
+                    {new Date(
+                      selectedSurat.tanggalBerangkat
+                    ).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
                     })}
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">Jam Berangkat</h3>
-                  <p className="text-gray-900">{selectedSurat.jamBerangkat}</p>
+                  <h3 className="text-sm font-semibold text-gray-600 mb-1">
+                    Jam Berangkat
+                  </h3>
+                  <p className="text-gray-800">{selectedSurat.jamBerangkat}</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">Kendaraan</h3>
-                  <p className="text-gray-900">{selectedSurat.kendaraan}</p>
+                  <h3 className="text-sm font-semibold text-gray-600 mb-1">
+                    Kendaraan
+                  </h3>
+                  <p className="text-gray-800">{selectedSurat.kendaraan}</p>
                 </div>
               </div>
 
+              {/* Akomodasi */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 mb-1">Akomodasi</h3>
-                <p className="text-gray-900">{selectedSurat.akomodasi}</p>
+                <h3 className="text-sm font-semibold text-gray-600 mb-1">
+                  Akomodasi
+                </h3>
+                <p className="text-gray-800">{selectedSurat.akomodasi}</p>
               </div>
 
+              {/* Agenda */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 mb-1">Agenda</h3>
-                <p className="text-gray-900">{selectedSurat.agenda}</p>
+                <h3 className="text-sm font-semibold text-gray-600 mb-1">
+                  Agenda
+                </h3>
+                <p className="text-gray-800">{selectedSurat.agenda}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+              {/* Status */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">Status Owner</h3>
+                  <h3 className="text-sm font-semibold text-gray-600 mb-1">
+                    Status Owner
+                  </h3>
                   <span className={getStatusBadge(selectedSurat.statusOwner)}>
                     {selectedSurat.statusOwner}
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-600 mb-1">Status Manager</h3>
-                  <span className={getStatusBadge(selectedSurat.statusManager)}>
-                    {selectedSurat.statusManager}
+                  <h3 className="text-sm font-semibold text-gray-600 mb-1">
+                    Status Adm. Keuangan
+                  </h3>
+                  <span className={getStatusBadge(selectedSurat.statusAdm)}>
+                    {selectedSurat.statusAdm}
                   </span>
                 </div>
               </div>
             </div>
 
+            {/* FOOTER BUTTONS */}
             <div className="p-6 border-t bg-gray-50 flex gap-3">
-  {/* Jika role OWNER atau MANAJER → tampil tombol Approve & Reject */}
-  {(role === 'OWNER' || role === 'MANAJER') ? (
-    <>
-      <button
-        onClick={() => handleApproval(selectedSurat, 'approve')}
-        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-      >
-      Setujui
-      </button>
-
-      <button
-        onClick={() => handleApproval(selectedSurat, 'reject')}
-        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-      >
-      Tolak
-      </button>
-    </>
-  ) : (
-    // Jika ADMIN atau lainnya → tampil tombol Print
-    <button
-      onClick={() => handlePrint(selectedSurat)}
-      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-    >
-      <Printer className="w-4 h-4" />
-      Print Surat
-    </button>
-  )}
-
-  {/* Tombol Tutup selalu ada */}
-  <button
-    onClick={() => setShowModal(false)}
-    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-  >
-    Tutup
-  </button>
-</div>
-
-            {/* <div className="p-6 border-t bg-gray-50 flex gap-3">
-              <button
-                onClick={() => handlePrint(selectedSurat)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <Printer className="w-4 h-4" />
-                Print Surat
-              </button>
+              {role === "OWNER" || role === "KEUANGAN" ? (
+                <>
+                  <button
+                    onClick={() => handleApproval(selectedSurat, "approve")}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Setujui
+                  </button>
+                  <button
+                    onClick={() => handleApproval(selectedSurat, "reject")}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Tolak
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => handlePrint(selectedSurat)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print Surat
+                </button>
+              )}
               <button
                 onClick={() => setShowModal(false)}
                 className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Tutup
               </button>
-            </div> */}
+            </div>
           </div>
         </div>
       )}
