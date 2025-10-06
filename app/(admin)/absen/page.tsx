@@ -26,7 +26,9 @@ export default function AbsenPage() {
 
   return (
     <div className="p-4 space-y-6">
+     <div className="p4 font-semibold"> 
       <Breadcrumbs />
+      </div>
       <UserInfoCard />
       {loading ? (
         <div>Loading user...</div>
