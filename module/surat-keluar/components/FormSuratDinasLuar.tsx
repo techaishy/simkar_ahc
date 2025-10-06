@@ -5,9 +5,10 @@ import { Printer, Download, User, MapPin, Calendar, Clock, Car } from 'lucide-re
 import { Card } from '@/components/ui/card'
 import type { FormSuratKeluar } from '@/lib/types/suratkeluar'
 import type { Employee } from '@/lib/types/suratkeluar'
-
+import { useAuth } from "@/context/authContext";
 
 export default function SuratTugasForm() {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<FormSuratKeluar>({
     nomorSurat: '',
     nama: '',
@@ -15,6 +16,8 @@ export default function SuratTugasForm() {
     alamat: '',
     wilayahKerja: '',
     tanggalBerangkat: '',
+    tanggalMulai: '',
+    tanggalSelesai: '',
     jamBerangkat: '',
     kendaraan: '',
     akomodasi: '',
@@ -44,7 +47,7 @@ export default function SuratTugasForm() {
     }, [])
 
 
-    const handleEmployeeChange = (index: number, field: keyof Employee, value: string) => {
+    const handleEmployeeChange = (index:  number, field: keyof Employee, value: string) => {
     setEmployees(prev => {
       const newEmployees = [...prev]
       newEmployees[index] = { ...newEmployees[index], [field]: value }
@@ -55,17 +58,33 @@ export default function SuratTugasForm() {
     const addEmployee = () => {
       setEmployees(prev => [
         ...prev,
-        { nama: '', jabatan: '', alamat: '' } 
+        { id_karyawan: '', nama: '', jabatan: '', alamat: '' } 
       ])
     }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+      const { name, value } = e.target;
+
+      if (name === "tanggalBerangkat") {
+        const startDate = new Date(value);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 3); 
+
+        setFormData((prev) => ({
+          ...prev,
+          tanggalBerangkat: value,
+          tanggalMulai: value,
+          tanggalSelesai: endDate.toISOString().split("T")[0], 
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    };
 
   const generateNomorSurat = () => {
     const today = new Date()
@@ -87,21 +106,40 @@ export default function SuratTugasForm() {
     }))
   }
 
-  const handleSubmit = () => {
+ const handleSubmit = async () => {
     const newSurat = {
       ...formData,
       employees,
+      pembuatSuratId: user?.customId,
       statusOwner: "Pending",
       statusAdm: "Pending",
       createdAt: new Date().toISOString(),
     };
-  
-    const existing = JSON.parse(localStorage.getItem("riwayat_surat") || "[]");
-    existing.push(newSurat);
-    localStorage.setItem("riwayat_surat", JSON.stringify(existing));
-  
-    console.log("Submit payload:", newSurat);
-    alert("Berhasil submit & disimpan ke Riwayat!");
+
+    console.log("📦 Payload yang dikirim ke server:", newSurat);
+
+    try {
+      const res = await fetch("/api/surat-keluar/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newSurat),
+      });
+
+      const result = await res.json();
+
+      console.log("📬 Status HTTP:", res.status);
+      console.log("📨 Response dari server:", result);
+
+      if (!res.ok) {
+        alert(`❌ Gagal submit surat: ${result.error || res.statusText}`);
+        return;
+      }
+
+      alert("✅ Surat tugas berhasil dikirim ke server!");
+    } catch (err) {
+      console.error("🔥 Error kirim surat:", err);
+      alert("❌ Gagal mengirim surat tugas. Silakan coba lagi.");
+    }
   };
   
 
@@ -210,6 +248,7 @@ export default function SuratTugasForm() {
                             <li
                               key={i}
                               onClick={() => {
+                                handleEmployeeChange(index, "id_karyawan", opt.id_karyawan)
                                 handleEmployeeChange(index, "nama", opt.nama)
                                 handleEmployeeChange(index, "jabatan", opt.jabatan)
                                 handleEmployeeChange(index, "alamat", opt.alamat)
