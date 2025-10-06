@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { FileText, Package, ArrowLeft, Bookmark } from "lucide-react";
 import SuratTugasForm from "./FormSuratDinasLuar"; 
-import RiwayatSurat from "./RiwayatSurat";
 
 interface MenuItem {
   id: string;
@@ -32,14 +31,6 @@ export default function MenuSuratKeluar() {
       title: "Surat Keluar Alat",
       description: "Surat untuk pengeluaran alat dan peralatan kantor",
       icon: Package,
-      color:
-        "bg-gradient-to-br from-black to-gray-900 hover:from-[#d2e67a] hover:to-[#f9fc4f] transition-all duration-300 border-green-200",
-    },
-    {
-      id: "riwayat-surat",
-      title: "Riwayat Surat",
-      description: "Tabel semua surat yang telah dibuat",
-      icon: Bookmark,
       color:
         "bg-gradient-to-br from-black to-gray-900 hover:from-[#d2e67a] hover:to-[#f9fc4f] transition-all duration-300 border-green-200",
     }
@@ -75,33 +66,10 @@ export default function MenuSuratKeluar() {
     );
   };
 
-  const renderRiwayatSuratWithBackButton = () => {
-    return (
-      <div className="w-full">
-        {/* Back button overlay */}
-        <div className="mb-2 px-2">
-          <button
-            onClick={handleBackToMenu}
-            className="flex items-center gap-2 shadow-lg hover:shadow-xl px-4 py-2 border bg-gradient-to-br from-black to-gray-900 hover:from-[#d2e67a] hover:to-[#f9fc4f] transition-all duration-300 border-purple-200 rounded-lg text-white hover:text-black"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="font-medium">Kembali ke Menu</span>
-          </button>
-        </div>
-
-        {/* Render komponen RiwayatSurat */}
-        <RiwayatSurat />
-      </div>
-    );
-  };
 
   // Jika sudah pilih menu surat tugas dinas, tampilkan komponen form
   if (selectedMenu === "surat-tugas-dinas") {
     return renderSuratTugasWithBackButton();
-  }
-
-  if (selectedMenu === "riwayat-surat") {
-    return renderRiwayatSuratWithBackButton();
   }
 
   // Jika sudah pilih menu lain, tampilkan placeholder
@@ -141,15 +109,6 @@ export default function MenuSuratKeluar() {
                 Komponen form untuk {selectedItem.title.toLowerCase()} sedang
                 dalam pengembangan.
               </p>
-            </div>
-
-            <div className="flex gap-2">
-              <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-                Buat {selectedItem.title}
-              </button>
-              <button className="flex-1 border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-50 transition-colors">
-                Lihat Riwayat
-              </button>
             </div>
           </div>
         </div>
@@ -216,7 +175,7 @@ export default function MenuSuratKeluar() {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             Butuh bantuan?{" "}
-            <a href="#" className="text-blue-600 hover:underline">
+            <a href="https://wa.me/6282274517496" className="text-blue-600 hover:underline">
               Hubungi Administrator
             </a>
           </p>

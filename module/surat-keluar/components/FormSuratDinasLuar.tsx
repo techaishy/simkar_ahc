@@ -18,7 +18,11 @@ export default function SuratTugasForm() {
     jamBerangkat: '',
     kendaraan: '',
     akomodasi: '',
-    agenda: ''
+    agenda: '',
+    employees: [],
+    statusOwner: '',
+    statusManager: '',
+    createdAt: '',
   })
 
     const [employees, setEmployees] = useState<Employee[]>([])
@@ -551,8 +555,8 @@ export default function SuratTugasForm() {
                             PT. Aishy Health Calibration
                           </div>
                           <div>
-                            <div className="font-bold underline mb-2">Khairul Fahmi</div>
-                            <div>MANAGER TEKNIK</div>
+                            <div className="font-bold underline mb-2">Muhammad Iqbal</div>
+                            <div>ADMIN KEUANGAN</div>
                           </div>
                         </td>
                         <td className="p-4 w-1/2 text-center">

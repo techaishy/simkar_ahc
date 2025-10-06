@@ -1,37 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, Printer, Trash2, Search, Filter, FileText } from 'lucide-react';
+import { FormSuratKeluar } from '@/lib/types/suratkeluar';
+import PaginationControl from '@/components/ui/PaginationControl';
 
-interface Employee {
-  nama: string;
-  jabatan: string;
-  alamat: string;
-}
-
-interface SuratData {
-  nomorSurat: string;
-  wilayahKerja: string;
-  tanggalBerangkat: string;
-  jamBerangkat: string;
-  kendaraan: string;
-  akomodasi: string;
-  agenda: string;
-  employees: Employee[];
-  statusOwner: string;
-  statusManager: string;
-  createdAt: string;
-}
 
 const RiwayatSurat = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('semua');
-  const [suratData, setSuratData] = useState<SuratData[]>([]);
-  const [selectedSurat, setSelectedSurat] = useState<SuratData | null>(null);
+  const [suratData, setSuratData] = useState<FormSuratKeluar[]>([]);
+  const [selectedSurat, setSelectedSurat] = useState<FormSuratKeluar | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(7); 
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+const role = userData?.role;
 
   // Load data dari localStorage saat komponen mount
   useEffect(() => {
     loadData();
   }, []);
+
+  const filteredData = suratData.filter(item => {
+    const firstEmployee = item.employees[0]?.nama || '';
+    const matchSearch = 
+      item.nomorSurat.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      firstEmployee.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchFilter = filterStatus === 'semua' || 
+      item.statusOwner === filterStatus || 
+      item.statusManager === filterStatus;
+    
+    return matchSearch && matchFilter;
+  });
+
+  const totalPages = Math.ceil(filteredData.length / perPage);
+  const paginatedData = filteredData.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const loadData = () => {
     const data = localStorage.getItem('riwayat_surat');
@@ -56,6 +63,26 @@ const RiwayatSurat = () => {
     }
   };
 
+  const handleApproval = (surat: FormSuratKeluar, status: 'approve' | 'reject') => {
+    const updatedData = suratData.map(item =>
+      item.nomorSurat === surat.nomorSurat
+        ? {
+            ...item,
+            statusOwner: role === 'OWNER'
+              ? (status === 'approve' ? 'Disetujui' : 'Ditolak')
+              : item.statusOwner,
+            statusManager: role === 'MANAJER'
+              ? (status === 'approve' ? 'Disetujui' : 'Ditolak')
+              : item.statusManager,
+          }
+        : item
+    );
+  
+    setSuratData(updatedData);
+    localStorage.setItem('riwayat_surat', JSON.stringify(updatedData));
+  };
+  
+
   // Fungsi hapus surat
   const handleHapus = (index: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus surat ini?')) {
@@ -66,13 +93,13 @@ const RiwayatSurat = () => {
   };
 
   // Fungsi lihat detail
-  const handleLihatDetail = (surat: SuratData) => {
+  const handleLihatDetail = (surat: FormSuratKeluar) => {
     setSelectedSurat(surat);
     setShowModal(true);
   };
 
   // Fungsi print
-  const handlePrint = (surat: SuratData) => {
+  const handlePrint = (surat: FormSuratKeluar) => {
     const printWindow = window.open('', '', 'width=800,height=600');
     if (printWindow) {
       const formatDate = (dateString: string) => {
@@ -279,29 +306,29 @@ const RiwayatSurat = () => {
   };
 
   // Filter data
-  const filteredData = suratData.filter(item => {
-    const firstEmployee = item.employees[0]?.nama || '';
-    const matchSearch = 
-      item.nomorSurat.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      firstEmployee.toLowerCase().includes(searchTerm.toLowerCase());
+  // const filteredData = suratData.filter(item => {
+  //   const firstEmployee = item.employees[0]?.nama || '';
+  //   const matchSearch = 
+  //     item.nomorSurat.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     firstEmployee.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchFilter = filterStatus === 'semua' || 
-      item.statusOwner === filterStatus || 
-      item.statusManager === filterStatus;
+  //   const matchFilter = filterStatus === 'semua' || 
+  //     item.statusOwner === filterStatus || 
+  //     item.statusManager === filterStatus;
     
-    return matchSearch && matchFilter;
-  });
+  //   return matchSearch && matchFilter;
+  // });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="mb-6 text-center">
+          <div className="flex justify-center items-center gap-3 mb-2">
             <FileText className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-800">Riwayat Surat</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Approval Surat</h1>
           </div>
-          <p className="text-gray-600">Kelola dan pantau semua riwayat surat perjalanan dinas</p>
+          <p className="text-gray-600">Kelola dan pantau semua surat perjalanan dinas</p>
         </div>
 
         {/* Filter dan Search */}
@@ -363,6 +390,7 @@ const RiwayatSurat = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
+                
                 {filteredData.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
@@ -371,7 +399,7 @@ const RiwayatSurat = () => {
                     </td>
                   </tr>
                 ) : (
-                  filteredData.map((item, index) => (
+                  paginatedData.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">
                         {item.nomorSurat}
@@ -426,6 +454,9 @@ const RiwayatSurat = () => {
                           </button>
                         </div>
                       </td>
+
+
+
                     </tr>
                   ))
                 )}
@@ -433,12 +464,34 @@ const RiwayatSurat = () => {
             </table>
           </div>
         </div>
-
-        {/* Info Total */}
-        <div className="mt-4 text-sm text-gray-600">
-          Menampilkan {filteredData.length} dari {suratData.length} surat
         </div>
-      </div>
+
+        <div className='mt-4 flex justify-between items-center'>
+          <div className='flex item-center text-black gap-2 text-sm'>
+            <span>Tampilkan</span>
+            <select 
+            value={perPage}
+            onChange={(e) => {
+              setPerPage(Number(e.target.value));
+              setCurrentPage(1); 
+            }} 
+            className='border rounded px-2 py-1 text-sm bg-white text-black'>
+              <option value={7}>7</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={30}>30</option>
+            </select>
+            <span>data</span>
+          </div>
+           {/* Pagination Control */}
+        <PaginationControl 
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+           />
+        </div>
+
+       
 
       {/* Modal Detail */}
       {showModal && selectedSurat && (
@@ -525,6 +578,44 @@ const RiwayatSurat = () => {
             </div>
 
             <div className="p-6 border-t bg-gray-50 flex gap-3">
+  {/* Jika role OWNER atau MANAJER → tampil tombol Approve & Reject */}
+  {(role === 'OWNER' || role === 'MANAJER') ? (
+    <>
+      <button
+        onClick={() => handleApproval(selectedSurat, 'approve')}
+        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+      >
+      Setujui
+      </button>
+
+      <button
+        onClick={() => handleApproval(selectedSurat, 'reject')}
+        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+      >
+      Tolak
+      </button>
+    </>
+  ) : (
+    // Jika ADMIN atau lainnya → tampil tombol Print
+    <button
+      onClick={() => handlePrint(selectedSurat)}
+      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+    >
+      <Printer className="w-4 h-4" />
+      Print Surat
+    </button>
+  )}
+
+  {/* Tombol Tutup selalu ada */}
+  <button
+    onClick={() => setShowModal(false)}
+    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+  >
+    Tutup
+  </button>
+</div>
+
+            {/* <div className="p-6 border-t bg-gray-50 flex gap-3">
               <button
                 onClick={() => handlePrint(selectedSurat)}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -538,7 +629,7 @@ const RiwayatSurat = () => {
               >
                 Tutup
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       )}
