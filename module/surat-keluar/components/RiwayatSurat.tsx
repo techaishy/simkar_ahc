@@ -81,7 +81,6 @@ const role = userData?.role;
     setSuratData(updatedData);
     localStorage.setItem('riwayat_surat', JSON.stringify(updatedData));
   };
-  
 
   // Fungsi hapus surat
   const handleHapus = (index: number) => {
@@ -465,7 +464,6 @@ const role = userData?.role;
           </div>
         </div>
         </div>
-
         <div className="mt-4 flex justify-end">
           <PaginationControl
             totalPages={totalPages}
