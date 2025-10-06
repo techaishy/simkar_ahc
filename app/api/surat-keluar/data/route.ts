@@ -6,6 +6,7 @@ export async function GET() {
     const employees = await prisma.karyawan.findMany({
       where: { status: 'AKTIF' },
       select: {
+        customId: true,
         name: true,
         position: true,
         address: true,
@@ -13,6 +14,7 @@ export async function GET() {
     });
 
     const formattedEmployees = employees.map(e => ({
+      id_karyawan:e.customId,
       nama: e.name,
       jabatan: e.position,
       alamat: e.address,

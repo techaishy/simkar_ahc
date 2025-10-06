@@ -6,6 +6,8 @@ export interface FormSuratKeluar {
     alamat: string
     wilayahKerja: string
     tanggalBerangkat: string
+    tanggalMulai: string,
+    tanggalSelesai: string,
     jamBerangkat: string
     kendaraan: string
     akomodasi: string
@@ -17,8 +19,9 @@ export interface FormSuratKeluar {
   }
 
  export interface Employee {
-      nama: string
-      jabatan: string
-      alamat: string
-    }
+    id_karyawan: string
+    nama: string
+    jabatan: string
+    alamat: string
+ }
 
