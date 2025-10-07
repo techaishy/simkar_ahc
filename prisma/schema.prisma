@@ -277,7 +277,12 @@ model SuratTugas {
   tanggal_selesai        DateTime         @db.Timestamptz(0)
   keterangan             String?
   status                 StatusSuratTugas @default(DRAFT)
-
+  file_surat             String?
+  tanggal_berangkat      DateTime?        @db.Timestamptz(0)
+  jam_berangkat          String?
+  akomodasi              String?
+  wilayah                String?
+  kendaraan              String?
   pembuat_surat_id       String
   pembuat_surat          User            @relation("PembuatSurat", fields: [pembuat_surat_id], references: [customId], onDelete: Restrict)
 
@@ -297,7 +302,7 @@ model SuratTugas {
   updated_at             DateTime         @default(now()) @db.Timestamptz(0)
 
   // Relasi ke anggota dan lokasi
-   anggotaSurat            SuratTugasAnggota[]
+  anggotaSurat            SuratTugasAnggota[]
   lokasiSurat             SuratTugasLokasi[]
 
   @@map("surat_tugas")

@@ -12,6 +12,11 @@ export async function POST(req: Request) {
       keterangan,
       pembuatSuratId, 
       employees,
+      jamBerangkat,
+      akomodasi,
+      agenda,
+      tanggal_berangkat,
+      kendaraan,
     } = body;
 
     if (!nomorSurat || !tanggalMulai || !pembuatSuratId) {
@@ -33,11 +38,16 @@ export async function POST(req: Request) {
         data: {
           nomor_surat: nomorSurat,
           judul_tugas: wilayahKerja,
+          jam_berangkat: jamBerangkat,
+          akomodasi: akomodasi,
+          wilayah: wilayahKerja,
+          kendaraan:kendaraan,
+          tanggal_berangkat:new Date(tanggalMulai),
           tanggal_mulai: new Date(tanggalMulai),
           tanggal_selesai: tanggalSelesai
             ? new Date(tanggalSelesai)
             : new Date(tanggalMulai),
-          keterangan,
+          keterangan : agenda,
           approval_status_admin: "PENDING",
           approval_status_owner: "PENDING",
           pembuat_surat: {

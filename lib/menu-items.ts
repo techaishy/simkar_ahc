@@ -67,7 +67,6 @@ export const menuItems: MenuItem[] = [
       href:'/surat_keluar/approval_surat',
       icon: IconFolder,
       allowedRoles: ['OWNER', 'MANAJER', 'ADMIN', 'KEUANGAN']
-
   },
   {
     name: 'Approval Surat Alat',
@@ -75,7 +74,8 @@ export const menuItems: MenuItem[] = [
     icon: IconFolder,
     allowedRoles: ['MANAJER', 'ADMIN']
   }],
-  allowedRoles: ['ADMIN', 'OWNER', 'MANAJER']
+
+  allowedRoles: ['ADMIN', 'OWNER', 'MANAJER', 'KEUANGAN']
 }, 
   {
     name: 'Pegawai',

@@ -4,18 +4,19 @@ export interface FormSuratKeluar {
     nama: string
     jabatan: string
     alamat: string
-    wilayahKerja: string
+    wilayah: string
     tanggalBerangkat: string
     tanggalMulai: string,
     tanggalSelesai: string,
     jamBerangkat: string
     kendaraan: string
     akomodasi: string
-    agenda: string
-    employees: Employee[]
+    keterangan: string
+     anggota: Employee[]
     statusOwner: string
     statusAdm: string
     createdAt: string
+    kendaraan:string
   }
 
  export interface Employee {
