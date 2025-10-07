@@ -34,6 +34,8 @@ model Karyawan {
   lastLogin       DateTime?
   user            User?
 
+  surat_tugas_anggota SuratTugasAnggota[]
+
   @@map("karyawan")
 }
 
@@ -53,8 +55,12 @@ model User {
   barcodes     Barcode[]
   karyawan     Karyawan            @relation(fields: [customId], references: [customId])
   kantor       Kantor?             @relation("KantorUsers", fields: [kantorId], references: [id])
-
+  
   kantorTetap  Boolean     @default(false)
+
+  surat_tugas_dibuat     SuratTugas[] @relation("PembuatSurat")
+  surat_tugas_disetujui_admin SuratTugas[] @relation("ApprovalAdmin")
+  surat_tugas_disetujui_owner SuratTugas[] @relation("ApprovalOwner")
 
   @@map("users")
 }
@@ -129,6 +135,7 @@ model LokasiDinas {
   izinList  AbsensiIzinLokasi[]
   attendances  Attendance[]
   wilayahKerja wilayahKerja[]
+  surat_tugas_lokasi SuratTugasLokasi[]
 }
 
 
@@ -263,6 +270,70 @@ model AlatKalibratorUnit {
   @@map("AlatKalibratorUnit")
 }
 
+model SuratTugas {
+  id                     String           @id @default(uuid()) @db.Uuid
+  nomor_surat            String           @unique
+  judul_tugas            String
+  tanggal_mulai          DateTime         @db.Timestamptz(0)
+  tanggal_selesai        DateTime         @db.Timestamptz(0)
+  keterangan             String?
+  status                 StatusSuratTugas @default(DRAFT)
+  file_surat             String?
+  tanggal_berangkat      DateTime?        @db.Timestamptz(0)
+  jam_berangkat          String?
+  akomodasi              String?
+  wilayah                String?
+  kendaraan              String?
+  pembuat_surat_id       String
+  pembuat_surat          User            @relation("PembuatSurat", fields: [pembuat_surat_id], references: [customId], onDelete: Restrict)
+
+  approved_by_admin_id   String?
+  approved_by_admin      User?           @relation("ApprovalAdmin", fields: [approved_by_admin_id], references: [customId], onDelete: SetNull)
+
+  approved_by_owner_id   String?
+  approved_by_owner      User?           @relation("ApprovalOwner", fields: [approved_by_owner_id], references: [customId], onDelete: SetNull)
+
+  approved_at_admin      DateTime?        @db.Timestamptz(0)
+  approved_at_owner      DateTime?        @db.Timestamptz(0)
+
+  approval_status_admin  ApprovalStatus   @default(PENDING)
+  approval_status_owner  ApprovalStatus   @default(PENDING)
+
+  created_at             DateTime         @default(now()) @db.Timestamptz(0)
+  updated_at             DateTime         @default(now()) @db.Timestamptz(0)
+
+  // Relasi ke anggota dan lokasi
+  anggotaSurat            SuratTugasAnggota[]
+  lokasiSurat             SuratTugasLokasi[]
+
+  @@map("surat_tugas")
+}
+
+model SuratTugasAnggota {
+  id              String      @id @default(uuid()) @db.Uuid
+  nomor_surat     String
+  surat_tugas     SuratTugas  @relation(fields: [nomor_surat], references: [nomor_surat], onDelete: Cascade)
+  karyawan_id     String
+  karyawan        Karyawan    @relation(fields: [karyawan_id], references: [customId], onDelete: Cascade)
+  peran           String?
+  created_at      DateTime    @default(now()) @db.Timestamptz(0)
+
+  @@unique([nomor_surat, karyawan_id])
+  @@map("surat_tugas_anggota")
+}
+
+model SuratTugasLokasi {
+  id              String      @id @default(uuid()) @db.Uuid
+  nomor_surat     String
+  surat_tugas     SuratTugas  @relation(fields: [nomor_surat], references: [nomor_surat], onDelete: Cascade)
+  lokasi_id       String
+  lokasi          LokasiDinas @relation(fields: [lokasi_id], references: [id], onDelete: Cascade)
+  created_at      DateTime    @default(now()) @db.Timestamptz(0)
+
+  @@unique([nomor_surat, lokasi_id])
+  @@map("surat_tugas_lokasi")
+}
+
 enum Role {
   ADMIN
   OWNER
@@ -297,4 +368,18 @@ enum Keterangan {
   IZIN
   SAKIT
   ALPHA
+}
+
+enum StatusSuratTugas {
+  DRAFT
+  MENUNGGU_APPROVAL
+  DISETUJUI
+  DITOLAK
+  SELESAI
+}
+
+enum ApprovalStatus {
+  PENDING
+  DISETUJUI
+  DITOLAK
 }

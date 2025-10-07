@@ -5,20 +5,27 @@ import { Printer, Download, User, MapPin, Calendar, Clock, Car } from 'lucide-re
 import { Card } from '@/components/ui/card'
 import type { FormSuratKeluar } from '@/lib/types/suratkeluar'
 import type { Employee } from '@/lib/types/suratkeluar'
-
+import { useAuth } from "@/context/authContext";
 
 export default function SuratTugasForm() {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<FormSuratKeluar>({
     nomorSurat: '',
     nama: '',
     jabatan: '',
     alamat: '',
-    wilayahKerja: '',
+    wilayah: '',
     tanggalBerangkat: '',
+    tanggalMulai: '',
+    tanggalSelesai: '',
     jamBerangkat: '',
     kendaraan: '',
     akomodasi: '',
-    agenda: ''
+    keterangan: '',
+    anggota: [],
+    statusOwner: '',
+    statusAdm: '',
+    createdAt: '',
   })
 
     const [employees, setEmployees] = useState<Employee[]>([])
@@ -40,7 +47,7 @@ export default function SuratTugasForm() {
     }, [])
 
 
-    const handleEmployeeChange = (index: number, field: keyof Employee, value: string) => {
+    const handleEmployeeChange = (index:  number, field: keyof Employee, value: string) => {
     setEmployees(prev => {
       const newEmployees = [...prev]
       newEmployees[index] = { ...newEmployees[index], [field]: value }
@@ -51,17 +58,33 @@ export default function SuratTugasForm() {
     const addEmployee = () => {
       setEmployees(prev => [
         ...prev,
-        { nama: '', jabatan: '', alamat: '' } 
+        { id_karyawan: '', nama: '', jabatan: '', alamat: '' } 
       ])
     }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+      const { name, value } = e.target;
+
+      if (name === "tanggalBerangkat") {
+        const startDate = new Date(value);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 3); 
+
+        setFormData((prev) => ({
+          ...prev,
+          tanggalBerangkat: value,
+          tanggalMulai: value,
+          tanggalSelesai: endDate.toISOString().split("T")[0], 
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    };
 
   const generateNomorSurat = () => {
     const today = new Date()
@@ -83,106 +106,42 @@ export default function SuratTugasForm() {
     }))
   }
 
-  const handleSubmit = () => {
+ const handleSubmit = async () => {
     const newSurat = {
       ...formData,
       employees,
+      pembuatSuratId: user?.customId,
       statusOwner: "Pending",
-      statusManager: "Pending",
+      statusAdm: "Pending",
       createdAt: new Date().toISOString(),
     };
-  
-    const existing = JSON.parse(localStorage.getItem("riwayat_surat") || "[]");
-    existing.push(newSurat);
-    localStorage.setItem("riwayat_surat", JSON.stringify(existing));
-  
-    console.log("Submit payload:", newSurat);
-    alert("Berhasil submit & disimpan ke Riwayat!");
+
+    console.log("📦 Payload yang dikirim ke server:", newSurat);
+
+    try {
+      const res = await fetch("/api/surat-keluar/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newSurat),
+      });
+
+      const result = await res.json();
+
+      console.log("📬 Status HTTP:", res.status);
+      console.log("📨 Response dari server:", result);
+
+      if (!res.ok) {
+        alert(`❌ Gagal submit surat: ${result.error || res.statusText}`);
+        return;
+      }
+
+      alert("✅ Surat tugas berhasil dikirim ke server!");
+    } catch (err) {
+      console.error("🔥 Error kirim surat:", err);
+      alert("❌ Gagal mengirim surat tugas. Silakan coba lagi.");
+    }
   };
   
-
-  const handlePrint = () => {
-    const printContent = document.getElementById('letterPreview')
-    if (printContent) {
-      const printWindow = window.open('', '', 'width=800,height=600')
-      if (printWindow) {
-        let htmlContent = printContent.innerHTML
-
-        htmlContent = htmlContent.replace(
-          /<img[^>]*>/g,
-          `<img 
-             src="/asset/logoahc.png"
-             style="width:80px; height:auto;"
-          />`
-        )
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Surat Tugas Perjalanan Dinas</title>
-              <style>
-                body { 
-                  font-family: 'Times New Roman', serif; 
-                  margin: 20px;
-                  font-size: 12pt;
-                  line-height: 1;
-                }
-
-                .img { max-width: 100px; height: auto; }
-
-                .letter-content { 
-                  max-width: 800px; 
-                  margin: 0 auto; 
-                }
-                table { 
-                  border-collapse: collapse; 
-                  width: 100%; 
-                }
-                td { 
-                  border: 1px solid black;
-                  padding: 8px; 
-                }
-                .text-center { text-align: center; }
-                .font-bold { font-weight: bold; }
-                .underline { text-decoration: underline; }
-                .mb-4 { margin-bottom: 16px; }
-                .mb-6 { margin-bottom: 24px; }
-                .mb-8 { margin-bottom: 32px; }
-                .mb-16 { margin-bottom: 64px; }
-                .mb-20 { margin-bottom: 80px; }
-                @media print { 
-                  body { margin: 0; }
-                  .no-print { display: none; }
-                }
-              </style>
-            </head>
-            <body>
-              <div class="letter-content">${printContent.innerHTML}</div>
-                    <script>
-              
-              const images = Array.from(document.images);
-              let loaded = 0;
-              if (images.length === 0) {
-                window.print();
-                window.close();
-              } else {
-                images.forEach(img => {
-                  img.onload = () => {
-                    loaded++;
-                    if (loaded === images.length) {
-                      setTimeout(() => { window.print(); window.close(); }, 200);
-                    }
-                  }
-                });
-              }
-            </script>
-            </body>
-          </html>
-        `)
-        printWindow.document.close()
-        
-      }
-    }
-  }
 
   const getCurrentDate = () => {
     const today = new Date()
@@ -289,6 +248,7 @@ export default function SuratTugasForm() {
                             <li
                               key={i}
                               onClick={() => {
+                                handleEmployeeChange(index, "id_karyawan", opt.id_karyawan)
                                 handleEmployeeChange(index, "nama", opt.nama)
                                 handleEmployeeChange(index, "jabatan", opt.jabatan)
                                 handleEmployeeChange(index, "alamat", opt.alamat)
@@ -363,7 +323,7 @@ export default function SuratTugasForm() {
                     <input
                       type="text"
                       name="wilayahKerja"
-                      value={formData.wilayahKerja}
+                      value={formData.wilayah}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="Masukkan tujuan perjalanan dinas"
@@ -422,7 +382,7 @@ export default function SuratTugasForm() {
                       Akomodasi
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="akomodasi"
                       value={formData.akomodasi}
                       onChange={handleInputChange}
@@ -437,7 +397,7 @@ export default function SuratTugasForm() {
                     </label>
                     <textarea
                       name="agenda"
-                      value={formData.agenda}
+                      value={formData.keterangan}
                       onChange={handleInputChange}
                       rows={4}
                       className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
@@ -520,7 +480,7 @@ export default function SuratTugasForm() {
                 <p className="mb-6">
                   Untuk dapat melaksanakan tugas perjalanan dinas ke wilayah kerja{' '}
                   <span className="font-bold">
-                    {formData.wilayahKerja || '..........'}
+                    {formData.wilayah || '..........'}
                   </span>{' '}
                   adapun untuk pelaksanaan tugas tersebut sesuai dengan ketentuan sebagai berikut:
                 </p>
@@ -530,7 +490,7 @@ export default function SuratTugasForm() {
                   <p>Jam Berangkat : {formData.jamBerangkat || '...............................'}</p>
                   <p>Kendaraan : {formData.kendaraan || '...............................'}</p>
                   <p>Akomodasi : {formData.akomodasi || '...............................'}</p>
-                  <p>Agenda : {formData.agenda || '...............................'}</p>
+                  <p>Agenda : {formData.keterangan || '...............................'}</p>
                 </div>
 
                 <p className="mb-8">
@@ -551,8 +511,8 @@ export default function SuratTugasForm() {
                             PT. Aishy Health Calibration
                           </div>
                           <div>
-                            <div className="font-bold underline mb-2">Khairul Fahmi</div>
-                            <div>MANAGER TEKNIK</div>
+                            <div className="font-bold underline mb-2">Muhammad Iqbal</div>
+                            <div>ADMIN KEUANGAN</div>
                           </div>
                         </td>
                         <td className="p-4 w-1/2 text-center">
