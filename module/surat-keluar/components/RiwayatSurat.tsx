@@ -161,47 +161,55 @@ const RiwayatSurat = () => {
 
   // Print surat
   const handlePrint = (surat: FormSuratKeluar) => {
-    const printWindow = window.open("", "_blank", "width=800,height=600");
-    if (!printWindow) return;
+      const printWindow = window.open("", "_blank", "width=800,height=600");
+      if (!printWindow) return;
 
-    const formatDate = (dateStr: string) =>
-      new Date(dateStr).toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
+      const formatDate = (dateStr: string) =>
+        new Date(dateStr).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
 
-    const getCurrentDate = () =>
-      new Date().toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
+      const getCurrentDate = () =>
+        new Date().toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
 
-    const ownerTTD =
-      surat.statusOwner === "DISETUJUI"
-        ? `<img src="/TTD/owner.jpg" style="width:200px;height:80px;" />`
-        : "";
+      // Tanda tangan
+      const ownerTTD =
+        surat.statusOwner === "DISETUJUI"
+          ? `<img src="/TTD/owner.jpg" style="width:200px;height:80px;" />`
+          : "";
 
-    const admTTD =
-      surat.statusAdm === "DISETUJUI"
-        ? `<img src="/TTD/adm.jpg" style="width:150px;height:80px;" />`
-        : "";
+      const admTTD =
+        surat.statusAdm === "DISETUJUI"
+          ? `<img src="/TTD/adm.jpg" style="width:150px;height:80px;" />`
+          : "";
 
-    const headerHTML = `
-      <table class="header-table">
-        <tr>
-          <td class="logo-cell">
-            <img src="/asset/logoahc.png" alt="Logo AHC" class="logo" />
-          </td>
-          <td class="company-info">
-            <div class="company-name">PT. AISHY HEALTH CALIBRATION</div>
-            <div>Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam, Kab. Aceh Besar, Prov. Aceh</div>
-            <div>Telp: 08116834151 - 082267016423 | Email: calibrationaishy@gmail.com</div>
-          </td>
-        </tr>
-      </table>
-    `;
+      // Header surat
+      const headerHTML = `
+        <table style="width:100%; border-collapse:collapse; text-align:center; margin-bottom:12px;">
+          <tr>
+            <td style="width:80px; text-align:center;">
+              <img src="/asset/logoahc.png" alt="Logo AHC" style="width:80px; height:auto;" />
+            </td>
+            <td style="text-align:center; vertical-align:middle; padding-left:0.5cm; padding-right:0.5cm;">
+              <div style="font-size:18pt; font-weight:bold; margin-bottom:6px;">PT. AISHY HEALTH CALIBRATION</div>
+              <div style="font-size:12pt; line-height:1.5; max-width:460px; margin:0 auto;">
+                Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam,<br />
+                Kab. Aceh Besar, Prov. Aceh
+              </div>
+              <div style="font-size:11pt; margin-top:4px; line-height:1.4;">
+                Telp: 08116834151 - 082267016423 | Email: calibrationaishy@gmail.com
+              </div>
+            </td>
+          </tr>
+        </table>
+        <hr style="border:1px solid black; margin-top:4px; margin-bottom:16px;" />
+      `;
 
     const anggotaHTML = surat.anggota
       .map(
@@ -217,10 +225,7 @@ const RiwayatSurat = () => {
             <td></td>
             <td><strong>Jabatan</strong></td>
             <td>:</td>
-            <td>${
-              emp.jabatan.charAt(0).toUpperCase() +
-              emp.jabatan.slice(1).toLowerCase()
-            }</td>
+            <td>${emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase()}</td>
           </tr>
           <tr>
             <td></td>
@@ -238,9 +243,7 @@ const RiwayatSurat = () => {
         ${headerHTML}
         <div class="text-center mb-3">
           <div class="font-bold underline" style="font-size: 16pt;">SURAT TUGAS PERJALANAN DINAS</div>
-          <div class="font-bold" style="margin-top: 8px;">Nomor : ${
-            surat.nomorSurat
-          }</div>
+          <div class="font-bold" style="margin-top: 8px;">Nomor : ${surat.nomorSurat}</div>
         </div>
 
         <div style="text-align: justify; margin-top: 12px; line-height: 1.6;">
@@ -251,86 +254,74 @@ const RiwayatSurat = () => {
             <strong>${surat.wilayah}</strong>, dengan ketentuan sebagai berikut:
           </p>
           <div style="margin: 6px 0; line-height: 1.5; padding-left: 15px;">
-            <p style="margin: 3px 0;">Berangkat     : ${formatDate(
-              surat.tanggalBerangkat
-            )}</p>
+            <p style="margin: 3px 0;">Berangkat     : ${formatDate(surat.tanggalBerangkat)}</p>
             <p style="margin: 3px 0;">Jam Berangkat : ${surat.jamBerangkat}</p>
             <p style="margin: 3px 0;">Kendaraan     : ${surat.kendaraan}</p>
             <p style="margin: 3px 0;">Akomodasi     : ${surat.akomodasi}</p>
             <p style="margin: 3px 0;">Agenda        : ${surat.keterangan}</p>
           </div>
 
-          <p style="margin: 12px 0; text-indent: 40px;">
+          <p style="margin:16px 0; text-indent:2em;">
             Demikian Surat Perintah Tugas ini dibuat dan dapat dilaksanakan dengan baik. Atas kerjasamanya saya ucapkan terima kasih.
           </p>
+        </div>
+      `;
 
-          <table style="width: 100%; margin-top: 20px;">
+      // Footer dengan TTD
+      const footerHTML = `
+        <div style="margin:0 2cm; margin-top:24px; font-family:'Times New Roman', serif;">
+          <table style="width:100%; border-collapse:collapse; text-align:center;">
             <tr>
-              <td style="text-align: center; vertical-align: top; width: 50%;">
+              <td style="width:50%; vertical-align:top;">
                 <div>Lhokseumawe, ${getCurrentDate()}</div>
-                <div class="font-bold" style="margin-top: 8px;">PT. Aishy Health Calibration</div>
-                <div class="signature-space">${admTTD}
-                  <div><strong>Keuangan</strong><br />
-                    <div style="margin-top: 4px;">Muhammad Iqbal</div>
-                  </div>
+                <div style="font-weight:bold; margin-top:4px;">PT. Aishy Health Calibration</div>
+                <div class="signature-space" style="margin-top:12px;">
+                  ${admTTD}
+                  <div><strong>Keuangan</strong><br />Muhammad Iqbal</div>
                 </div>
               </td>
-              <td style="text-align: center; vertical-align: top; width: 50%;">
-                <div class="signature-space" style="margin-top: 30px;">${ownerTTD}
-                  <div><strong>Owner</strong><br />
-                    <div style="margin-top: 4px;">Bpk. Zulfikar S.Kep, M.Kes</div>
-                  </div>
+              <td style="width:50%; vertical-align:top;">
+                <div class="signature-space" style="margin-top:20px;">
+                  ${ownerTTD}
+                  <div><strong>Owner</strong><br />Bpk. Zulfikar S.Kep, M.Kes</div>
                 </div>
               </td>
             </tr>
           </table>
         </div>
-      </div>
-    `;
+      `;
 
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Surat Tugas Perjalanan Dinas - ${surat.nomorSurat}</title>
-          <style>
-            body { font-family: 'Times New Roman', serif; margin: 15mm; font-size: 12.5pt; line-height: 1.6; }
-            .letter-content { max-width: 190mm; margin: 0 auto; }
-            .header-table { width: 100%; margin-bottom: 10px; border-bottom: 3px solid black; padding-bottom: 6px; }
-            .logo-cell { width: 80px; text-align: center; }
-            .logo { width: 70px; height: auto; }
-            .company-info { text-align: center; vertical-align: middle; }
-            .company-name { font-size: 17pt; font-weight: bold; }
-            table { width: 100%; border-collapse: collapse; }
-            .detail-table td { padding: 4px 6px; vertical-align: top; }
-            .text-center { text-align: center; }
-            .font-bold { font-weight: bold; }
-            .underline { text-decoration: underline; }
-            .mb-3 { margin-bottom: 12px; }
-            .signature-space { margin-bottom: 60px; }
-            @media print { body { margin: 0; } }
-          </style>
-        </head>
-        <body>
-          ${contentHTML}
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Surat Tugas - ${surat.nomorSurat}</title>
+          </head>
+          <body>
+            ${headerHTML}
+            <div style="text-align:center; font-weight:bold; font-size:16pt; margin-bottom:8px;">SURAT TUGAS PERJALANAN DINAS</div>
+            <div style="text-align:center; font-weight:bold; margin-bottom:12px;">Nomor : ${surat.nomorSurat}</div>
+            ${bodyContentHTML}
+            ${footerHTML}
+            <script>
+              const images = Array.from(document.images);
+              let loaded = 0;
+              if (images.length === 0) {
+                window.print();
+                window.close();
+              } else {
+                images.forEach(img => {
+                  img.onload = () => { loaded++; if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 100); };
+                  img.onerror = () => { loaded++; if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 100); };
+                });
+              }
+            </script>
+          </body>
+        </html>
+      `);
 
-          <script>
-            const images = Array.from(document.images);
-            let loaded = 0;
-            if (images.length === 0) {
-              window.print();
-              window.close();
-            } else {
-              images.forEach(img => {
-                img.onload = () => { loaded++; if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 100); };
-                img.onerror = () => { loaded++; if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 100); };
-              });
-            }
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-  };
+      printWindow.document.close();
+    };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">

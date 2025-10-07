@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const {
       nomorSurat,
-      wilayahKerja,
+      wilayah,
       tanggalMulai,
       tanggalSelesai,
       keterangan,
@@ -37,10 +37,10 @@ export async function POST(req: Request) {
       const suratTugas = await tx.suratTugas.create({
         data: {
           nomor_surat: nomorSurat,
-          judul_tugas: wilayahKerja,
+          judul_tugas: wilayah,
           jam_berangkat: jamBerangkat,
           akomodasi: akomodasi,
-          wilayah: wilayahKerja,
+          wilayah: wilayah,
           kendaraan:kendaraan,
           tanggal_berangkat:new Date(tanggalMulai),
           tanggal_mulai: new Date(tanggalMulai),
