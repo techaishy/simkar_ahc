@@ -322,7 +322,7 @@ export default function SuratTugasForm() {
                     </label>
                     <input
                       type="text"
-                      name="wilayahKerja"
+                      name="wilayah"
                       value={formData.wilayah}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -396,7 +396,7 @@ export default function SuratTugasForm() {
                       Agenda/Keperluan
                     </label>
                     <textarea
-                      name="agenda"
+                      name="keterangan"
                       value={formData.keterangan}
                       onChange={handleInputChange}
                       rows={4}
