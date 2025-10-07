@@ -68,7 +68,7 @@ export const menuItems: MenuItem[] = [
       icon: IconFolder,
       allowedRoles: ['OWNER', 'MANAJER', 'ADMIN', 'KEUANGAN']
    } ],
-    allowedRoles: ['ADMIN', 'OWNER', 'MANAJER']
+    allowedRoles: ['ADMIN', 'OWNER', 'MANAJER','KEUANGAN']
   },
   {
     name: 'Pegawai',

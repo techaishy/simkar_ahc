@@ -14,15 +14,15 @@ export default function SuratTugasForm() {
     nama: '',
     jabatan: '',
     alamat: '',
-    wilayahKerja: '',
+    wilayah: '',
     tanggalBerangkat: '',
     tanggalMulai: '',
     tanggalSelesai: '',
     jamBerangkat: '',
     kendaraan: '',
     akomodasi: '',
-    agenda: '',
-    employees: [],
+    keterangan: '',
+    anggota: [],
     statusOwner: '',
     statusAdm: '',
     createdAt: '',
@@ -323,7 +323,7 @@ export default function SuratTugasForm() {
                     <input
                       type="text"
                       name="wilayahKerja"
-                      value={formData.wilayahKerja}
+                      value={formData.wilayah}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="Masukkan tujuan perjalanan dinas"
@@ -382,7 +382,7 @@ export default function SuratTugasForm() {
                       Akomodasi
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="akomodasi"
                       value={formData.akomodasi}
                       onChange={handleInputChange}
@@ -397,7 +397,7 @@ export default function SuratTugasForm() {
                     </label>
                     <textarea
                       name="agenda"
-                      value={formData.agenda}
+                      value={formData.keterangan}
                       onChange={handleInputChange}
                       rows={4}
                       className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
@@ -480,7 +480,7 @@ export default function SuratTugasForm() {
                 <p className="mb-6">
                   Untuk dapat melaksanakan tugas perjalanan dinas ke wilayah kerja{' '}
                   <span className="font-bold">
-                    {formData.wilayahKerja || '..........'}
+                    {formData.wilayah || '..........'}
                   </span>{' '}
                   adapun untuk pelaksanaan tugas tersebut sesuai dengan ketentuan sebagai berikut:
                 </p>
@@ -490,7 +490,7 @@ export default function SuratTugasForm() {
                   <p>Jam Berangkat : {formData.jamBerangkat || '...............................'}</p>
                   <p>Kendaraan : {formData.kendaraan || '...............................'}</p>
                   <p>Akomodasi : {formData.akomodasi || '...............................'}</p>
-                  <p>Agenda : {formData.agenda || '...............................'}</p>
+                  <p>Agenda : {formData.keterangan || '...............................'}</p>
                 </div>
 
                 <p className="mb-8">
