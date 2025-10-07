@@ -87,7 +87,15 @@ const RiwayatSurat = () => {
     surat: FormSuratKeluar,
     status: "DISETUJUI" | "DITOLAK"
   ) => {
-    if (!confirm(`Apakah Anda yakin ingin ${status} surat ini?`)) return;
+    
+    const message =
+      status === "DISETUJUI"
+        ? "Apakah Anda yakin ingin Setujui surat ini?"
+        : "Apakah Anda yakin ingin Tolak surat ini?";
+
+    if (!confirm(message)) {
+      return;
+    }
 
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
