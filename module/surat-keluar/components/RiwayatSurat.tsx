@@ -165,194 +165,192 @@ const RiwayatSurat = () => {
 
   // Print surat
   const handlePrint = (surat: FormSuratKeluar) => {
-      const printWindow = window.open("", "_blank", "width=800,height=600");
-      if (!printWindow) return;
+    const printWindow = window.open("", "_blank", "width=800,height=600");
+    if (!printWindow) return;
 
-      const formatDate = (dateStr: string) =>
-        new Date(dateStr).toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        });
+    const formatDate = (dateStr: string) =>
+      new Date(dateStr).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
 
-      const getCurrentDate = () =>
-        new Date().toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        });
+    const getCurrentDate = () =>
+      new Date().toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
 
-      // Tanda tangan
-      const ownerTTD =
-        surat.statusOwner === "DISETUJUI"
-          ? `<img src="/TTD/owner.jpg" style="width:200px;height:80px;" />`
-          : "";
+    const ownerTTD =
+      surat.statusOwner === "DISETUJUI"
+        ? `<img src="/TTD/owner.jpg" style="width:200px;height:80px;" />`
+        : "";
 
-      const admTTD =
-        surat.statusAdm === "DISETUJUI"
-          ? `<img src="/TTD/adm.jpg" style="width:150px;height:80px;" />`
-          : "";
+    const admTTD =
+      surat.statusAdm === "DISETUJUI"
+        ? `<img src="/TTD/adm.jpg" style="width:150px;height:80px;" />`
+        : "";
 
-      // Header surat
-      const headerHTML = `
-        <table style="width:100%; border-collapse:collapse; text-align:center; margin-bottom:12px;">
-          <tr>
-            <td style="width:80px; text-align:center;">
-              <img src="/asset/logoahc.png" alt="Logo AHC" style="width:80px; height:auto;" />
-            </td>
-            <td style="text-align:center; vertical-align:middle; padding-left:0.5cm; padding-right:0.5cm;">
-              <div style="font-size:18pt; font-weight:bold; margin-bottom:6px;">PT. AISHY HEALTH CALIBRATION</div>
-              <div style="font-size:12pt; line-height:1.5; max-width:460px; margin:0 auto;">
-                Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam,<br />
-                Kab. Aceh Besar, Prov. Aceh
+    // Header dalam <thead> untuk otomatis ulang di tiap halaman
+    const headerHTML = `
+      <thead>
+        <tr>
+          <td style="width:80px; text-align:center;">
+            <img src="/asset/logoahc.png" alt="Logo AHC" style="width:80px; height:auto;" />
+          </td>
+          <td style="text-align:center; vertical-align:middle; padding-left:0.5cm; padding-right:0.5cm;">
+            <div style="font-size:18pt; font-weight:bold; margin-bottom:6px;">PT. AISHY HEALTH CALIBRATION</div>
+            <div style="font-size:12pt; line-height:1.5; max-width:460px; margin:0 auto;">
+              Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam,<br />
+              Kab. Aceh Besar, Prov. Aceh
+            </div>
+            <div style="font-size:11pt; margin-top:4px; line-height:1.4;">
+              Telp: 08116834151 - 082267016423 | Email: calibrationaishy@gmail.com
+            </div>
+          </td>
+        </tr>
+        <tr><td colspan="2"><hr style="border:1px solid black; margin-top:4px; margin-bottom:16px;" /></td></tr>
+      </thead>
+    `;
+
+    // Konten
+    const bodyContentHTML = `
+      <tbody>
+        <tr>
+          <td colspan="2">
+            <div style="font-size:13pt; font-family:'Times New Roman', serif; line-height:1.6; text-align:justify; margin:0 1cm 1cm 0.6cm;">
+
+              <!-- BAGIAN 1: DAFTAR ANGGOTA -->
+              <div style="page-break-inside: avoid; break-inside: avoid;">
+                <div style="text-align:center; font-weight:bold; font-size:16pt; margin-bottom:8px;">SURAT TUGAS PERJALANAN DINAS</div>
+                <div style="text-align:center; font-weight:bold; margin-bottom:12px;">Nomor : ${surat.nomorSurat}</div>
+
+                <p style="margin-top:24px; margin-bottom:12px;">Dengan ini memberikan tugas kepada:</p>
+                ${surat.anggota.map((emp, index) => `
+                  <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                    <tr>
+                      <td style="width:30px; vertical-align:top;">${index + 1}.</td>
+                      <td style="width:100px;"><strong>Nama</strong></td>
+                      <td>:</td>
+                      <td>${emp.nama}</td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td><strong>Jabatan</strong></td>
+                      <td>:</td>
+                      <td>${emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase()}</td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td><strong>Alamat</strong></td>
+                      <td>:</td>
+                      <td>${emp.alamat}</td>
+                    </tr>
+                  </table>
+                `).join('')}
               </div>
-              <div style="font-size:11pt; margin-top:4px; line-height:1.4;">
-                Telp: 08116834151 - 082267016423 | Email: calibrationaishy@gmail.com
+
+              <!-- BAGIAN 2: DETAIL PERJALANAN -->
+              <div style="page-break-inside: avoid; break-inside: avoid;">
+                <p style="margin:16px 0 8px 0; text-indent:2em;">
+                  Untuk melaksanakan tugas perjalanan dinas ke wilayah kerja <strong>${surat.wilayah}</strong>, dengan ketentuan sebagai berikut:
+                </p>
+                <div style="padding-left:2em; line-height:1.4; margin-bottom:12px;">
+                  <p>Berangkat     : ${formatDate(surat.tanggalBerangkat)}</p>
+                  <p>Jam Berangkat : ${surat.jamBerangkat}</p>
+                  <p>Kendaraan     : ${surat.kendaraan}</p>
+                  <p>Akomodasi     : ${surat.akomodasi}</p>
+                  <p>Agenda        : ${surat.keterangan || '-'}</p>
+                </div>
               </div>
-            </td>
-          </tr>
-        </table>
-        <hr style="border:1px solid black; margin-top:4px; margin-bottom:16px;" />
-      `;
 
-      // Daftar anggota
-      const anggotaHTML = surat.anggota
-        .map(
-          (emp, index) => `
-          <table style="width:100%; border-collapse:collapse; margin-bottom:4px;">
-            <tr>
-              <td style="width:30px;">${index + 1}.</td>
-              <td style="width:100px;"><strong>Nama</strong></td>
-              <td style="width:10px;">:</td>
-              <td>${emp.nama}</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td><strong>Jabatan</strong></td>
-              <td>:</td>
-              <td>${emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase()}</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td><strong>Alamat</strong></td>
-              <td>:</td>
-              <td>${emp.alamat}</td>
-            </tr>
-          </table>
-        `
-        )
-        .join("");
+              <!-- BAGIAN 3: DEMIKIAN + TTD -->
+              <div style="page-break-inside: avoid; break-inside: avoid;">
+                <p style="margin:16px 0; text-indent:2em;">
+                  Demikian Surat Perintah Tugas ini dibuat dan dapat dilaksanakan dengan baik. Atas kerjasamanya saya ucapkan terima kasih.
+                </p>
 
-      // Body surat
-      const bodyContentHTML = `
-        <div style="
-          font-size: 13pt;
-          font-family: 'Times New Roman', serif;
-          line-height: 1.6;
-          text-align: justify;
-          margin: 0 1cm 1cm 0.6cm;
-        ">
-          <p style="margin-top:24px; margin-bottom:12px;">Dengan ini memberikan tugas kepada:</p>
-
-          ${surat.anggota
-            .map(
-              (emp, index) => `
-              <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
-                <tr>
-                  <td style="width:30px; vertical-align:top; padding-bottom:6px;">${index + 1}.</td>
-                  <td style="width:100px; padding-bottom:6px;"><strong>Nama</strong></td>
-                  <td style="width:10px; padding-bottom:6px;">:</td>
-                  <td style="padding-bottom:6px;">${emp.nama}</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td style="padding-bottom:6px;"><strong>Jabatan</strong></td>
-                  <td style="padding-bottom:6px;">:</td>
-                  <td style="padding-bottom:6px;">${emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase()}</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td style="padding-bottom:6px;"><strong>Alamat</strong></td>
-                  <td style="padding-bottom:6px;">:</td>
-                  <td style="padding-bottom:6px;">${emp.alamat}</td>
-                </tr>
-              </table>
-            `
-            )
-            .join("")}
-
-          <p style="margin:16px 0 8px 0; text-indent:2em;">
-            Untuk melaksanakan tugas perjalanan dinas ke wilayah kerja 
-            <strong>${surat.wilayah}</strong>, dengan ketentuan sebagai berikut:
-          </p>
-          <div style="padding-left:2em; line-height:1.4; margin-bottom:12px;">
-            <p>Berangkat     : ${formatDate(surat.tanggalBerangkat)}</p>
-            <p>Jam Berangkat : ${surat.jamBerangkat}</p>
-            <p>Kendaraan     : ${surat.kendaraan}</p>
-            <p>Akomodasi     : ${surat.akomodasi}</p>
-            <p>Agenda        : ${surat.keterangan || '-'}</p>
-          </div>
-
-          <p style="margin:16px 0; text-indent:2em;">
-            Demikian Surat Perintah Tugas ini dibuat dan dapat dilaksanakan dengan baik. Atas kerjasamanya saya ucapkan terima kasih.
-          </p>
-        </div>
-      `;
-
-      // Footer dengan TTD
-      const footerHTML = `
-        <div style="margin:0 2cm; margin-top:24px; font-family:'Times New Roman', serif;">
-          <table style="width:100%; border-collapse:collapse; text-align:center;">
-            <tr>
-              <td style="width:50%; vertical-align:top;">
-                <div>Lhokseumawe, ${getCurrentDate()}</div>
-                <div style="font-weight:bold; margin-top:4px;">PT. Aishy Health Calibration</div>
-                <div class="signature-space" style="margin-top:12px;">
-                  ${admTTD}
-                  <div><strong>Keuangan</strong><br />Muhammad Iqbal</div>
+                <div style="margin-top:24px; font-family:'Times New Roman', serif;">
+                  <table style="width:100%; border-collapse:collapse; text-align:center;">
+                    <tr>
+                      <td style="width:50%; vertical-align:top;">
+                        <div>Lhokseumawe, ${getCurrentDate()}</div>
+                        <div style="font-weight:bold; margin-top:4px;">PT. Aishy Health Calibration</div>
+                        <div class="signature-space" style="margin-top:12px;">
+                          ${admTTD}
+                          <div><strong>Keuangan</strong><br />Muhammad Iqbal</div>
+                        </div>
+                      </td>
+                      <td style="width:50%; vertical-align:top;">
+                        <div class="signature-space" style="margin-top:20px;">
+                          ${ownerTTD}
+                          <div><strong>Owner</strong><br />Bpk. Zulfikar S.Kep, M.Kes</div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
-              </td>
-              <td style="width:50%; vertical-align:top;">
-                <div class="signature-space" style="margin-top:20px;">
-                  ${ownerTTD}
-                  <div><strong>Owner</strong><br />Bpk. Zulfikar S.Kep, M.Kes</div>
-                </div>
-              </td>
-            </tr>
-          </table>
-        </div>
-      `;
+              </div>
 
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Surat Tugas - ${surat.nomorSurat}</title>
-          </head>
-          <body>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    `;
+
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Surat Tugas - ${surat.nomorSurat}</title>
+          <style>
+          @page {
+            margin: 1.5cm 1cm 2cm 1cm; /* top, right, bottom, left */
+          }
+
+          @media print {
+            body { 
+              margin: 0; 
+              padding: 0; 
+              font-family: 'Times New Roman', serif;
+            }
+            table { 
+              page-break-inside: auto; 
+              border-collapse: collapse; 
+              width: 100%;
+            }
+            tr { page-break-inside: avoid; }
+            thead { display: table-header-group; }
+          }
+        </style>
+        </head>
+        <body>
+          <table style="width:100%; border-collapse:collapse;">
             ${headerHTML}
-            <div style="text-align:center; font-weight:bold; font-size:16pt; margin-bottom:8px;">SURAT TUGAS PERJALANAN DINAS</div>
-            <div style="text-align:center; font-weight:bold; margin-bottom:12px;">Nomor : ${surat.nomorSurat}</div>
             ${bodyContentHTML}
-            ${footerHTML}
-            <script>
-              const images = Array.from(document.images);
-              let loaded = 0;
-              if (images.length === 0) {
-                window.print();
-                window.close();
-              } else {
-                images.forEach(img => {
-                  img.onload = () => { loaded++; if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 100); };
-                  img.onerror = () => { loaded++; if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 100); };
-                });
-              }
-            </script>
-          </body>
-        </html>
-      `);
+          </table>
+          <script>
+            const images = Array.from(document.images);
+            let loaded = 0;
+            if (images.length === 0) {
+              window.print();
+              window.close();
+            } else {
+              images.forEach(img => {
+                img.onload = () => { loaded++; if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 100); };
+                img.onerror = () => { loaded++; if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 100); };
+              });
+            }
+          </script>
+        </body>
+      </html>
+    `);
 
-      printWindow.document.close();
-    };
+    printWindow.document.close();
+  };
+
+
 
 
   return (
