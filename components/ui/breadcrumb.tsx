@@ -60,7 +60,7 @@ const nameMap: Record<string, string> = {
   "absen": "Absen",
   "history": "History",
   "riwayat_absensi": "Riwayat Absensi",
-  "riwayat-absensi": "Riwayat Absensi", // biar aman kalo pakai dash
+  "riwayat-absensi": "Riwayat Absensi", 
   "surat-keluar": "Surat Keluar",
   "pegawai": "Pegawai",
   "inventory": "Inventory",
