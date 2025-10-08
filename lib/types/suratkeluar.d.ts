@@ -26,3 +26,19 @@ export interface FormSuratKeluar {
     alamat: string
  }
 
+ export interface KondisiKalibrator {
+   accesoris: string
+   kabel: string
+   tombol: string
+   fungsi: string
+   fisik: string
+ }
+ 
+ export interface BarangItem {
+  nomorSurat: string
+   nama: string
+   merk: string
+   type: string
+   noSeri: string
+   kondisi: KondisiKalibrator
+ }

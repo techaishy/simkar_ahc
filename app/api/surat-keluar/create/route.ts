@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       tanggalMulai,
       tanggalSelesai,
       keterangan,
-      pembuatSuratId, 
+      pembuatSuratId,
       employees,
       jamBerangkat,
       akomodasi,
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       );
     }
 
-     const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const suratTugas = await tx.suratTugas.create({
         data: {
           nomor_surat: nomorSurat,
@@ -41,13 +41,13 @@ export async function POST(req: Request) {
           jam_berangkat: jamBerangkat,
           akomodasi: akomodasi,
           wilayah: wilayah,
-          kendaraan:kendaraan,
-          tanggal_berangkat:new Date(tanggalMulai),
+          kendaraan: kendaraan,
+          tanggal_berangkat: new Date(tanggalMulai),
           tanggal_mulai: new Date(tanggalMulai),
           tanggal_selesai: tanggalSelesai
             ? new Date(tanggalSelesai)
             : new Date(tanggalMulai),
-          keterangan : agenda,
+          keterangan: agenda,
           approval_status_admin: "PENDING",
           approval_status_owner: "PENDING",
           pembuat_surat: {
