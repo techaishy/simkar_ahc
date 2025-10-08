@@ -3,24 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { Eye, Printer, Search, Filter, FileText, Trash2 } from "lucide-react";
 import PaginationControl from "@/components/ui/PaginationControl";
+import { BarangItem } from "@/lib/types/suratkeluar";
 
-interface KondisiKalibrator {
-  accesoris: string;
-  kabel: string;
-  tombol: string;
-  fungsi: string;
-  fisik: string;
-}
-
-interface BarangItem {
-  nama: string;
-  merk: string;
-  type: string;
-  noSeri: string;
-  kondisi: KondisiKalibrator;
-}
 
 interface SuratAlat {
+  nomorSurat: string;
   tanggal: string;
   keperluan: string;
   barangList: BarangItem[];
@@ -151,6 +138,7 @@ export default function ApprovalSuratAlat() {
       </head>
       <body>
         <div class="title">BERITA ACARA PEMAKAIAN ALAT KALIBRATOR DI LUAR LABORATORIUM</div>
+        <div style="text-align:center; font-weight:bold; margin-bottom:20px;">Nomor : ${surat.nomorSurat}</div>
         <table style="border:none; margin-bottom:10px;">
           <tr class="no-border"><td style="text-align:left;">1. TANGGAL</td><td style="border:none;">: ${surat.tanggal}</td></tr>
           <tr class="no-border"><td style="text-align:left;">2. KEPERLUAN</td><td style="border:none;">: ${surat.keperluan}</td></tr>
@@ -186,9 +174,9 @@ export default function ApprovalSuratAlat() {
         <br/><br/>
         <table class="no-border" style="margin-top:30px; text-align:center; width:100%;">
           <tr>
-            <td class="signature">PETUGAS<br/><br/><br/>__________<br/>TEKNISI</td>
-            <td class="signature">PEMERIKSA<br/>${adminTTD}<br/>__________<br/>ADMIN</td>
-            <td class="signature">MENGETAHUI<br/>${manajerTTD}<br/>__________<br/>MANAGER TEKNIK</td>
+            <td class="signature">PETUGAS<br/><br/><br/>TEKNISI</td>
+            <td class="signature-space">PEMERIKSA<br/><br/><br/>ADMIN</td>
+            <td class="signature-space">MENGETAHUI<br/>${manajerTTD}<br/><br/>MANAGER TEKNIK</td>
           </tr>
         </table>
         <script>window.print(); window.close();</script>
@@ -251,7 +239,7 @@ export default function ApprovalSuratAlat() {
                     Keperluan
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold">
-                    Status Admin
+                    Nomor Surat
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold">
                     Status Manajer
@@ -261,7 +249,7 @@ export default function ApprovalSuratAlat() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-gray-200">
                 {paginatedData.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-gray-500">
@@ -273,11 +261,8 @@ export default function ApprovalSuratAlat() {
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-4 py-2">{item.tanggal}</td>
                       <td className="px-4 py-2">{item.keperluan}</td>
-                      <td className="px-4 py-2">
-                        <span className={getStatusBadge(item.statusAdmin)}>
-                          {item.statusAdmin}
-                        </span>
-                      </td>
+                      <td className="px-4 py-2">{item.nomorSurat}</td>
+                     
                       <td className="px-4 py-2">
                         <span className={getStatusBadge(item.statusManajer)}>
                           {item.statusManajer}
@@ -293,7 +278,7 @@ export default function ApprovalSuratAlat() {
                      
                         <button
                           onClick={() => handlePrint(item)}
-                          className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg"
+                          className="p-2 text-green-600 hover:bg-gray-50 rounded-lg"
                         >
                           <Printer className="w-5 h-5" />
                         </button>
@@ -325,91 +310,112 @@ export default function ApprovalSuratAlat() {
 
       {/* Modal Detail */}
       {showModal && selectedSurat && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white text-black rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">
-                Detail Surat Alat
-              </h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <p><strong>Tanggal:</strong> {selectedSurat.tanggal}</p>
-              <p><strong>Keperluan:</strong> {selectedSurat.keperluan}</p>
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white text-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-auto">
+      
+      {/* Header */}
+      <div className="flex justify-between items-center px-8 py-5 border-b bg-gray-50 rounded-t-xl">
+        <h2 className="text-2xl font-semibold">Detail Surat Alat</h2>
+        <button
+          onClick={() => setShowModal(false)}
+          className="text-gray-500 hover:text-red-600 text-xl font-bold transition"
+        >
+          ✕
+        </button>
+      </div>
 
-              <table className="w-full border border-gray-300 text-sm">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th>No</th>
-                    <th>Nama</th>
-                    <th>Merk</th>
-                    <th>Type</th>
-                    <th>No Seri</th>
-                    <th>Asesoris</th>
-                    <th>Kabel</th>
-                    <th>Tombol</th>
-                    <th>Fungsi</th>
-                    <th>Fisik</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedSurat.barangList.map((b, i) => (
-                    <tr key={i}>
-                      <td>{i + 1}</td>
-                      <td>{b.nama}</td>
-                      <td>{b.merk}</td>
-                      <td>{b.type}</td>
-                      <td>{b.noSeri}</td>
-                      <td>{b.kondisi.accesoris}</td>
-                      <td>{b.kondisi.kabel}</td>
-                      <td>{b.kondisi.tombol}</td>
-                      <td>{b.kondisi.fungsi}</td>
-                      <td>{b.kondisi.fisik}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="p-6 border-t bg-gray-50 flex gap-3">
-              {role === "MANAGER" ? (
-                <>
-                  <button
-                    onClick={() => handleApproval(selectedSurat, "approve")}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    Setujui
-                  </button>
-                  <button
-                    onClick={() => handleApproval(selectedSurat, "reject")}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    Tolak
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => handlePrint(selectedSurat)}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <Printer className="w-4 h-4" />
-                  Print Surat
-                </button>
-              )}
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Tutup
-              </button>
-              </div>
+      {/* Body */}
+      <div className="px-10 py-6 space-y-6">
+        <div>
+          <h3 className="text-sm font-semibold text-gray-600">Nomor Surat</h3>
+          <p className="text-gray-800">{selectedSurat.nomorSurat}</p>
+        </div>
+        {/* Info Surat */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-base">
+          <div>
+            <span className="font-semibold text-gray-700">Tanggal:</span>
+            <p className="text-gray-600 mt-1">{selectedSurat.tanggal}</p>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-700">Keperluan:</span>
+            <p className="text-gray-600 mt-1">{selectedSurat.keperluan}</p>
           </div>
         </div>
-      )}
+
+        {/* Tabel Alat */}
+        <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
+          <table className="min-w-full text-sm text-center border-collapse">
+            <thead className="bg-gray-100 text-gray-700">
+              <tr>
+                <th className="border p-3">No</th>
+                <th className="border p-3">Nama</th>
+                <th className="border p-3">Merk</th>
+                <th className="border p-3">Type</th>
+                <th className="border p-3">No Seri</th>
+                <th className="border p-3">Asesoris</th>
+                <th className="border p-3">Kabel</th>
+                <th className="border p-3">Tombol</th>
+                <th className="border p-3">Fungsi</th>
+                <th className="border p-3">Fisik</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedSurat.barangList.map((b, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="border p-3">{i + 1}</td>
+                  <td className="border p-3">{b.nama}</td>
+                  <td className="border p-3">{b.merk}</td>
+                  <td className="border p-3">{b.type}</td>
+                  <td className="border p-3">{b.noSeri}</td>
+                  <td className="border p-3">{b.kondisi.accesoris}</td>
+                  <td className="border p-3">{b.kondisi.kabel}</td>
+                  <td className="border p-3">{b.kondisi.tombol}</td>
+                  <td className="border p-3">{b.kondisi.fungsi}</td>
+                  <td className="border p-3">{b.kondisi.fisik}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Footer Buttons */}
+      <div className="px-10 py-5 border-t bg-gray-50 flex flex-wrap gap-4 justify-end rounded-b-xl">
+        {role === "MANAJER" ? (
+          <>
+            <button
+              onClick={() => handleApproval(selectedSurat, "approve")}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            >
+              Setujui
+            </button>
+            <button
+              onClick={() => handleApproval(selectedSurat, "reject")}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              Tolak
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => handlePrint(selectedSurat)}
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            <Printer className="w-4 h-4" />
+            Print Surat
+          </button>
+        )}
+
+        <button
+          onClick={() => setShowModal(false)}
+          className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+        >
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

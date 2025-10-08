@@ -35,6 +35,7 @@ export interface FormSuratKeluar {
  }
  
  export interface BarangItem {
+  nomorSurat: string
    nama: string
    merk: string
    type: string
