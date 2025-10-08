@@ -120,161 +120,193 @@ export default function ApprovalSuratAlat() {
         : ``;
     
 
-        printWindow.document.write(`
+        const headerHTML = `
+        <thead>
+          <tr>
+            <td colspan="2">
+              <div style="text-align:center; font-weight:bold; font-size:13pt; margin-bottom:8px;">
+                BERITA ACARA PEMAKAIAN ALAT KALIBRATOR DI LUAR LABORATORIUM
+              </div>
+              <div style="text-align:center; font-weight:bold; font-size:11pt; margin-bottom:16px;">
+                Nomor : ${surat.nomorSurat}
+              </div>
+            </td>
+          </tr>
+        </thead>
+      `;
+    
+      const bodyContentHTML = `
+        <tbody>
+          <tr>
+            <td colspan="2">
+              <div style="font-size:11pt; font-family:'Times New Roman', serif; line-height:1.5; margin:0 0.5cm;">
+    
+                <!-- BAGIAN 1: INFO TANGGAL & KEPERLUAN -->
+                <div style="page-break-inside: avoid; break-inside: avoid;">
+                  <table style="width:100%; border:none; margin-bottom:12px; font-size:10pt;">
+                    <tr>
+                      <td style="width:120px; border:none; text-align:left; padding:4px 0;">1. TANGGAL</td>
+                      <td style="border:none; text-align:left; padding:4px 0;">: ${surat.tanggal}</td>
+                    </tr>
+                    <tr>
+                      <td style="border:none; text-align:left; padding:4px 0;">2. KEPERLUAN</td>
+                      <td style="border:none; text-align:left; padding:4px 0;">: ${surat.keperluan}</td>
+                    </tr>
+                  </table>
+                </div>
+    
+                <!-- BAGIAN 2: TABEL BARANG -->
+                <div style="page-break-inside: avoid; break-inside: avoid;">
+                  <table style="width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:16px;">
+                    <tr>
+                      <th rowspan="2" style="border:1px solid black; padding:4px; width:30px;">NO</th>
+                      <th colspan="4" style="border:1px solid black; padding:4px;">SPESIFIKASI ALAT KALIBRATOR</th>
+                      <th colspan="5" style="border:1px solid black; padding:4px;">KONDISI ALAT KALIBRATOR</th>
+                    </tr>
+                    <tr>
+                      <th style="border:1px solid black; padding:4px; width:150px;">NAMA</th>
+                      <th style="border:1px solid black; padding:4px; width:100px;">MERK</th>
+                      <th style="border:1px solid black; padding:4px; width:100px;">TYPE</th>
+                      <th style="border:1px solid black; padding:4px; width:100px;">NO. SERI</th>
+                      <th style="border:1px solid black; padding:4px; width:80px;">ASESORIS</th>
+                      <th style="border:1px solid black; padding:4px; width:80px;">KABEL</th>
+                      <th style="border:1px solid black; padding:4px; width:80px;">TOMBOL</th>
+                      <th style="border:1px solid black; padding:4px; width:80px;">FUNGSI</th>
+                      <th style="border:1px solid black; padding:4px; width:80px;">FISIK</th>
+                    </tr>
+                    ${surat.barangList
+                      .map(
+                        (b, i) => `
+                        <tr>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${i + 1}</td>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.nama}</td>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.merk}</td>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.type}</td>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.noSeri}</td>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.accesoris}</td>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.kabel}</td>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.tombol}</td>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.fungsi}</td>
+                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.fisik}</td>
+                        </tr>`
+                      )
+                      .join("")}
+                  </table>
+                </div>
+    
+                <!-- BAGIAN 3: TANDA TANGAN -->
+                <div style="page-break-inside: avoid; break-inside: avoid; margin-top:24px;">
+                  <table style="width:100%; border:none; text-align:center; font-size:10pt;">
+                    <tr>
+                      <td style="width:33.33%; border:none; vertical-align:top; padding:5px;">
+                        <div style="font-weight:normal; margin-bottom:3px;">PETUGAS</div>
+                        <div style="height:65px;"></div>
+                        <div style="text-decoration:underline;">________________</div>
+                        <div style="font-weight:bold; margin-top:2px;">TEKNISI</div>
+                      </td>
+                      <td style="width:33.33%; border:none; vertical-align:top; padding:5px;">
+                        <div style="font-weight:normal; margin-bottom:3px;">PEMERIKSA</div>
+                        <div style="height:65px;"></div>
+                        <div style="text-decoration:underline; margin:3px 0;">Muhammad Hanif</div>
+                        <div style="font-weight:bold; margin-top:2px;">ADMIN</div>
+                      </td>
+                      <td style="width:33.33%; border:none; vertical-align:top; padding:5px;">
+                        <div style="font-weight:normal; margin-bottom:3px;">MENGETAHUI</div>
+                        ${manajerTTD}
+                        <div style="text-decoration:underline; margin:3px 0;">Khairul Fahmi</div>
+                        <div style="font-weight:bold; margin-top:2px;">MANAGER TEKNIK</div>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+    
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      `;
+    
+      printWindow.document.write(`
         <html>
-        <head>
-          <title>Berita Acara Pemakaian Alat Kalibrator</title>
-          <style>
-          @page {
-            size: A4 landscape;
-            margin: 20mm;
-          }
-            body { font-family: 'Times New Roman', serif; font-size: 12pt; margin: 40px; }
-            table { border-collapse: collapse; width: 100%; font-size: 11pt; }
-            td, th { border: 1px solid black; padding: 4px; text-align: center; }
-            .no-border td { border: none; }
-            .title { text-align: center; font-weight: bold; font-size: 14pt; margin-bottom: 10px; }
-            
-            .signature-table { 
-              border: none !important; 
-              margin-top: 40px; 
-              width: 100%; 
-            }
-            .signature-table td { 
-              border: none !important; 
-              vertical-align: top; 
-              text-align: center;
-              width: 33.33%;
-              padding: 10px;
-            }
-            .signature-role { 
-              font-weight: normal; 
-              margin-bottom: 5px; 
-              font-size: 11pt;
-            }
-            .signature-space {
-              height: 60px;
-              margin: 5px 0;
-            }
-            .signature-name { 
-              font-weight: normal;
-              text-decoration: underline;
-              margin: 5px 0;
-              font-size: 11pt;
-            }
-            .signature-position { 
-              font-weight: bold; 
-            }
-            .signature-image {
-              width: 180px;
-              height: 60px;
-              display: block;
-              margin: 5px auto;
-              object-fit: contain;
-            }
-
-            @media print {
-              .signature-image {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+          <head>
+            <title>Berita Acara Pemakaian Alat Kalibrator</title>
+            <style>
+              @page {
+                size: A4 landscape;
+                margin: 1.5cm 1cm 1.5cm 1cm;
               }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="title">BERITA ACARA PEMAKAIAN ALAT KALIBRATOR DI LUAR LABORATORIUM</div>
-          <div style="text-align:center; font-weight:bold; margin-bottom:20px;">Nomor : ${surat.nomorSurat}</div>
-          
-          <table style="border:none; margin-bottom:10px;">
-            <tr class="no-border">
-              <td style="text-align:left; width:150px;">1. TANGGAL</td>
-              <td style="text-align:left;">: ${surat.tanggal}</td>
-            </tr>
-            <tr class="no-border">
-              <td style="text-align:left;">2. KEPERLUAN</td>
-              <td style="text-align:left;">: ${surat.keperluan}</td>
-            </tr>
-          </table>
-          
-          <table>
-            <tr>
-              <th rowspan="2">NO</th>
-              <th colspan="4">SPESIFIKASI ALAT KALIBRATOR</th>
-              <th colspan="5">KONDISI ALAT KALIBRATOR</th>
-            </tr>
-            <tr>
-              <th>NAMA</th><th>MERK</th><th>TYPE</th><th>NO. SERI</th>
-              <th>ASESORIS</th><th>KABEL</th><th>TOMBOL</th><th>FUNGSI</th><th>FISIK</th>
-            </tr>
-            ${surat.barangList
-              .map(
-                (b, i) => `
-                <tr>
-                  <td>${i + 1}</td>
-                  <td>${b.nama}</td>
-                  <td>${b.merk}</td>
-                  <td>${b.type}</td>
-                  <td>${b.noSeri}</td>
-                  <td>${b.kondisi.accesoris}</td>
-                  <td>${b.kondisi.kabel}</td>
-                  <td>${b.kondisi.tombol}</td>
-                  <td>${b.kondisi.fungsi}</td>
-                  <td>${b.kondisi.fisik}</td>
-                </tr>`
-              )
-              .join("")}
-          </table>
-          
-          <table class="signature-table">
-            <tr>
-              <td>
-                <div class="signature-role">PETUGAS</div>
-                <div style="height: 83px;"></div>
-                <div style="text-decoration: underline;">________________</div>
-                <div class="signature-position">TEKNISI</div>
-              </td>
-              <td>
-                <div class="signature-role">PEMERIKSA</div>
-                <div style="height: 78px;"></div>
-                <div class="signature-name">Muhammad Hanif</div>
-                <div class="signature-position">ADMIN</div>
-              </td>
-              <td>
-                <div class="signature-role">MENGETAHUI</div>
-                ${manajerTTD}
-                <div class="signature-name">Khairul Fahmi</div>
-                <div class="signature-position">MANAGER TEKNIK</div>
-              </td>
-            </tr>
-          </table>
-          
-          <script>
-          // Tunggu gambar selesai load atau timeout setelah 1 detik
-          function autoPrint() {
-            if (window.imageLoaded || ${surat.statusManajer !== "Disetujui"}) {
-              window.print();
-              setTimeout(() => window.close(), 100);
-            } else {
-              setTimeout(autoPrint, 100);
-            }
-          }
-          
-          // Timeout maksimal 1.5 detik
-          setTimeout(() => {
-            if (!window.imageLoaded) {
-              console.warn('Image load timeout');
-              window.print();
-              setTimeout(() => window.close(), 100);
-            }
-          }, 1500);
-          
-          window.onload = autoPrint;
-        </script>
-        </body>
+    
+              body { 
+                margin: 0; 
+                padding: 0; 
+                font-family: 'Times New Roman', serif;
+              }
+    
+              table { 
+                page-break-inside: auto; 
+                border-collapse: collapse; 
+                width: 100%;
+              }
+    
+              tr { 
+                page-break-inside: avoid; 
+              }
+    
+              thead { 
+                display: table-header-group; 
+              }
+    
+              .signature-image {
+                width: 160px;
+                height: 60px;
+                display: block;
+                margin: 3px auto;
+                object-fit: contain;
+              }
+    
+              @media print {
+                body {
+                  margin: 0;
+                  padding: 0;
+                }
+    
+                .signature-image {
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            <table style="width:100%; border-collapse:collapse;">
+              ${headerHTML}
+              ${bodyContentHTML}
+            </table>
+            <script>
+              const images = Array.from(document.images);
+              let loaded = 0;
+              if (images.length === 0) {
+                window.print();
+                window.close();
+              } else {
+                images.forEach(img => {
+                  img.onload = () => { 
+                    loaded++; 
+                    if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 200); 
+                  };
+                  img.onerror = () => { 
+                    loaded++; 
+                    if (loaded === images.length) setTimeout(() => { window.print(); window.close(); }, 200); 
+                  };
+                });
+              }
+            </script>
+          </body>
         </html>
       `);
+    
       printWindow.document.close();
-            }
+    };
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
