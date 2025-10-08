@@ -2,7 +2,6 @@
 
 import React from "react";
 import MenuSuratKeluar from "./components/SuratKeluarTabs";
-// import Breadcrumbs from "@/components/ui/breadcrumb";
 
 export default function SuratKeluarPage() {
   return (

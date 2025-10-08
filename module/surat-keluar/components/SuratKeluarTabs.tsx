@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { FileText, Package, ArrowLeft, Bookmark } from "lucide-react";
 import SuratTugasForm from "./FormSuratDinasLuar"; 
+import FormSuratKeluarAlat from "./FormSuratKeluarAlat";
 
 interface MenuItem {
   id: string;
@@ -66,10 +67,33 @@ export default function MenuSuratKeluar() {
     );
   };
 
+  const renderSuratAlatWithBackButton = () => {
+    return (
+      <div className="w-full">
+        {/* Back button overlay */}
+        <div className="mb-2 px-2">
+          <button
+            onClick={handleBackToMenu}
+            className="flex items-center gap-2  shadow-lg hover:shadow-xl px-4 py-2 border  bg-gradient-to-br from-black to-gray-900 hover:from-[#d2e67a] hover:to-[#f9fc4f] transition-all duration-300 border-purple-200 rounded-lg text-white hover:text-black"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="font-medium">Kembali ke Menu</span>
+          </button>
+        </div>
+
+        {/* Render komponen SuratTugasForm yang sudah ada */}
+        <FormSuratKeluarAlat /> 
+      </div>
+    );
+  };
 
   // Jika sudah pilih menu surat tugas dinas, tampilkan komponen form
   if (selectedMenu === "surat-tugas-dinas") {
     return renderSuratTugasWithBackButton();
+  }
+
+  if (selectedMenu === "surat-keluar-alat") {
+    return renderSuratAlatWithBackButton();
   }
 
   // Jika sudah pilih menu lain, tampilkan placeholder

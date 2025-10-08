@@ -150,10 +150,29 @@ const RiwayatSurat = () => {
   };
 
   // Hapus surat
-  const handleHapus = (index: number) => {
-    if (confirm("Apakah Anda yakin ingin menghapus surat ini?")) {
-      const newData = suratData.filter((_, i) => i !== index);
-      setSuratData(newData);
+  const handleHapus = async (nomor: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus surat ${nomor}?`)) return;
+
+    try {
+      const res = await fetch(`/api/surat-keluar/delete/${encodeURIComponent(nomor)}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || data.message || "Gagal menghapus surat.");
+        return;
+      }
+
+      setSuratData((prev) => {
+        const updated = prev.filter((item) => item.nomorSurat !== nomor);
+        return updated;
+      });
+      alert(`✅ Surat dengan nomor "${nomor}" berhasil dihapus!`);
+    } catch (error) {
+      console.error("❌ Network error:", error);
+      alert("Terjadi kesalahan jaringan.");
     }
   };
 
@@ -193,123 +212,140 @@ const RiwayatSurat = () => {
         : "";
 
     const headerHTML = `
-      <table class="header-table">
+      <thead>
         <tr>
-          <td class="logo-cell">
-            <img src="/asset/logoahc.png" alt="Logo AHC" class="logo" />
+          <td style="width:80px; text-align:center;">
+            <img src="/asset/logoahc.png" alt="Logo AHC" style="width:90px; height:auto;" />
           </td>
-          <td class="company-info">
-            <div class="company-name">PT. AISHY HEALTH CALIBRATION</div>
-            <div>Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam, Kab. Aceh Besar, Prov. Aceh</div>
-            <div>Telp: 08116834151 - 082267016423 | Email: calibrationaishy@gmail.com</div>
+          <td style="text-align:center; vertical-align:middle; padding-left:0.5cm; padding-right:0.5cm;">
+            <div style="font-size:18pt; font-weight:bold; margin-bottom:6px;">PT. AISHY HEALTH CALIBRATION</div>
+            <div style="font-size:12pt; line-height:1.5; max-width:580px; margin:0 auto;">
+              Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam, Kab. Aceh Besar, Prov. Aceh
+            </div>
+            <div style="font-size:11pt; margin-top:4px; line-height:1.4;">
+              Telp: 08116834151 - 082267016423 | Email: calibrationaishy@gmail.com
+            </div>
           </td>
         </tr>
-      </table>
+        <tr><td colspan="2"><hr style="border:1px solid black; margin-top:4px; margin-bottom:16px;" /></td></tr>
+      </thead>
     `;
 
-    const anggotaHTML = surat.anggota
-      .map(
-        (emp, index) => `
-        <table class="detail-table" style="margin-bottom: 8px;">
-          <tr>
-            <td style="width: 30px;">${index + 1}.</td>
-            <td style="width: 100px;"><strong>Nama</strong></td>
-            <td style="width: 10px;">:</td>
-            <td>${emp.nama}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td><strong>Jabatan</strong></td>
-            <td>:</td>
-            <td>${emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase()}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td><strong>Alamat</strong></td>
-            <td>:</td>
-            <td>${emp.alamat}</td>
-          </tr>
-        </table>
-      `
-      )
-      .join("");
+    const bodyContentHTML = `
+      <tbody>
+        <tr>
+          <td colspan="2">
+            <div style="font-size:13pt; font-family:'Times New Roman', serif; line-height:1.6; text-align:justify; margin:0 1cm 1cm 0.6cm;">
 
-    const contentHTML = `
-      <div class="letter-content">
-        ${headerHTML}
-        <div class="text-center mb-3">
-          <div class="font-bold underline" style="font-size: 16pt;">SURAT TUGAS PERJALANAN DINAS</div>
-          <div class="font-bold" style="margin-top: 8px;">Nomor : ${surat.nomorSurat}</div>
-        </div>
+              <!-- BAGIAN 1: DAFTAR ANGGOTA -->
+              <div style="page-break-inside: avoid; break-inside: avoid;">
+                <div style="text-align:center; font-weight:bold; font-size:16pt; margin-bottom:8px;">SURAT TUGAS PERJALANAN DINAS</div>
+                <div style="text-align:center; font-weight:bold; margin-bottom:12px;">Nomor : ${surat.nomorSurat}</div>
 
-        <div style="text-align: justify; margin-top: 12px; line-height: 1.6;">
-          <p style="margin-bottom: 8px;">Dengan ini memberikan tugas kepada:</p>
-          ${anggotaHTML}
-          <p style="margin: 12px 0;">
-            Untuk melaksanakan tugas perjalanan dinas ke wilayah kerja 
-            <strong>${surat.wilayah}</strong>, dengan ketentuan sebagai berikut:
-          </p>
-          <div style="margin: 6px 0; line-height: 1.5; padding-left: 15px;">
-            <p style="margin: 3px 0;">Berangkat     : ${formatDate(surat.tanggalBerangkat)}</p>
-            <p style="margin: 3px 0;">Jam Berangkat : ${surat.jamBerangkat}</p>
-            <p style="margin: 3px 0;">Kendaraan     : ${surat.kendaraan}</p>
-            <p style="margin: 3px 0;">Akomodasi     : ${surat.akomodasi}</p>
-            <p style="margin: 3px 0;">Agenda        : ${surat.keterangan}</p>
-          </div>
+                <p style="margin-top:24px; margin-bottom:12px;">Dengan ini memberikan tugas kepada:</p>
+                ${surat.anggota.map((emp, index) => `
+                  <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                    <tr>
+                      <td style="width:30px; vertical-align:top;">${index + 1}.</td>
+                      <td style="width:100px;"><strong>Nama</strong></td>
+                      <td>:</td>
+                      <td>${emp.nama}</td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td><strong>Jabatan</strong></td>
+                      <td>:</td>
+                      <td>${emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase()}</td>
+                    </tr>
+                    <tr>
+                      <td></td>
+                      <td><strong>Alamat</strong></td>
+                      <td>:</td>
+                      <td>${emp.alamat}</td>
+                    </tr>
+                  </table>
+                `).join('')}
+              </div>
 
-          <p style="margin: 12px 0; text-indent: 40px;">
-            Demikian Surat Perintah Tugas ini dibuat dan dapat dilaksanakan dengan baik. Atas kerjasamanya saya ucapkan terima kasih.
-          </p>
-
-          <table style="width: 100%; margin-top: 20px;">
-            <tr>
-              <td style="text-align: center; vertical-align: top; width: 50%;">
-                <div>Lhokseumawe, ${getCurrentDate()}</div>
-                <div class="font-bold" style="margin-top: 8px;">PT. Aishy Health Calibration</div>
-                <div class="signature-space">${admTTD}
-                  <div><strong>Keuangan</strong><br />
-                    <div style="margin-top: 4px;">Muhammad Iqbal</div>
-                  </div>
+              <!-- BAGIAN 2: DETAIL PERJALANAN -->
+              <div style="page-break-inside: avoid; break-inside: avoid;">
+                <p style="margin:16px 0 8px 0; text-indent:2em;">
+                  Untuk melaksanakan tugas perjalanan dinas ke wilayah kerja <strong>${surat.wilayah}</strong>, dengan ketentuan sebagai berikut:
+                </p>
+                <div style="padding-left:2em; line-height:1.4; margin-bottom:12px;">
+                  <p>Berangkat     : ${formatDate(surat.tanggalBerangkat)}</p>
+                  <p>Jam Berangkat : ${surat.jamBerangkat}</p>
+                  <p>Kendaraan     : ${surat.kendaraan}</p>
+                  <p>Akomodasi     : ${surat.akomodasi}</p>
+                  <p>Agenda        : ${surat.keterangan || '-'}</p>
                 </div>
-              </td>
-              <td style="text-align: center; vertical-align: top; width: 50%;">
-                <div class="signature-space" style="margin-top: 30px;">${ownerTTD}
-                  <div><strong>Owner</strong><br />
-                    <div style="margin-top: 4px;">Bpk. Zulfikar S.Kep, M.Kes</div>
-                  </div>
+              </div>
+
+              <!-- BAGIAN 3: DEMIKIAN + TTD -->
+              <div style="page-break-inside: avoid; break-inside: avoid;">
+                <p style="margin:16px 0; text-indent:2em;">
+                  Demikian Surat Perintah Tugas ini dibuat dan dapat dilaksanakan dengan baik. Atas kerjasamanya saya ucapkan terima kasih.
+                </p>
+
+                <div style="margin-top:24px; font-family:'Times New Roman', serif;">
+                  <table style="width:100%; border-collapse:collapse; text-align:center;">
+                    <tr>
+                      <td style="width:50%; vertical-align:top;">
+                        <div>Lhokseumawe, ${getCurrentDate()}</div>
+                        <div style="font-weight:bold; margin-top:4px;">PT. Aishy Health Calibration</div>
+                        <div class="signature-space" style="margin-top:12px;">
+                          ${admTTD}
+                          <div><strong>Keuangan</strong><br />Muhammad Iqbal</div>
+                        </div>
+                      </td>
+                      <td style="width:50%; vertical-align:top;">
+                        <div class="signature-space" style="margin-top:20px;">
+                          ${ownerTTD}
+                          <div><strong>Owner</strong><br />Bpk. Zulfikar S.Kep, M.Kes</div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
-              </td>
-            </tr>
-          </table>
-        </div>
-      </div>
+              </div>
+
+            </div>
+          </td>
+        </tr>
+      </tbody>
     `;
+
 
     printWindow.document.write(`
       <html>
         <head>
-          <title>Surat Tugas Perjalanan Dinas - ${surat.nomorSurat}</title>
+          <title>Surat Tugas - ${surat.nomorSurat}</title>
           <style>
-            body { font-family: 'Times New Roman', serif; margin: 15mm; font-size: 12.5pt; line-height: 1.6; }
-            .letter-content { max-width: 190mm; margin: 0 auto; }
-            .header-table { width: 100%; margin-bottom: 10px; border-bottom: 3px solid black; padding-bottom: 6px; }
-            .logo-cell { width: 80px; text-align: center; }
-            .logo { width: 70px; height: auto; }
-            .company-info { text-align: center; vertical-align: middle; }
-            .company-name { font-size: 17pt; font-weight: bold; }
-            table { width: 100%; border-collapse: collapse; }
-            .detail-table td { padding: 4px 6px; vertical-align: top; }
-            .text-center { text-align: center; }
-            .font-bold { font-weight: bold; }
-            .underline { text-decoration: underline; }
-            .mb-3 { margin-bottom: 12px; }
-            .signature-space { margin-bottom: 60px; }
-            @media print { body { margin: 0; } }
-          </style>
+          @page {
+            margin: 1.5cm 1cm 2cm 1cm; /* top, right, bottom, left */
+          }
+
+          @media print {
+            body { 
+              margin: 0; 
+              padding: 0; 
+              font-family: 'Times New Roman', serif;
+            }
+            table { 
+              page-break-inside: auto; 
+              border-collapse: collapse; 
+              width: 100%;
+            }
+            tr { page-break-inside: avoid; }
+            thead { display: table-header-group; }
+          }
+        </style>
         </head>
         <body>
-          ${contentHTML}
-
+          <table style="width:100%; border-collapse:collapse;">
+            ${headerHTML}
+            ${bodyContentHTML}
+          </table>
           <script>
             const images = Array.from(document.images);
             let loaded = 0;
@@ -326,8 +362,12 @@ const RiwayatSurat = () => {
         </body>
       </html>
     `);
+
     printWindow.document.close();
   };
+
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
@@ -409,7 +449,7 @@ const RiwayatSurat = () => {
                       <td className="px-6 py-4 flex gap-2">
                         <button onClick={() => handleLihatDetail(item)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Eye className="w-5 h-5" /></button>
                         <button onClick={() => handlePrint(item)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"><Printer className="w-5 h-5" /></button>
-                        <button onClick={() => handleHapus(index)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-5 h-5" /></button>
+                        <button onClick={() => handleHapus(item.nomorSurat)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-5 h-5" /></button>
                       </td>
                     </tr>
                   ))
