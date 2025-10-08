@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card'
 import type { FormSuratKeluar } from '@/lib/types/suratkeluar'
 import type { Employee } from '@/lib/types/suratkeluar'
 import { useAuth } from "@/context/authContext";
+import { useRouter } from "next/navigation";
 
 export default function SuratTugasForm() {
   const { user } = useAuth();
@@ -28,9 +29,10 @@ export default function SuratTugasForm() {
     createdAt: '',
   })
 
-    const [employees, setEmployees] = useState<Employee[]>([])
-    const [employeeOptions, setEmployeeOptions] = useState<Employee[]>([])
-    const [emplocationOptions, setlocationOptions] = useState<[]>([])
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [employeeOptions, setEmployeeOptions] = useState<Employee[]>([])
+  const [emplocationOptions, setlocationOptions] = useState<[]>([])
+  const router = useRouter();
 
     useEffect(() => {
       const fetchData = async () => {
@@ -61,6 +63,10 @@ export default function SuratTugasForm() {
         { id_karyawan: '', nama: '', jabatan: '', alamat: '' } 
       ])
     }
+    
+    const removeEmployee = (index: number) => {
+      setEmployees((prev) => prev.filter((_, i) => i !== index));
+    };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -106,41 +112,43 @@ export default function SuratTugasForm() {
     }))
   }
 
- const handleSubmit = async () => {
-    const newSurat = {
-      ...formData,
-      employees,
-      pembuatSuratId: user?.customId,
-      statusOwner: "Pending",
-      statusAdm: "Pending",
-      createdAt: new Date().toISOString(),
-    };
-
-    console.log("📦 Payload yang dikirim ke server:", newSurat);
-
-    try {
-      const res = await fetch("/api/surat-keluar/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newSurat),
-      });
-
-      const result = await res.json();
-
-      console.log("📬 Status HTTP:", res.status);
-      console.log("📨 Response dari server:", result);
-
-      if (!res.ok) {
-        alert(`❌ Gagal submit surat: ${result.error || res.statusText}`);
-        return;
-      }
-
-      alert("✅ Surat tugas berhasil dikirim ke server!");
-    } catch (err) {
-      console.error("🔥 Error kirim surat:", err);
-      alert("❌ Gagal mengirim surat tugas. Silakan coba lagi.");
-    }
+const handleSubmit = async () => {
+  const newSurat = {
+    ...formData,
+    employees,
+    pembuatSuratId: user?.customId,
+    statusOwner: "Pending",
+    statusAdm: "Pending",
+    createdAt: new Date().toISOString(),
   };
+
+  console.log("📦 Payload yang dikirim ke server:", newSurat);
+
+  try {
+    const res = await fetch("/api/surat-keluar/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newSurat),
+    });
+
+    const result = await res.json();
+
+    console.log("📬 Status HTTP:", res.status);
+    console.log("📨 Response dari server:", result);
+
+    if (!res.ok) {
+      alert(`❌ Gagal submit surat: ${result.error || res.statusText}`);
+      return;
+    }
+
+    alert(`✅ Surat ${formData.nomorSurat || "(tanpa nomor)"} berhasil dibuat!`);
+
+    router.push("/surat_keluar/approval_surat");
+  } catch (err) {
+    console.error("🔥 Error kirim surat:", err);
+    alert("❌ Gagal mengirim surat tugas. Silakan coba lagi.");
+  }
+};
   
 
   const getCurrentDate = () => {
@@ -202,70 +210,81 @@ export default function SuratTugasForm() {
 
               {/* Data Pegawai */}
               {employees.map((emp, index) => (
-              <div key={index} className="mb-4 border-b pb-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  {/* Nama Pegawai */}
-                  <div className="relative">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nama Pegawai
-                    </label>
-                    <input
-                      type="text"
-                      value={emp.nama}
-                      onChange={(e) => {
-                        const val = e.target.value
-                        handleEmployeeChange(index, "nama", val)
-                        setShowSuggestions((prev) => {
-                          const copy = [...prev]
-                          copy[index] = !!val.trim()
-                          return copy
-                        })
+                <div key={index} className="mb-4 border-b pb-4 relative">
+                  {/* Tombol Hapus Pegawai */}
+                  <button
+                    type="button"
+                    onClick={() => removeEmployee(index)}
+                    className="absolute top-0 right-0 text-red-500 hover:text-red-700 transition"
+                    title="Hapus pegawai ini"
+                  >
+                    −
+                  </button>
 
-                        if (!val.trim()) {
-                          handleEmployeeChange(index, "jabatan", "")
-                          handleEmployeeChange(index, "alamat", "")
-                        } else {
-                          const match = employeeOptions.find(
-                            (opt) => opt.nama.toLowerCase() === val.toLowerCase()
-                          )
-                          if (!match) {
-                            handleEmployeeChange(index, "jabatan", "")
-                            handleEmployeeChange(index, "alamat", "")
+                  <div className="grid md:grid-cols-2 gap-4 mt-2">
+                    {/* Nama Pegawai */}
+                    <div className="relative">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Nama Pegawai
+                      </label>
+                      <input
+                        type="text"
+                        value={emp.nama}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          handleEmployeeChange(index, "nama", val);
+                          setShowSuggestions((prev) => {
+                            const copy = [...prev];
+                            copy[index] = !!val.trim();
+                            return copy;
+                          });
+
+                          if (!val.trim()) {
+                            handleEmployeeChange(index, "jabatan", "");
+                            handleEmployeeChange(index, "alamat", "");
+                          } else {
+                            const match = employeeOptions.find(
+                              (opt) => opt.nama.toLowerCase() === val.toLowerCase()
+                            );
+                            if (!match) {
+                              handleEmployeeChange(index, "jabatan", "");
+                              handleEmployeeChange(index, "alamat", "");
+                            }
                           }
-                        }
-                      }}
-                      className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg"
-                      placeholder="Ketik nama pegawai..."
-                    />
-                    {/* Dropdown suggestion */}
-                    {showSuggestions[index] && emp.nama && (
-                      <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-auto">
-                        {employeeOptions
-                          .filter((opt) =>
-                            opt.nama.toLowerCase().includes(emp.nama.toLowerCase())
-                          )
-                          .map((opt, i) => (
-                            <li
-                              key={i}
-                              onClick={() => {
-                                handleEmployeeChange(index, "id_karyawan", opt.id_karyawan)
-                                handleEmployeeChange(index, "nama", opt.nama)
-                                handleEmployeeChange(index, "jabatan", opt.jabatan)
-                                handleEmployeeChange(index, "alamat", opt.alamat)
-                                setShowSuggestions((prev) => {
-                                  const copy = [...prev]
-                                  copy[index] = false
-                                  return copy
-                                })
-                              }}
-                              className="px-4 py-2 cursor-pointer hover:bg-blue-100"
-                            >
-                              {opt.nama}
-                            </li>
-                          ))}
-                      </ul>
-                    )}
-                  </div>
+                        }}
+                        className="w-full px-4 py-3 border text-gray-900 border-gray-300 rounded-lg"
+                        placeholder="Ketik nama pegawai..."
+                      />
+
+                      {/* Dropdown suggestion */}
+                      {showSuggestions[index] && emp.nama && (
+                        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-auto">
+                          {employeeOptions
+                            .filter((opt) =>
+                              opt.nama.toLowerCase().includes(emp.nama.toLowerCase())
+                            )
+                            .map((opt, i) => (
+                              <li
+                                key={i}
+                                onClick={() => {
+                                  handleEmployeeChange(index, "id_karyawan", opt.id_karyawan);
+                                  handleEmployeeChange(index, "nama", opt.nama);
+                                  handleEmployeeChange(index, "jabatan", opt.jabatan);
+                                  handleEmployeeChange(index, "alamat", opt.alamat);
+                                  setShowSuggestions((prev) => {
+                                    const copy = [...prev];
+                                    copy[index] = false;
+                                    return copy;
+                                  });
+                                }}
+                                className="px-4 py-2 cursor-pointer hover:bg-blue-100"
+                              >
+                                {opt.nama}
+                              </li>
+                            ))}
+                        </ul>
+                      )}
+                    </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -274,10 +293,14 @@ export default function SuratTugasForm() {
                       <input
                         type="text"
                         name="jabatan"
-                        value={emp.jabatan ? emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase() : ""}
+                        value={
+                          emp.jabatan
+                            ? emp.jabatan.charAt(0).toUpperCase() +
+                              emp.jabatan.slice(1).toLowerCase()
+                            : ""
+                        }
                         readOnly
-                        className="w-full px-4 py-3 border text-gray-900 border-gray-200 bg-gray-100 
-                                  rounded-lg focus:outline-none"
+                        className="w-full px-4 py-3 border text-gray-900 border-gray-200 bg-gray-100 rounded-lg focus:outline-none"
                       />
                     </div>
                   </div>
@@ -291,8 +314,7 @@ export default function SuratTugasForm() {
                       value={emp.alamat}
                       readOnly
                       rows={3}
-                      className="w-full px-4 py-3 border text-gray-900 border-gray-200 bg-gray-100 
-                                rounded-lg resize-none focus:outline-none"
+                      className="w-full px-4 py-3 border text-gray-900 border-gray-200 bg-gray-100 rounded-lg resize-none focus:outline-none"
                     />
                   </div>
                 </div>
@@ -451,31 +473,31 @@ export default function SuratTugasForm() {
               <div className="text-justify text-gray-900 leading-relaxed">
                 <p className="mb-6">Dengan ini memberikan tugas kepada:</p>
                 {employees.map((emp, index) => (
-        <div key={index} className="mb-6">
-          <table className="w-full">
-            <tbody>
-              <tr>
-                <td className=" p-2 w-8">{index + 1}.</td>
-                <td className="p-2 w-24 font-medium">Nama</td>
-                <td className="p-2 w-4">:</td>
-                <td className="p-2">{emp.nama || '...............................'}</td>
-              </tr>
-              <tr>
-                <td className=" p-2"></td>
-                <td className="p-2 font-medium">Jabatan</td>
-                <td className="p-2">:</td>
-                <td className="p-2">{emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase() || '...............................'}</td>
-              </tr>
-              <tr>
-                <td className="p-2"></td>
-                <td className="p-2 font-medium">Alamat</td>
-                <td className="p-2">:</td>
-                <td className="p-2">{emp.alamat || '...............................'}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      ))}
+                  <div key={index} className="mb-6">
+                    <table className="w-full">
+                      <tbody>
+                        <tr>
+                          <td className=" p-2 w-8">{index + 1}.</td>
+                          <td className="p-2 w-24 font-medium">Nama</td>
+                          <td className="p-2 w-4">:</td>
+                          <td className="p-2">{emp.nama || '...............................'}</td>
+                        </tr>
+                        <tr>
+                          <td className=" p-2"></td>
+                          <td className="p-2 font-medium">Jabatan</td>
+                          <td className="p-2">:</td>
+                          <td className="p-2">{emp.jabatan.charAt(0).toUpperCase() + emp.jabatan.slice(1).toLowerCase() || '...............................'}</td>
+                        </tr>
+                        <tr>
+                          <td className="p-2"></td>
+                          <td className="p-2 font-medium">Alamat</td>
+                          <td className="p-2">:</td>
+                          <td className="p-2">{emp.alamat || '...............................'}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
 
                 <p className="mb-6">
                   Untuk dapat melaksanakan tugas perjalanan dinas ke wilayah kerja{' '}

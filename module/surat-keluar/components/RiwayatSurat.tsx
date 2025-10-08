@@ -150,10 +150,29 @@ const RiwayatSurat = () => {
   };
 
   // Hapus surat
-  const handleHapus = (index: number) => {
-    if (confirm("Apakah Anda yakin ingin menghapus surat ini?")) {
-      const newData = suratData.filter((_, i) => i !== index);
-      setSuratData(newData);
+  const handleHapus = async (nomor: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus surat ${nomor}?`)) return;
+
+    try {
+      const res = await fetch(`/api/surat-keluar/delete/${encodeURIComponent(nomor)}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || data.message || "Gagal menghapus surat.");
+        return;
+      }
+
+      setSuratData((prev) => {
+        const updated = prev.filter((item) => item.nomorSurat !== nomor);
+        return updated;
+      });
+      alert(`✅ Surat dengan nomor "${nomor}" berhasil dihapus!`);
+    } catch (error) {
+      console.error("❌ Network error:", error);
+      alert("Terjadi kesalahan jaringan.");
     }
   };
 
@@ -192,18 +211,16 @@ const RiwayatSurat = () => {
         ? `<img src="/TTD/adm.jpg" style="width:150px;height:80px;" />`
         : "";
 
-    // Header dalam <thead> untuk otomatis ulang di tiap halaman
     const headerHTML = `
       <thead>
         <tr>
           <td style="width:80px; text-align:center;">
-            <img src="/asset/logoahc.png" alt="Logo AHC" style="width:80px; height:auto;" />
+            <img src="/asset/logoahc.png" alt="Logo AHC" style="width:90px; height:auto;" />
           </td>
           <td style="text-align:center; vertical-align:middle; padding-left:0.5cm; padding-right:0.5cm;">
             <div style="font-size:18pt; font-weight:bold; margin-bottom:6px;">PT. AISHY HEALTH CALIBRATION</div>
-            <div style="font-size:12pt; line-height:1.5; max-width:460px; margin:0 auto;">
-              Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam,<br />
-              Kab. Aceh Besar, Prov. Aceh
+            <div style="font-size:12pt; line-height:1.5; max-width:580px; margin:0 auto;">
+              Dusun Lamprada No.1.A, Lr. Lamkuta Desa Kajhu, Kec. Baitussalam, Kab. Aceh Besar, Prov. Aceh
             </div>
             <div style="font-size:11pt; margin-top:4px; line-height:1.4;">
               Telp: 08116834151 - 082267016423 | Email: calibrationaishy@gmail.com
@@ -214,7 +231,6 @@ const RiwayatSurat = () => {
       </thead>
     `;
 
-    // Konten
     const bodyContentHTML = `
       <tbody>
         <tr>
@@ -433,7 +449,7 @@ const RiwayatSurat = () => {
                       <td className="px-6 py-4 flex gap-2">
                         <button onClick={() => handleLihatDetail(item)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Eye className="w-5 h-5" /></button>
                         <button onClick={() => handlePrint(item)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"><Printer className="w-5 h-5" /></button>
-                        <button onClick={() => handleHapus(index)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-5 h-5" /></button>
+                        <button onClick={() => handleHapus(item.nomorSurat)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-5 h-5" /></button>
                       </td>
                     </tr>
                   ))
