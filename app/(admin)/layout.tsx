@@ -3,20 +3,19 @@
 import { useEffect, useState } from "react";
 import AppSidebar from "@/module/dashboard/components/AppSidebar";
 import { DashboardHeader } from "@/module/dashboard/components/DashboardHeader";
-import { useSession } from "next-auth/react";
-import { Role } from "@/lib/types/auth";
+import { UserRole } from "@/lib/types/user";
+import { useAuth } from "@/context/authContext";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session } = useSession();
-  const role: Role = (session?.user?.role as Role) || "admin";
+  const { user, isAuthenticated, isLoading } = useAuth(); 
+  const role: UserRole = (user?.role as UserRole) || "ADMIN"; 
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
-    // Sembunyikan sidebar jika lebar layar < 1024px (mobile/tablet)
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
@@ -25,6 +24,15 @@ export default function AdminLayout({
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
+
+  // Kalau belum login, redirect ke login
+  if (!isLoading && !isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-600">Redirecting to login...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-full bg-gray-50 overflow-hidden relative">

@@ -71,4 +71,8 @@ Supabase CLI
 at-absensi
 
 /src/data/*
+<<<<<<< HEAD
 !/src/data/menu-items.ts
+=======
+!/src/data/menu-items.ts
+>>>>>>> f4e87b55cf2106cd40c7c6bd504b72186bfed375
