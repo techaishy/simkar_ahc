@@ -4,6 +4,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { KondisiKalibrator, BarangItem } from '@/lib/types/suratkeluar'
+import AlertMessage from "@/components/ui/alert"
 
 export default function FormSuratKeluarAlat() {
   const router = useRouter()
@@ -38,6 +39,12 @@ export default function FormSuratKeluarAlat() {
     ])
   }
 
+  const [alertData, setAlertData] = useState({
+    show: false,
+    type: "success" as "success" | "error" | "info" | "warning",
+    message: ""
+  })
+  
   const generateNomorSurat = () => {
     const today = new Date()
     const year = today.getFullYear()
@@ -97,21 +104,41 @@ export default function FormSuratKeluarAlat() {
       existing.push(newSurat)
       localStorage.setItem('surat_alat', JSON.stringify(existing))
 
-      alert('✅ Surat keluar alat berhasil disimpan!')
-      router.push('/approval-surat-alat')
+      setAlertData({
+        show: true,
+        type: "success",
+        message: "Surat keluar alat berhasil disimpan!"
+      })
+
+      setTimeout(() => {
+      }, 2000)
     } catch (err) {
       console.error('🔥 Error kirim surat:', err)
-      alert('❌ Gagal mengirim surat. Silakan coba lagi.')
+      setAlertData({
+        show: true,
+        type: "error",
+        message: "Gagal mengirim surat. Silakan coba lagi."
+      })
     } finally {
       setLoading(false)
     }
   }
 
   return (
+<>
+    <AlertMessage
+    type={alertData.type}
+    message={alertData.message}
+    show={alertData.show}
+    onClose={() => setAlertData({ ...alertData, show: false })}
+  />
     <div className="p-4 sm:p-6 space-y-6">
+  
+      
       <h1 className="text-lg sm:text-xl font-bold text-center sm:text-left">
         SURAT SERAH TERIMA ALAT KALIBRATOR
       </h1>
+     
 
       {/* Nomor Surat */}
       <div>
@@ -283,5 +310,7 @@ export default function FormSuratKeluarAlat() {
         </button>
       </div>
     </div>
+
+    </>
   )
 }

@@ -1,12 +1,13 @@
 'use client'
 
 import React,  { useState, useEffect }  from 'react'
-import { Printer, Download, User, MapPin, Calendar, Clock, Car } from 'lucide-react'
+import { Download, User, MapPin } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import type { FormSuratKeluar } from '@/lib/types/suratkeluar'
 import type { Employee } from '@/lib/types/suratkeluar'
 import { useAuth } from "@/context/authContext";
 import { useRouter } from "next/navigation";
+import AlertMessage from "@/components/ui/alert"
 
 export default function SuratTugasForm() {
   const { user } = useAuth();
@@ -34,6 +35,11 @@ export default function SuratTugasForm() {
   const [emplocationOptions, setlocationOptions] = useState<[]>([])
   const router = useRouter();
 
+  const [alertData, setAlertData] = useState<{
+    type: "success" | "error" | null
+    message: string
+  }>({ type: null, message: "" })
+
     useEffect(() => {
       const fetchData = async () => {
         try {
@@ -48,6 +54,9 @@ export default function SuratTugasForm() {
       fetchData()
     }, [])
 
+    const handleCloseAlert = () => {
+      setAlertData({ type: null, message: "" })
+    }
 
     const handleEmployeeChange = (index:  number, field: keyof Employee, value: string) => {
     setEmployees(prev => {
@@ -131,22 +140,38 @@ const handleSubmit = async () => {
       body: JSON.stringify(newSurat),
     });
 
-    const result = await res.json();
+    const result = await res.json()
 
     console.log("📬 Status HTTP:", res.status);
     console.log("📨 Response dari server:", result);
 
     if (!res.ok) {
-      alert(`❌ Gagal submit surat: ${result.error || res.statusText}`);
-      return;
-    }
+              setAlertData({
+          type: "error",
+          message: result.error || "Gagal membuat surat. Coba lagi nanti.",
+        })
+        setTimeout(handleCloseAlert, 4000)
+        return
+      }
 
-    alert(`✅ Surat ${formData.nomorSurat || "(tanpa nomor)"} berhasil dibuat!`);
+      setAlertData({
+        type: "success",
+        message: `Surat ${formData.nomorSurat || "(tanpa nomor)"} berhasil dibuat!`,
+      });
 
-    router.push("/surat_keluar/approval_surat");
+      setTimeout(() => {
+        handleCloseAlert()
+        router.push("/surat_keluar/approval_surat");
+      }, 2000);
+
   } catch (err) {
     console.error("🔥 Error kirim surat:", err);
-    alert("❌ Gagal mengirim surat tugas. Silakan coba lagi.");
+    setAlertData({
+      type: "error",
+      message: "Terjadi kesalahan server. Silakan coba lagi.",
+    });
+
+    setTimeout(() => setAlertData({ type: null, message: "" }), 4000);
   }
 };
   
@@ -172,6 +197,16 @@ const handleSubmit = async () => {
           </h1>
           <p className="text-gray-600">PT. Aishy Health Calibration</p>
         </div>
+       {alertData.type && (
+          <div className="mb-6">
+            <AlertMessage
+              type={alertData.type}
+              message={alertData.message}
+              show={true}
+              onClose={handleCloseAlert}
+            />
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Form Section */}
