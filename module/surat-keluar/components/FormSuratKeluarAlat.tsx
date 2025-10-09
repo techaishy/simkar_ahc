@@ -98,7 +98,7 @@ export default function FormSuratKeluarAlat() {
       localStorage.setItem('surat_alat', JSON.stringify(existing))
 
       alert('✅ Surat keluar alat berhasil disimpan!')
-      router.push('/approval-surat-alat')
+      router.push('/surat-keluar/approval-surat-alat')
     } catch (err) {
       console.error('🔥 Error kirim surat:', err)
       alert('❌ Gagal mengirim surat. Silakan coba lagi.')
