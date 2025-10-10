@@ -1,15 +1,6 @@
 import { MapPin, Building2, ArrowRight, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-interface KotaWilayah {
-  id: string;
-  nama: string;
-  deskripsi: string;
-  jumlahPuskesmas: number;
-  jumlahRS: number;
-  populasi: string;
-  image?: string;
-}
+import { KotaWilayah } from '@/lib/types/satuankerja';
 
 export default function ListDaerah() {
   const router = useRouter();
@@ -66,14 +57,15 @@ export default function ListDaerah() {
   ];
 
   const handleNavigate = (kotaId: string) => {
-    router.push(`/satuan_kerja/wilayah_kerja/${kotaId}`);
+    router.push(`/satuan_kerja/${kotaId}`);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-4 pt-0">
+    
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <div className="bg-white rounded-2xl shadow-xl p-2 pt-0 mb-8">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
               <MapPin className="w-8 h-8 text-white" />
