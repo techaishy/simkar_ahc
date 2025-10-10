@@ -22,7 +22,7 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
   {
     name: 'Dashboard',
-    href: '/admin/dashboard',
+    href: '/dashboard',
     icon: IconDashboard,
     allowedRoles: ['ADMIN', 'OWNER', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN']
   },
@@ -86,18 +86,18 @@ export const menuItems: MenuItem[] = [
   },
   {
     name: 'Satuan Kerja',
-    href: '/admin/satuan_kerja',
+    href: '/satuan_kerja',
     icon: BuildingOfficeIcon,
     items: [
       {
         name: 'Wilayah Kerja',
-        href: '/admin/satuan_kerja/wilayah',
+        href: '/satuan_kerja',
         icon: BuildingOfficeIcon,
         allowedRoles: ['ADMIN', 'MANAJER']
       },
       {
         name: 'Data Alat',
-        href: '/admin/satuan_kerja/data_alat',
+        href: '/satuan_kerja/data_alat',
         icon: BuildingOfficeIcon,
         allowedRoles: ['ADMIN', 'MANAJER']
       }
