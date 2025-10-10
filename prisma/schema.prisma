@@ -61,6 +61,7 @@ model User {
   surat_tugas_dibuat     SuratTugas[] @relation("PembuatSurat")
   surat_tugas_disetujui_admin SuratTugas[] @relation("ApprovalAdmin")
   surat_tugas_disetujui_owner SuratTugas[] @relation("ApprovalOwner")
+  suratKeluarAlat  SuratKeluarAlat[] @relation("UserPembuat")
 
   @@map("users")
 }
@@ -201,7 +202,7 @@ model AlatKalibrator {
   // Relations
   kalibrasi           Kalibrasi[]
   aksesoris           AlatSparepart[]
-  units              AlatKalibratorUnit[]
+  units               AlatKalibratorUnit[]
   @@map("AlatKalibrator")
 }
 
@@ -257,15 +258,17 @@ model AlatSparepart {
 model AlatKalibratorUnit {
   id        String   @id @default(uuid()) @db.Uuid
   alat_id   String   @db.Uuid
-  kondisi   String   @default("tersedia")
+  kondisi   String   @default("Baik")
   kode_unit String?  @unique
+  status    StatusAlat @default(TERSEDIA)
   nomor_seri String?
   created_at DateTime @default(now()) @db.Timestamptz(6)
   updated_at DateTime @updatedAt @db.Timestamptz(6)
 
   // Relations
   AlatKalibrator AlatKalibrator @relation(fields: [alat_id], references: [id], onDelete: Cascade)
-
+  suratItems      SuratKeluarAlatItem[]
+  
   @@map("AlatKalibratorUnit")
 }
 
@@ -333,6 +336,39 @@ model SuratTugasLokasi {
   @@map("surat_tugas_lokasi")
 }
 
+model SuratKeluarAlat {
+  id              String            @id @default(cuid())
+  nomor_surat     String            @unique
+  tanggal         DateTime
+  keperluan       String
+  statusManajer   ApprovalStatus    @default(PENDING)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  pembuatId       String
+  pembuat         User              @relation("UserPembuat", fields: [pembuatId], references: [customId])
+
+  // Relasi ke daftar barang
+  barangList      SuratKeluarAlatItem[]
+
+  @@map("surat_keluar_alat")
+}
+
+model SuratKeluarAlatItem {
+  id              String             @id @default(cuid())
+  suratId         String
+  unitId          String
+  kondisiAccesoris String
+  kondisiKabel     kondisiAlat?
+  kondisiTombol    kondisiAlat?
+  kondisiFungsi    kondisiAlat?
+  kondisiFisik     kondisiAlat?
+
+  surat           SuratKeluarAlat    @relation(fields: [suratId], references: [id])
+  unit            AlatKalibratorUnit @relation( fields: [unitId], references: [kode_unit])
+
+  @@map("surat_keluar_alat_item")
+}
+
 enum Role {
   ADMIN
   OWNER
@@ -381,4 +417,16 @@ enum ApprovalStatus {
   PENDING
   DISETUJUI
   DITOLAK
+}
+
+enum kondisiAlat {
+  BAIK
+  RUSAK
+  KURANG
+}
+
+enum StatusAlat {
+  DIGUNAKAN
+  TERSEDIA
+  DIKALIBRASI
 }
