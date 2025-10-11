@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse, NextRequest } from 'next/server';
 import { requireAuth, AuthPayload } from "@/lib/requestaAuth";
+import { StatusAlat } from '@prisma/client';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const auth = requireAuth(req);
@@ -15,20 +16,27 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   try {
     const alatList = await prisma.alatKalibrator.findMany({
-    select: {
-      id: true,
-      merk: true,
-      type: true,
-      nama_alat: true,
-      units: {   
-        select: {
-          nomor_seri: true,
-          kode_unit: true,
-          kondisi: true,
+      where: { 
+        jumlah: { not: 0 },
+        units: {
+          some: { status: StatusAlat.TERSEDIA }, 
+        },
+      },
+      select: { 
+        id: true,
+        merk: true,
+        type: true,
+        nama_alat: true,
+        units: {   
+          where:{ status: StatusAlat.TERSEDIA }, 
+          select: {
+            nomor_seri: true,
+            kode_unit: true,
+            kondisi: true,
+          }
         }
       }
-    }
-  });
+    });
 
     return NextResponse.json({ alat: alatList });
   } catch (error) {

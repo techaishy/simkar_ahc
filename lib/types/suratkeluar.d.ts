@@ -38,14 +38,15 @@ export interface FormSuratKeluar {
    merk: string
    type: string
    noSeri: string
+   kodeUnit: string
    kondisi: KondisiKalibrator
  }
 
  export interface SuratKeluarAlat {
     nomorSurat: string
-    tanggalSurat: string
+    tanggal: string
     keperluan: string
-    statusManager: string
+    statusManajer: string
     createdAt: string
     pembuatId: string
     unitItems: BarangItem[]

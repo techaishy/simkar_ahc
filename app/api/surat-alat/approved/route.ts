@@ -2,43 +2,33 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ApprovalStatus } from "@prisma/client";
 
-export async function PUT(req: Request) {
-  try {
-    const body = await req.json();
-    const { nomorSurat, role, status, approvedBy } = body;
+interface Params {
+  params: { nomorSurat: string };
+}
 
-    if (!nomorSurat || !role || !status || !approvedBy) {
+export async function PUT(req: Request, { params }: Params) {
+  try {
+    const { nomorSurat } = params;
+    const body = await req.json();
+    const { status } = body;
+
+    if (!nomorSurat || !status) {
       return NextResponse.json(
         { success: false, message: "Data tidak lengkap" },
         { status: 400 }
       );
     }
 
-    const prismaStatus = status as ApprovalStatus;
-
-    const updateData =
-      role === "OWNER"
-        ? {
-            approval_status_owner: prismaStatus,
-            approved_by_owner_id: approvedBy,
-            approved_at_owner: new Date(),
-          }
-        : {
-            approval_status_admin: prismaStatus,
-            approved_by_admin_id: approvedBy,
-            approved_at_admin: new Date(),
-          };
-
-    const surat = await prisma.suratTugas.update({
+    const surat = await prisma.suratKeluarAlat.update({
       where: { nomor_surat: nomorSurat },
-      data: updateData,
+      data: { statusManajer: status as ApprovalStatus },
     });
 
     return NextResponse.json({ success: true, data: surat });
   } catch (err) {
-    console.error(err);
+    console.error("Error update surat alat:", err);
     return NextResponse.json(
-      { success: false, message: "Gagal update surat" },
+      { success: false, message: "Gagal update surat alat" },
       { status: 500 }
     );
   }

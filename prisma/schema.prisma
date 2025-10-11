@@ -354,19 +354,19 @@ model SuratKeluarAlat {
 }
 
 model SuratKeluarAlatItem {
-  id              String             @id @default(cuid())
-  suratId         String
-  unitId          String
-  kondisiAccesoris String
-  kondisiKabel     kondisiAlat?
-  kondisiTombol    kondisiAlat?
-  kondisiFungsi    kondisiAlat?
-  kondisiFisik     kondisiAlat?
+  id               String            @id @default(cuid())
+  nomor_surat      String   
+  unitId           String
+  accessories      String
+  kondisiKabel  KondisiAlat? 
+  kondisiTombol KondisiAlat? 
+  kondisiFungsi KondisiAlat? 
+  kondisiFisik  KondisiAlat? 
 
-  surat           SuratKeluarAlat    @relation(fields: [suratId], references: [id])
+  surat           SuratKeluarAlat    @relation(fields: [nomor_surat], references: [nomor_surat])
   unit            AlatKalibratorUnit @relation( fields: [unitId], references: [kode_unit])
 
-  @@map("surat_keluar_alat_item")
+  @@map("item_surat_alat")
 }
 
 enum Role {
@@ -419,10 +419,11 @@ enum ApprovalStatus {
   DITOLAK
 }
 
-enum kondisiAlat {
+enum KondisiAlat {
   BAIK
   RUSAK
   KURANG
+  BELUM_DICEK
 }
 
 enum StatusAlat {
