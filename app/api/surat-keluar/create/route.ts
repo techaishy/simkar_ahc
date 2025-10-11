@@ -67,6 +67,20 @@ export async function POST(req: Request) {
         skipDuplicates: true,
       });
 
+      await tx.user.updateMany({
+        where: {
+          karyawan: {
+            OR: employees.map((a: any) => ({
+              name: a.nama,
+              position: a.jabatan,
+            })),
+          },
+        },
+        data: {
+          kantorTetap: false,
+        },
+      });
+
       return suratTugas;
     });
 
