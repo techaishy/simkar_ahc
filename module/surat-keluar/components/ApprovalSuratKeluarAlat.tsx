@@ -368,9 +368,9 @@ const handleApproval = async (
               className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             >
               <option value="semua">Semua Status</option>
-              <option value="Disetujui">Disetujui</option>
-              <option value="Ditolak">Ditolak</option>
-              <option value="Pending">Pending</option>
+              <option value="DISETUJUI">Disetujui</option>
+              <option value="DITOLAK">Ditolak</option>
+              <option value="PENDING">Pending</option>
             </select>
           </div>
         </div>
