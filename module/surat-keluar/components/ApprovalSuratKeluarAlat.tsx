@@ -80,7 +80,7 @@ const handleHapus = async (nomorSurat: string) => {
   if (!confirm("Apakah Anda yakin ingin menghapus surat ini?")) return;
 
   try {
-    const res = await fetch(`/api/surat-alat/${nomorSurat}`, {
+     const res = await fetch(`/api/surat-alat/delete/${encodeURIComponent(nomorSurat)}`,  {
       method: "DELETE",
     });
 

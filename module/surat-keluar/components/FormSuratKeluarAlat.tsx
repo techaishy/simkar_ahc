@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { SuratKeluarAlat, BarangItem } from '@/lib/types/suratkeluar';
 import { useAuth } from '@/context/authContext';
 import { KondisiAlat } from '@prisma/client';
+import AlertMessage from "@/components/ui/alert"
 
 export default function FormSuratKeluarAlat() {
   const router = useRouter();
@@ -76,6 +77,12 @@ export default function FormSuratKeluarAlat() {
     };
     fetchAlat();
   }, []);
+  
+  const [alertData, setAlertData] = useState({
+    show: false,
+    type: "success" as "success" | "error" | "info" | "warning",
+    message: ""
+  })
 
   // 🔹 Tambah baris baru
   const addRow = () => {
@@ -145,7 +152,6 @@ export default function FormSuratKeluarAlat() {
     setSurat(prev => ({ ...prev, nomorSurat: nomor }));
   };
 
-  // 🔹 Simpan ke localStorage sementara
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -207,10 +213,20 @@ export default function FormSuratKeluarAlat() {
   };
 
   return (
+      <>
+        <AlertMessage
+        type={alertData.type}
+        message={alertData.message}
+        show={alertData.show}
+        onClose={() => setAlertData({ ...alertData, show: false })}
+      />
     <div className="p-4 sm:p-6 space-y-6">
+  
+      
       <h1 className="text-lg sm:text-xl font-bold text-center sm:text-left">
         SURAT SERAH TERIMA ALAT KALIBRATOR
       </h1>
+     
 
       {/* Nomor Surat */}
       <div>
@@ -477,5 +493,7 @@ export default function FormSuratKeluarAlat() {
         </button>
       </div>
     </div>
+
+    </>
   );
 }
