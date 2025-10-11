@@ -348,7 +348,7 @@ model SuratKeluarAlat {
   pembuat         User              @relation("UserPembuat", fields: [pembuatId], references: [customId])
 
   // Relasi ke daftar barang
-  barangList      SuratKeluarAlatItem[]
+  daftarAlat      SuratKeluarAlatItem[]
 
   @@map("surat_keluar_alat")
 }

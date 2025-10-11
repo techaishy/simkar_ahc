@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import type { SuratKeluarAlat, BarangItem } from '@/lib/types/suratkeluar';
+import type { SuratKeluarAlat, alatItem } from '@/lib/types/suratkeluar';
 import { useAuth } from '@/context/authContext';
 import { KondisiAlat } from '@prisma/client';
 import AlertMessage from "@/components/ui/alert"
@@ -42,7 +42,7 @@ export default function FormSuratKeluarAlat() {
     statusManajer: 'Pending',
     createdAt: new Date().toISOString(),
     pembuatId: '',
-    unitItems: [
+    daftarAlat: [
       {
         nomorSurat: '',
         nama: '',
@@ -89,7 +89,7 @@ export default function FormSuratKeluarAlat() {
     setSurat(prev => ({
       ...prev,
       unitItems: [
-        ...prev.unitItems,
+        ...prev.daftarAlat,
         {
           nomorSurat: '',
           nama: '',
@@ -113,17 +113,17 @@ export default function FormSuratKeluarAlat() {
   const removeRow = (index: number) => {
     setSurat(prev => ({
       ...prev,
-      unitItems: prev.unitItems.filter((_, i) => i !== index),
+      unitItems: prev.daftarAlat.filter((_, i) => i !== index),
     }));
   };
 
   // 🔹 Update field alat
   const handleChangeItem = (
     index: number,
-    field: keyof BarangItem,
+    field: keyof alatItem,
     value: string
   ) => {
-    const updated = [...surat.unitItems];
+    const updated = [...surat.daftarAlat];
     (updated[index] as any)[field] = value;
     setSurat(prev => ({ ...prev, unitItems: updated }));
   };
@@ -131,12 +131,12 @@ export default function FormSuratKeluarAlat() {
   // 🔹 Update kondisi alat
   const handleKondisiChange = (
     index: number,
-    field: keyof BarangItem['kondisi'],
+    field: keyof alatItem['kondisi'],
     value: string
   ) => {
-    const updated = [...surat.unitItems];
+    const updated = [...surat.daftarAlat];
     updated[index].kondisi[field] = value;
-    setSurat(prev => ({ ...prev, unitItems: updated }));
+    setSurat(prev => ({ ...prev, daftarAlat: updated }));
   };
 
   // 🔹 Generate nomor surat otomatis (local storage)
@@ -156,11 +156,9 @@ export default function FormSuratKeluarAlat() {
     try {
       setLoading(true);
 
-      console.log("🧾 Data surat sebelum disimpan:", surat);
-
       const sanitizedSurat: SuratKeluarAlat = {
         ...surat,
-        unitItems: surat.unitItems.map(item => ({
+        daftarAlat: surat.daftarAlat.map(item => ({
           ...item,
           nama: item.nama || "-",
           merk: item.merk || "-",
@@ -177,13 +175,10 @@ export default function FormSuratKeluarAlat() {
         })),
       };
 
-      console.log("✅ Data setelah disanitasi:", sanitizedSurat);
-
-      // 🔹 Simpan dulu ke localStorage (draft / preview)
       const existing = JSON.parse(localStorage.getItem("surat_alat") || "[]");
       existing.push(sanitizedSurat);
       localStorage.setItem("surat_alat", JSON.stringify(existing));
-      console.log("💾 Data draft berhasil disimpan di localStorage:", existing);
+      console.log("Surat Berhasil Ditambahkan ");
 
       // 🔹 Kirim ke API
       const res = await fetch("/api/surat-alat/create", {
@@ -299,7 +294,7 @@ export default function FormSuratKeluarAlat() {
           </thead>
           {/* 🔹 PERUBAHAN 2: Update tbody dengan searchTerm per-index */}
           <tbody>
-            {surat.unitItems.map((item, index) => {
+            {surat.daftarAlat.map((item, index) => {
               const currentSearchTerm = searchTerm[index] || "";
               
               return (
@@ -401,7 +396,7 @@ export default function FormSuratKeluarAlat() {
                       {alatList
                         .find((a) => a.nama_alat === item.nama)
                         ?.units?.filter((u) => {
-                          const sudahDipakai = surat.unitItems.some(
+                          const sudahDipakai = surat.daftarAlat.some(
                             (itm, i) => 
                               i !== index && 
                               itm.nama === item.nama && 
@@ -430,7 +425,7 @@ export default function FormSuratKeluarAlat() {
                   {/* 🔹 Kondisi Alat */}
                   {(
                     ["accessories", "kabel", "tombol", "fungsi", "fisik"] as (
-                      keyof BarangItem["kondisi"]
+                      keyof alatItem["kondisi"]
                     )[]
                   ).map((key) => (
                     <td key={key} className="border p-1">

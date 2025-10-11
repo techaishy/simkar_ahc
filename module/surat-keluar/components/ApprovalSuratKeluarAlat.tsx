@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Eye, Printer, Search, Filter, FileText, Trash2 } from "lucide-react";
 import PaginationControl from "@/components/ui/PaginationControl";
-import { SuratKeluarAlat } from "@/lib/types/suratkeluar";
+import { SuratKeluarAlat, alatItem } from "@/lib/types/suratkeluar";
 import { formatDateWIB } from "@/lib/timezone";
 
 export default function ApprovalSuratAlat() {
@@ -25,7 +25,6 @@ export default function ApprovalSuratAlat() {
     }
   }, []);
 
-  // Load data dari localStorage
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -98,35 +97,58 @@ const handleApproval = async (
   surat: SuratKeluarAlat,
   status: "approve" | "reject"
 ) => {
+  const message =
+    status === "approve"
+      ? "Apakah Anda yakin ingin menyetujui surat alat ini?"
+      : "Apakah Anda yakin ingin menolak surat alat ini?";
+
+  if (!confirm(message)) return;
+
   try {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
     const newStatus = status === "approve" ? "DISETUJUI" : "DITOLAK";
 
-    const res = await fetch(`/api/surat-alat/approval/${surat.nomorSurat}`, {
-      method: "PATCH",
+    const res = await fetch(`/api/surat-alat/approved`, {
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({
+        nomorSurat: surat.nomorSurat,
+        status: newStatus,
+        approvedBy: user.customId,
+      }),
     });
 
-    if (!res.ok) throw new Error("Gagal memperbarui status surat");
+    const data = await res.json();
 
-    const updated = await res.json();
+    if (!res.ok || !data.success) {
+      alert("Gagal update surat: " + (data.message || "Terjadi kesalahan"));
+      return;
+    }
 
     setData((prev) =>
       prev.map((item) =>
         item.nomorSurat === surat.nomorSurat
-          ? { ...item, statusManajer: updated.data.statusManajer }
+          ? { ...item, statusManajer: newStatus }
           : item
       )
     );
 
+    setSelectedSurat((prev) =>
+      prev ? { ...prev, statusManajer: newStatus } : null
+    );
+
     setShowModal(false);
+    alert(`Surat berhasil ${newStatus}`);
   } catch (err) {
-    console.error(err);
-    alert("Gagal memperbarui status surat!");
+    console.error("Error saat update surat alat:", err);
+    alert("Terjadi kesalahan saat update surat alat");
   }
 };
 
+
+
   const handleLihatDetail = (surat: SuratKeluarAlat) => {
+    console.log("Data surat yang dipilih:", surat);
     setSelectedSurat(surat);
     setShowModal(true);
   };
@@ -196,8 +218,8 @@ const handleApproval = async (
                       <th style="border:1px solid black; padding:4px; width:80px;">FUNGSI</th>
                       <th style="border:1px solid black; padding:4px; width:80px;">FISIK</th>
                     </tr>
-                    ${Array.isArray(surat.unitItems)
-                      ? surat.unitItems
+                    ${Array.isArray(surat.daftarAlat)
+                      ? surat.daftarAlat
                           .map(
                             (b, i) => `
                             <tr>
@@ -460,6 +482,7 @@ const handleApproval = async (
       {showModal && selectedSurat && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50">
           <div className="bg-white text-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-auto">
+            
             {/* Header */}
             <div className="flex justify-between items-center px-5 sm:px-8 py-4 border-b bg-gray-50 rounded-t-xl">
               <h2 className="text-xl sm:text-2xl font-semibold">Detail Surat Alat</h2>
@@ -470,14 +493,16 @@ const handleApproval = async (
                 ✕
               </button>
             </div>
-  
+
             {/* Body */}
             <div className="px-5 sm:px-10 py-4 sm:py-6 space-y-6 text-sm sm:text-base">
+
+              {/* Info Surat */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-600">Nomor Surat</h3>
                 <p className="text-gray-800 break-words">{selectedSurat.nomorSurat}</p>
               </div>
-  
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <span className="font-semibold text-gray-700">Tanggal:</span>
@@ -488,8 +513,8 @@ const handleApproval = async (
                   <p className="text-gray-600 mt-1">{selectedSurat.keperluan}</p>
                 </div>
               </div>
-  
-              {/* Table Barang */}
+
+              {/* Tabel Alat */}
               <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                 <table className="min-w-full text-xs sm:text-sm text-center border-collapse">
                   <thead className="bg-gray-100 text-gray-700">
@@ -507,9 +532,9 @@ const handleApproval = async (
                       <th className="border p-2 sm:p-3">Fisik</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {Array.isArray(selectedSurat.unitItems) &&
-                      selectedSurat.unitItems.map((b, i) =>  (
+                 <tbody>
+                  {Array.isArray(selectedSurat.daftarAlat) && selectedSurat.daftarAlat.length > 0 ? (
+                    selectedSurat.daftarAlat.map((b: alatItem, i: number) => (
                       <tr key={i} className="hover:bg-gray-50">
                         <td className="border p-2 sm:p-3">{i + 1}</td>
                         <td className="border p-2 sm:p-3">{b.nama}</td>
@@ -523,12 +548,19 @@ const handleApproval = async (
                         <td className="border p-2 sm:p-3">{b.kondisi.fungsi}</td>
                         <td className="border p-2 sm:p-3">{b.kondisi.fisik}</td>
                       </tr>
-                    ))}
-                  </tbody>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={11} className="text-center p-4 text-gray-500">
+                        Tidak ada unit alat
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
                 </table>
               </div>
             </div>
-  
+
             {/* Footer */}
             <div className="px-5 sm:px-10 py-4 sm:py-5 border-t bg-gray-50 flex flex-wrap gap-3 justify-end rounded-b-xl">
               {role === "MANAJER" ? (
@@ -555,7 +587,7 @@ const handleApproval = async (
                   Print Surat
                 </button>
               )}
-  
+
               <button
                 onClick={() => setShowModal(false)}
                 className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm sm:text-base"
@@ -566,6 +598,8 @@ const handleApproval = async (
           </div>
         </div>
       )}
+
+
     </div>
   );
 }  

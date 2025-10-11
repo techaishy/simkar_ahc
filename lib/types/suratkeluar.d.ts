@@ -17,37 +17,37 @@ export interface FormSuratKeluar {
     createdAt: string
   }
 
- export interface Employee {
-    id_karyawan: string
-    nama: string
-    jabatan: string
-    alamat: string
- }
+export interface Employee {
+  id_karyawan: string
+  nama: string
+  jabatan: string
+  alamat: string
+}
 
- export interface KondisiKalibrator {
-   accessories: string
-   kabel: string
-   tombol: string
-   fungsi: string
-   fisik: string
- }
- 
- export interface BarangItem {
-  nomorSurat: string
-   nama: string
-   merk: string
-   type: string
-   noSeri: string
-   kodeUnit: string
-   kondisi: KondisiKalibrator
- }
+export interface KondisiKalibrator {
+  accessories: string;
+  kabel: string;
+  tombol: string;
+  fungsi: string;
+  fisik: string;
+}
 
- export interface SuratKeluarAlat {
-    nomorSurat: string
-    tanggal: string
-    keperluan: string
-    statusManajer: string
-    createdAt: string
-    pembuatId: string
-    unitItems: BarangItem[]
+export interface alatItem {
+  nomorSurat: string;
+  nama: string;
+  merk: string;
+  type: string;
+  noSeri: string;      
+  kodeUnit: string;
+  kondisi: KondisiKalibrator; 
+}
+
+export interface SuratKeluarAlat {
+  nomorSurat: string;
+  tanggal: string;
+  keperluan: string;
+  statusManajer: string;
+  createdAt: string;
+  pembuatId: string;
+  daftarAlat: alatItem[];
 }

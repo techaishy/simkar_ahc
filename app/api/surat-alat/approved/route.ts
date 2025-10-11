@@ -2,15 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ApprovalStatus } from "@prisma/client";
 
-interface Params {
-  params: { nomorSurat: string };
-}
-
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(req: Request) {
   try {
-    const { nomorSurat } = params;
     const body = await req.json();
-    const { status } = body;
+    const { nomorSurat, status } = body;
 
     if (!nomorSurat || !status) {
       return NextResponse.json(

@@ -31,7 +31,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
             username: true,
           },
         },
-        barangList: {
+        daftarAlat: {
           select: {
             id: true,
             accessories: true,
@@ -62,38 +62,29 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       orderBy: { createdAt: "desc" },
     });
     const formattedData = suratList.map((s) => ({
-      id: s.id,
       nomorSurat: s.nomor_surat,
       tanggal: s.tanggal,
       keperluan: s.keperluan,
       statusManajer: s.statusManajer,
       createdAt: s.createdAt,
-      updatedAt: s.updatedAt,
-      pembuat: s.pembuat?.username || "-",
-      barangList:
-        s.barangList?.map((item) => ({
-          id: item.id,
-          kodeUnit: item.unit?.kode_unit || "-",
-          nomorSeri: item.unit?.nomor_seri || "-",
-          kondisiUnit: item.unit?.kondisi || "-",
-          statusUnit: item.unit?.status || "-",
+      pembuatId: s.pembuat?.customId || "",
+      daftarAlat: s.daftarAlat?.map((item) => ({
+        nomorSurat: s.nomor_surat,
+        nama: item.unit?.AlatKalibrator?.nama_alat || "-",
+        merk: item.unit?.AlatKalibrator?.merk || "-",
+        type: item.unit?.AlatKalibrator?.type || "-",
+        noSeri: item.unit?.nomor_seri || "-",
+        kodeUnit: item.unit?.kode_unit || "-",
+        kondisi: {
           accessories: item.accessories || "-",
-          kondisiKabel: item.kondisiKabel || "BELUM_DICEK",
-          kondisiTombol: item.kondisiTombol || "BELUM_DICEK",
-          kondisiFungsi: item.kondisiFungsi || "BELUM_DICEK",
-          kondisiFisik: item.kondisiFisik || "BELUM_DICEK",
-          alatKalibrator: item.unit?.AlatKalibrator
-            ? {
-                id: item.unit.AlatKalibrator.id,
-                namaAlat: item.unit.AlatKalibrator.nama_alat,
-                merk: item.unit.AlatKalibrator.merk || "-",
-                type: item.unit.AlatKalibrator.type || "-",
-                fungsiKalibrasi:
-                  item.unit.AlatKalibrator.fungsi_kalibrasi || "-",
-              }
-            : null,
-        })) || [],
+          kabel: item.kondisiKabel || "BELUM_DICEK",
+          tombol: item.kondisiTombol || "BELUM_DICEK",
+          fungsi: item.kondisiFungsi || "BELUM_DICEK",
+          fisik: item.kondisiFisik || "BELUM_DICEK",
+        },
+      })) || [],
     }));
+
 
     return NextResponse.json({ success: true, data: formattedData });
   } catch (error) {
