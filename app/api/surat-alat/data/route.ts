@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse, NextRequest } from 'next/server';
-
 import { requireAuth, AuthPayload } from "@/lib/requestaAuth";
+import { StatusAlat } from '@prisma/client';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const auth = requireAuth(req);
@@ -13,34 +13,34 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!["ADMIN", "MANAJER", "OWNER"].includes(user.role || "")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+
   try {
-    const employees = await prisma.karyawan.findMany({
-      where: { status: 'AKTIF' },
-      select: {
-        customId: true,
-        name: true,
-        position: true,
-        address: true,
+    const alatList = await prisma.alatKalibrator.findMany({
+      where: { 
+        jumlah: { not: 0 },
+        units: {
+          some: { status: StatusAlat.TERSEDIA }, 
+        },
       },
-    });
-
-    const formattedEmployees = employees.map(e => ({
-      id_karyawan:e.customId,
-      nama: e.name,
-      jabatan: e.position,
-      alamat: e.address,
-    }));
-
-    const locations = await prisma.lokasiDinas.findMany({
-      select: {
+      select: { 
         id: true,
-        name: true,
-      },
+        merk: true,
+        type: true,
+        nama_alat: true,
+        units: {   
+          where:{ status: StatusAlat.TERSEDIA }, 
+          select: {
+            nomor_seri: true,
+            kode_unit: true,
+            kondisi: true,
+          }
+        }
+      }
     });
 
-    return NextResponse.json({ employees: formattedEmployees, locations });
+    return NextResponse.json({ alat: alatList });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Gagal mengambil data' }, { status: 500 });
+    return NextResponse.json({ error: 'Gagal mengambil data alat' }, { status: 500 });
   }
 }

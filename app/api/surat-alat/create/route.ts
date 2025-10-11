@@ -4,80 +4,69 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const {
-      nomorSurat,
-      wilayah,
-      tanggalMulai,
-      tanggalSelesai,
-      keterangan,
-      pembuatSuratId,
-      employees,
-      jamBerangkat,
-      akomodasi,
-      agenda,
-      tanggal_berangkat,
-      kendaraan,
-    } = body;
+    const { nomorSurat, keperluan, pembuatId, unitItems } = body;
 
-    if (!nomorSurat || !tanggalMulai || !pembuatSuratId) {
+    if (!nomorSurat || !pembuatId) {
       return NextResponse.json(
-        { error: "Nomor surat, tanggal mulai, dan pembuat surat wajib diisi." },
+        { error: "Nomor surat dan pembuat surat wajib diisi." },
         { status: 400 }
       );
     }
 
-    if (!Array.isArray(employees) || employees.length === 0) {
+    if (!Array.isArray(unitItems) || unitItems.length === 0) {
       return NextResponse.json(
-        { error: "Minimal satu anggota harus ditambahkan." },
+        { error: "Minimal satu alat harus ditambahkan." },
         { status: 400 }
       );
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      const suratTugas = await tx.suratTugas.create({
+      // Buat surat
+      const surat = await tx.suratKeluarAlat.create({
         data: {
           nomor_surat: nomorSurat,
-          judul_tugas: wilayah,
-          jam_berangkat: jamBerangkat,
-          akomodasi: akomodasi,
-          wilayah: wilayah,
-          kendaraan: kendaraan,
-          tanggal_berangkat: new Date(tanggalMulai),
-          tanggal_mulai: new Date(tanggalMulai),
-          tanggal_selesai: tanggalSelesai
-            ? new Date(tanggalSelesai)
-            : new Date(tanggalMulai),
-          keterangan: agenda,
-          approval_status_admin: "PENDING",
-          approval_status_owner: "PENDING",
-          pembuat_surat: {
-            connect: { customId: pembuatSuratId },
+          tanggal: new Date(),
+          keperluan: keperluan || "-",
+          statusManajer: "PENDING",
+          pembuat: {
+            connect: { customId: pembuatId },
           },
-          created_at: new Date(),
-          updated_at: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       });
 
-      await tx.suratTugasAnggota.createMany({
-        data: employees.map((emp: any) => ({
-          nomor_surat: nomorSurat,
-          karyawan_id: emp.id_karyawan,
-          peran: emp.peran || null,
-        })),
-        skipDuplicates: true,
-      });
+      for (const item of unitItems) {
+        await tx.suratKeluarAlatItem.create({
+          data: {
+            nomor_surat: nomorSurat,
+            unitId: item.kodeUnit,
+            accessories: item.kondisi?.accessories || "BELUM_DICEK",
+            kondisiKabel: item.kondisi?.kabel || "BELUM_DICEK",
+            kondisiTombol: item.kondisi?.tombol || "BELUM_DICEK",
+            kondisiFungsi: item.kondisi?.fungsi || "BELUM_DICEK",
+            kondisiFisik: item.kondisi?.fisik || "BELUM_DICEK",
+          },
+        });
 
-      return suratTugas;
+        // Update status alat
+        await tx.alatKalibratorUnit.update({
+          where: { kode_unit: item.kodeUnit },
+          data: { status: "DIGUNAKAN" },
+        });
+      }
+
+      return surat;
     });
 
     return NextResponse.json(
-      { message: "Surat tugas berhasil dibuat.", data: result },
+      { message: "✅ Surat keluar alat berhasil dibuat.", data: result },
       { status: 201 }
     );
   } catch (error: any) {
-    console.error("❌ Gagal membuat surat tugas:", error);
+    console.error("❌ Gagal membuat surat keluar alat:", error);
     return NextResponse.json(
-      { error: "Gagal membuat surat tugas", detail: error.message },
+      { error: "Gagal membuat surat keluar alat", detail: error.message },
       { status: 500 }
     );
   }

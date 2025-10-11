@@ -19,7 +19,6 @@ export async function DELETE(
 
   try {
     const nomor = decodeURIComponent(params.nomor); 
-
     if (!nomor || typeof nomor !== "string") {
       return NextResponse.json(
         { error: "Nomor surat tidak valid." },
@@ -27,7 +26,7 @@ export async function DELETE(
       );
     }
 
-    const existing = await prisma.suratTugas.findUnique({
+    const existing = await prisma.suratKeluarAlat.findUnique({
       where: { nomor_surat: nomor.trim() },
     });
 
@@ -38,7 +37,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.suratTugas.delete({
+    await prisma.suratKeluarAlat.delete({
       where: { nomor_surat: nomor.trim() },
     });
 

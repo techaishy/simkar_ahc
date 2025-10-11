@@ -1,4 +1,3 @@
-// Types untuk form data
 export interface FormSuratKeluar {
     nomorSurat: string
     nama: string
@@ -16,29 +15,39 @@ export interface FormSuratKeluar {
     statusOwner: string
     statusAdm: string
     createdAt: string
-    kendaraan:string
   }
 
- export interface Employee {
-    id_karyawan: string
-    nama: string
-    jabatan: string
-    alamat: string
- }
+export interface Employee {
+  id_karyawan: string
+  nama: string
+  jabatan: string
+  alamat: string
+}
 
- export interface KondisiKalibrator {
-   accesoris: string
-   kabel: string
-   tombol: string
-   fungsi: string
-   fisik: string
- }
- 
- export interface BarangItem {
-  nomorSurat: string
-   nama: string
-   merk: string
-   type: string
-   noSeri: string
-   kondisi: KondisiKalibrator
- }
+export interface KondisiKalibrator {
+  accessories: string;
+  kabel: string;
+  tombol: string;
+  fungsi: string;
+  fisik: string;
+}
+
+export interface alatItem {
+  nomorSurat: string;
+  nama: string;
+  merk: string;
+  type: string;
+  noSeri: string;      
+  kodeUnit: string;
+  kondisi: KondisiKalibrator; 
+}
+
+export interface SuratKeluarAlat {
+  nomorSurat: string;
+  tanggal: string;
+  keperluan: string;
+  statusManajer: string;
+  createdAt: string;
+  pembuatId: string;
+  daftarAlat: alatItem[];
+}

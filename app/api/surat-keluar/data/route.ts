@@ -15,7 +15,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
   try {
     const employees = await prisma.karyawan.findMany({
-      where: { status: 'AKTIF' },
+      where: {
+        status: 'AKTIF',       
+        user: {
+          kantorTetap: true,   
+        },
+      },
       select: {
         customId: true,
         name: true,
