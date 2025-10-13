@@ -3,7 +3,7 @@
   import { KotaWilayah } from '@/lib/types/satuankerja';
   import TambahWilayahForm from './FormWilayahKerja'
   import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog"
-  import { useState } from 'react';
+  import { useState, useEffect } from 'react';
   import SearchBar from '@/components/ui/searchbar';
 
 
@@ -19,19 +19,7 @@
       setOpenTambah(false);
     };
 
-    const handleSearch = (query: string) => {
-      if (!query) {
-        setFilteredKota(KotaWilayah);
-        return;
-      }
-      const lower = query.toLowerCase();
-      setFilteredKota(
-        KotaWilayah.filter(kota => 
-          kota.nama.toLowerCase().includes(lower) || 
-          kota.deskripsi.toLowerCase().includes(lower)
-        )
-      );
-    }
+   
 
     const dataKota: KotaWilayah[] = [
       {
@@ -86,6 +74,24 @@
 
     const allKota = [...dataKota, ...KotaWilayah];
 
+    useEffect(() => {
+      setFilteredKota(allKota);
+    }, [KotaWilayah]);
+
+    const handleSearch = (query: string) => {
+      if (!query) {
+        setFilteredKota(allKota);
+        return;
+      }
+      const lower = query.toLowerCase();
+      setFilteredKota(
+        allKota.filter((a) => 
+          a.nama.toLowerCase().includes(lower)
+        )
+      );
+    }
+  
+
     const handleNavigate = (kotaId: string) => {
       router.push(`/satuan_kerja/${kotaId}`);
     };
@@ -93,6 +99,7 @@
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-4 pt-0">
               <div className=' hidden sm:flex flex-wrap gap-2 justify-end mb-4'>
+                <SearchBar placeholder="Cari Kota..." onSearch={handleSearch} />
         <Dialog open={openTambah} onOpenChange={setOpenTambah}>
           <DialogTrigger asChild>
           {!openTambah && (
@@ -157,7 +164,7 @@
 
           {/* Grid Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allKota.map((kota) => (
+            {filteredKota.map((kota) => (
               <div
                 key={kota.id}
                 className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-gray-100"
