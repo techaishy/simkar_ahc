@@ -86,9 +86,10 @@ export default function FormSuratKeluarAlat() {
 
   // 🔹 Tambah baris baru
   const addRow = () => {
+    
     setSurat(prev => ({
       ...prev,
-      unitItems: [
+       daftarAlat: [
         ...prev.daftarAlat,
         {
           nomorSurat: '',
@@ -113,7 +114,7 @@ export default function FormSuratKeluarAlat() {
   const removeRow = (index: number) => {
     setSurat(prev => ({
       ...prev,
-      unitItems: prev.daftarAlat.filter((_, i) => i !== index),
+      daftarAlat: prev.daftarAlat.filter((_, i) => i !== index),
     }));
   };
 
@@ -125,7 +126,7 @@ export default function FormSuratKeluarAlat() {
   ) => {
     const updated = [...surat.daftarAlat];
     (updated[index] as any)[field] = value;
-    setSurat(prev => ({ ...prev, unitItems: updated }));
+    setSurat(prev => ({ ...prev, daftarAlat: updated }));
   };
 
   // 🔹 Update kondisi alat
