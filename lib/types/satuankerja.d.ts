@@ -32,7 +32,7 @@ export interface Puskesmas {
   }
   
   // Type untuk semua jenis data wilayah kerja
-  export type WilayahKerjaData = Puskesmas | RumahSakit | Klinik;
+  // export type WilayahKerjaData = Puskesmas | RumahSakit | Klinik;
   
   // Type untuk kategori/tab
   export type KategoriWilayah = 'rs-pemerintah' | 'rs-swasta' | 'rs-tentara' | 'puskesmas' | 'klinik';
