@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(
-      { message: "✅ Surat keluar alat berhasil dibuat.", data: result },
+      { message: "✅ Surat keluar alat berhasil dibuat."},
       { status: 201 }
     );
   } catch (error: any) {

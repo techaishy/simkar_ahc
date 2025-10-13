@@ -65,11 +65,9 @@ export default function FormSuratKeluarAlat() {
   useEffect(() => {
     const fetchAlat = async () => {
       try {
-        console.log("🚀 Fetching data alat dari API...");
         const res = await fetch('/api/surat-alat/data');
         if (!res.ok) throw new Error('Gagal fetch data');
         const data = await res.json();
-        console.log("✅ Data alat dari API:", data);
         setAlatList(data.alat || []);
       } catch (err) {
         console.error('❌ Gagal mengambil data alat:', err);
@@ -179,7 +177,6 @@ export default function FormSuratKeluarAlat() {
       const existing = JSON.parse(localStorage.getItem("surat_alat") || "[]");
       existing.push(sanitizedSurat);
       localStorage.setItem("surat_alat", JSON.stringify(existing));
-      console.log("Surat Berhasil Ditambahkan ");
 
       // 🔹 Kirim ke API
       const res = await fetch("/api/surat-alat/create", {
@@ -196,8 +193,7 @@ export default function FormSuratKeluarAlat() {
         return;
       }
 
-      console.log("✅ Berhasil submit ke API:", data);
-      alert("✅ Surat keluar alat berhasil disimpan (draft & server)!");
+      alert("✅ Surat keluar alat berhasil disimpan!");
 
       router.push("/surat_keluar/approval_surat_alat");
     } catch (err) {
