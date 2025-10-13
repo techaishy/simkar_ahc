@@ -148,7 +148,6 @@ const handleApproval = async (
 
 
   const handleLihatDetail = (surat: SuratKeluarAlat) => {
-    console.log("Data surat yang dipilih:", surat);
     setSelectedSurat(surat);
     setShowModal(true);
   };

@@ -131,19 +131,13 @@ const handleSubmit = async () => {
     createdAt: new Date().toISOString(),
   };
 
-  console.log("📦 Payload yang dikirim ke server:", newSurat);
-
   try {
     const res = await fetch("/api/surat-keluar/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newSurat),
     });
-
     const result = await res.json()
-
-    console.log("📬 Status HTTP:", res.status);
-    console.log("📨 Response dari server:", result);
 
     if (!res.ok) {
               setAlertData({

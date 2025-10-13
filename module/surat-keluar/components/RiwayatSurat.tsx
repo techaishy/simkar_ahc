@@ -31,7 +31,6 @@ const RiwayatSurat = () => {
 
         if (data.success) {
           setSuratData(data.data);
-          console.log("SuratData:", data.data);
         } else {
           setError("Gagal memuat data surat tugas.");
         }

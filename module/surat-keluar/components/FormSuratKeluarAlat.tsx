@@ -65,7 +65,6 @@ export default function FormSuratKeluarAlat() {
   useEffect(() => {
     const fetchAlat = async () => {
       try {
-        console.log("🚀 Fetching data alat dari API...");
         const res = await fetch('/api/surat-alat/data');
         if (!res.ok) throw new Error('Gagal fetch data');
         const data = await res.json();
@@ -178,7 +177,6 @@ export default function FormSuratKeluarAlat() {
       const existing = JSON.parse(localStorage.getItem("surat_alat") || "[]");
       existing.push(sanitizedSurat);
       localStorage.setItem("surat_alat", JSON.stringify(existing));
-      console.log("Surat Berhasil Ditambahkan ");
 
       // 🔹 Kirim ke API
       const res = await fetch("/api/surat-alat/create", {
