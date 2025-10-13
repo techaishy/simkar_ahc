@@ -5,14 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 
 export type PrintButtonProps = {
-  /** Ref elemen yang mau dicetak */
-  printRef?: React.RefObject<HTMLElement> | null;
-  /** Judul dokumen saat print */
+  printRef?: React.RefObject<HTMLElement | null>;
   title?: string;
-  /** Variasi ukuran button */
   size?: "sm" | "default" | "lg";
-  /** Text tombol */
   label?: string;
+  className?: string;
 };
 
 export default function PrintButton({
@@ -32,11 +29,10 @@ export default function PrintButton({
   return (
     <Button
       size={size}
-      variant="ghost"
-      className="rounded-2xl shadow-sm"
+      className="text-white border-1 font-semibold bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black  transition-all duration-300 shadow-md"
       onClick={handlePrint}
     >
-      <Printer className="mr-2 h-4 w-4" /> {label}
+      <Printer className="mr-0 h-4 w-4" /> {label}
     </Button>
   );
 }
@@ -51,7 +47,7 @@ function printElement(element: HTMLElement, title?: string) {
   <meta charset="utf-8" />
   <title>${escapeHtml(title || "Cetak")}</title>
   <style>
-    @media print { @page { margin: 16mm; } }
+    @media print { @page { margin: 16mm; }   .no-print { display: none !important;a}
     body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; padding: 16px; }
   </style>
 </head>
