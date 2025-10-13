@@ -69,7 +69,6 @@ export default function FormSuratKeluarAlat() {
         const res = await fetch('/api/surat-alat/data');
         if (!res.ok) throw new Error('Gagal fetch data');
         const data = await res.json();
-        console.log("✅ Data alat dari API:", data);
         setAlatList(data.alat || []);
       } catch (err) {
         console.error('❌ Gagal mengambil data alat:', err);
@@ -195,8 +194,6 @@ export default function FormSuratKeluarAlat() {
         alert(`Gagal submit ke server: ${data.error || "Unknown error"}`);
         return;
       }
-
-      console.log("✅ Berhasil submit ke API:", data);
       alert("✅ Surat keluar alat berhasil disimpan!");
 
       router.push("/surat_keluar/approval_surat_alat");
