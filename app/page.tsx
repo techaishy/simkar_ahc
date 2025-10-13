@@ -46,7 +46,7 @@ export default function Login() {
     if (!isLoading && isAuthenticated && user) {
       if (user.role === "ADMIN" || user.role === "OWNER" || user.role === "MANAJER") {
         router.replace("/dashboard");
-      } else if (user.role === "TEKNISI") {
+      } else if (user.role === "TEKNISI" ) {  
         router.replace("/absen");
       } else {
         router.replace("/");
@@ -72,7 +72,6 @@ export default function Login() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login(data.username, data.password);
-      // redirect akan ditangani oleh useEffect AuthContext
     } catch (err: any) {
       alert(err.message || "Login gagal");
     }

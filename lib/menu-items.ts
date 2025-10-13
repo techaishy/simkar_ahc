@@ -103,7 +103,7 @@ export const menuItems: MenuItem[] = [
     items: [
       {
         name: 'Wilayah Kerja',
-        href: '/satuan_kerja/wilayah',
+        href: '/satuan_kerja',
         icon: BuildingOfficeIcon,
         allowedRoles: ['ADMIN', 'MANAJER']
       },
