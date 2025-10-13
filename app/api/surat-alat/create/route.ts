@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { nomorSurat, keperluan, pembuatId, unitItems } = body;
+    const { nomorSurat, keperluan, pembuatId, daftarAlat } = body;
 
     if (!nomorSurat || !pembuatId) {
       return NextResponse.json(
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!Array.isArray(unitItems) || unitItems.length === 0) {
+    if (!Array.isArray(daftarAlat) || daftarAlat.length === 0) {
       return NextResponse.json(
         { error: "Minimal satu alat harus ditambahkan." },
         { status: 400 }
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         },
       });
 
-      for (const item of unitItems) {
+      for (const item of daftarAlat) {
         await tx.suratKeluarAlatItem.create({
           data: {
             nomor_surat: nomorSurat,
@@ -49,11 +49,11 @@ export async function POST(req: Request) {
           },
         });
 
-        // Update status alat
         await tx.alatKalibratorUnit.update({
           where: { kode_unit: item.kodeUnit },
           data: { status: "DIGUNAKAN" },
         });
+       
       }
 
       return surat;
