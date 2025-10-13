@@ -295,9 +295,10 @@ const handleSubmit = async () => {
                       {showSuggestions[index] && emp.nama && (
                         <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-auto">
                           {employeeOptions
-                            .filter((opt) =>
-                              opt.nama.toLowerCase().includes(emp.nama.toLowerCase())
-                            )
+                             .filter((opt) => 
+                                opt.nama.toLowerCase().includes(emp.nama.toLowerCase()) &&
+                                !employees.some((e, idx) => e.nama === opt.nama && idx !== index) 
+                              )
                             .map((opt, i) => (
                               <li
                                 key={i}
@@ -346,7 +347,7 @@ const handleSubmit = async () => {
                     </label>
                     <textarea
                       name="alamat"
-                      value={emp.alamat}
+                      value={emp.alamat || '-'}
                       readOnly
                       rows={3}
                       className="w-full px-4 py-3 border text-gray-900 border-gray-200 bg-gray-100 rounded-lg resize-none focus:outline-none"

@@ -3,52 +3,52 @@
 import React, { useState, useEffect } from "react";
 import { Eye, Printer, Search, Filter, FileText, Trash2 } from "lucide-react";
 import PaginationControl from "@/components/ui/PaginationControl";
-import { BarangItem } from "@/lib/types/suratkeluar";
-
-
-interface SuratAlat {
-  nomorSurat: string;
-  tanggal: string;
-  keperluan: string;
-  barangList: BarangItem[];
-  statusManajer: string;
-  statusAdmin: string;
-  createdAt: string;
-}
+import { SuratKeluarAlat, alatItem } from "@/lib/types/suratkeluar";
+import { formatDateWIB } from "@/lib/timezone";
 
 export default function ApprovalSuratAlat() {
-  const [data, setData] = useState<SuratAlat[]>([]);
+  const [data, setData] = useState<SuratKeluarAlat[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("semua");
-  const [selectedSurat, setSelectedSurat] = useState<SuratAlat | null>(null);
+  const [selectedSurat, setSelectedSurat] = useState<SuratKeluarAlat | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage] = useState(7);
+  const [perPage] = useState(10);
+  const [loading, setLoading] = useState(true);
 
-  const userData = JSON.parse(localStorage.getItem("user") || "{}");
-  const role = userData?.role;
+  const [role, setRole] = useState<string | null>(null);
 
-  // Load data dari localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("surat_alat");
-    if (stored) {
-      try {
-        setData(JSON.parse(stored));
-      } catch (err) {
-        console.error("Gagal parse surat_alat:", err);
-      }
+    if (typeof window !== "undefined") {
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      setRole(userData?.role || null);
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/surat-alat/riwayat");
+        if (!res.ok) throw new Error("Gagal memuat data surat alat");
+        const result = await res.json();
+        setData(result.data || []);
+      } catch (err) {
+        console.error("Fetch surat alat gagal:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   // Filter & search
   const filteredData = data.filter((item) => {
     const matchSearch = item.keperluan
-      .toLowerCase()
+      ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchFilter =
-      filterStatus === "semua" ||
-      item.statusManajer === filterStatus ||
-      item.statusAdmin === filterStatus;
+      filterStatus === "semua" || item.statusManajer === filterStatus;
     return matchSearch && matchFilter;
   });
 
@@ -61,56 +61,99 @@ export default function ApprovalSuratAlat() {
   const getStatusBadge = (status: string) => {
     const base = "px-3 py-1 rounded-full text-xs font-semibold";
     switch (status) {
+      case "DISETUJUI":
       case "Disetujui":
         return `${base} bg-green-100 text-green-700`;
+      case "DITOLAK":
       case "Ditolak":
         return `${base} bg-red-100 text-red-700`;
+      case "PENDING":
       case "Pending":
-      case "Menunggu":
         return `${base} bg-yellow-100 text-yellow-700`;
       default:
         return `${base} bg-gray-100 text-gray-700`;
     }
   };
 
-  const handleHapus = (index: number) => {
-    if (confirm("Apakah Anda yakin ingin menghapus surat ini?")) {
-      const newData = data.filter((_, i) => i !== index);
-      setData(newData);
-      localStorage.setItem("riwayat_surat", JSON.stringify(newData));
+const handleHapus = async (nomorSurat: string) => {
+  if (!confirm("Apakah Anda yakin ingin menghapus surat ini?")) return;
+
+  try {
+     const res = await fetch(`/api/surat-alat/delete/${encodeURIComponent(nomorSurat)}`,  {
+      method: "DELETE",
+    });
+
+    if (!res.ok) throw new Error("Gagal menghapus surat");
+    setData((prev) => prev.filter((item) => item.nomorSurat !== nomorSurat));
+
+    alert("Surat berhasil dihapus!");
+  } catch (err) {
+    console.error(err);
+    alert("Terjadi kesalahan saat menghapus surat!");
+  }
+};
+
+const handleApproval = async (
+  surat: SuratKeluarAlat,
+  status: "approve" | "reject"
+) => {
+  const message =
+    status === "approve"
+      ? "Apakah Anda yakin ingin menyetujui surat alat ini?"
+      : "Apakah Anda yakin ingin menolak surat alat ini?";
+
+  if (!confirm(message)) return;
+
+  try {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const newStatus = status === "approve" ? "DISETUJUI" : "DITOLAK";
+
+    const res = await fetch(`/api/surat-alat/approved`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nomorSurat: surat.nomorSurat,
+        status: newStatus,
+        approvedBy: user.customId,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      alert("Gagal update surat: " + (data.message || "Terjadi kesalahan"));
+      return;
     }
-  };
 
-  const handleApproval = (surat: SuratAlat, status: "approve" | "reject") => {
-    const updated = data.map((item) =>
-      item.createdAt === surat.createdAt
-        ? {
-            ...item,
-            statusManajer:
-              role === "MANAJER"
-                ? status === "approve"
-                  ? "Disetujui"
-                  : "Ditolak"
-                : item.statusManajer,
-            statusAdmin:
-              role === "ADMIN"
-                ? status === "approve"
-                  ? "Disetujui"
-                  : "Ditolak"
-                : item.statusAdmin,
-          }
-        : item
+    setData((prev) =>
+      prev.map((item) =>
+        item.nomorSurat === surat.nomorSurat
+          ? { ...item, statusManajer: newStatus }
+          : item
+      )
     );
-    setData(updated);
-    localStorage.setItem("surat_alat", JSON.stringify(updated));
-  };
 
-  const handleLihatDetail = (surat: SuratAlat) => {
+    setSelectedSurat((prev) =>
+      prev ? { ...prev, statusManajer: newStatus } : null
+    );
+
+    setShowModal(false);
+    alert(`Surat berhasil ${newStatus}`);
+  } catch (err) {
+    console.error("Error saat update surat alat:", err);
+    alert("Terjadi kesalahan saat update surat alat");
+  }
+};
+
+
+
+  const handleLihatDetail = (surat: SuratKeluarAlat) => {
+    console.log("Data surat yang dipilih:", surat);
     setSelectedSurat(surat);
     setShowModal(true);
   };
 
-  const handlePrint = (surat: SuratAlat) => {
+  const handlePrint = (surat: SuratKeluarAlat) => {
     const printWindow = window.open("", "_blank", "width=1000,height=700");
     if (!printWindow) return;
 
@@ -146,7 +189,7 @@ export default function ApprovalSuratAlat() {
                   <table style="width:100%; border:none; margin-bottom:12px; font-size:10pt;">
                     <tr>
                       <td style="width:120px; border:none; text-align:left; padding:4px 0;">1. TANGGAL</td>
-                      <td style="border:none; text-align:left; padding:4px 0;">: ${surat.tanggal}</td>
+                      <td style="border:none; text-align:left; padding:4px 0;">: ${formatDateWIB(new Date(surat.tanggal))}</td>
                     </tr>
                     <tr>
                       <td style="border:none; text-align:left; padding:4px 0;">2. KEPERLUAN</td>
@@ -160,13 +203,14 @@ export default function ApprovalSuratAlat() {
                   <table style="width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:16px;">
                     <tr>
                       <th rowspan="2" style="border:1px solid black; padding:4px; width:30px;">NO</th>
-                      <th colspan="4" style="border:1px solid black; padding:4px;">SPESIFIKASI ALAT KALIBRATOR</th>
+                      <th colspan="5" style="border:1px solid black; padding:4px;">SPESIFIKASI ALAT KALIBRATOR</th>
                       <th colspan="5" style="border:1px solid black; padding:4px;">KONDISI ALAT KALIBRATOR</th>
                     </tr>
                     <tr>
                       <th style="border:1px solid black; padding:4px; width:150px;">NAMA</th>
                       <th style="border:1px solid black; padding:4px; width:100px;">MERK</th>
                       <th style="border:1px solid black; padding:4px; width:100px;">TYPE</th>
+                      <th style="border:1px solid black; padding:4px; width:100px;">KODE UNIT</th>
                       <th style="border:1px solid black; padding:4px; width:100px;">NO. SERI</th>
                       <th style="border:1px solid black; padding:4px; width:80px;">ASESORIS</th>
                       <th style="border:1px solid black; padding:4px; width:80px;">KABEL</th>
@@ -174,23 +218,26 @@ export default function ApprovalSuratAlat() {
                       <th style="border:1px solid black; padding:4px; width:80px;">FUNGSI</th>
                       <th style="border:1px solid black; padding:4px; width:80px;">FISIK</th>
                     </tr>
-                    ${surat.barangList
-                      .map(
-                        (b, i) => `
-                        <tr>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${i + 1}</td>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.nama}</td>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.merk}</td>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.type}</td>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.noSeri}</td>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.accesoris}</td>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.kabel}</td>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.tombol}</td>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.fungsi}</td>
-                          <td style="border:1px solid black; padding:4px; text-align:center;">${b.kondisi.fisik}</td>
-                        </tr>`
-                      )
-                      .join("")}
+                    ${Array.isArray(surat.daftarAlat)
+                      ? surat.daftarAlat
+                          .map(
+                            (b, i) => `
+                            <tr>
+                              <td style="border:1px solid black; text-align:center;">${i + 1}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.nama ?? "-"}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.merk ?? "-"}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.type ?? "-"}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.kodeUnit ?? "-"}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.noSeri ?? "-"}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.kondisi?.accessories ?? "-"}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.kondisi?.kabel ?? "-"}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.kondisi?.tombol ?? "-"}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.kondisi?.fungsi ?? "-"}</td>
+                              <td style="border:1px solid black; text-align:center;">${b.kondisi?.fisik ?? "-"}</td>
+                            </tr>`
+                          )
+                          .join("")
+                      : ""}
                   </table>
                 </div>
     
@@ -343,9 +390,9 @@ export default function ApprovalSuratAlat() {
               className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             >
               <option value="semua">Semua Status</option>
-              <option value="Disetujui">Disetujui</option>
-              <option value="Ditolak">Ditolak</option>
-              <option value="Pending">Pending</option>
+              <option value="DISETUJUI">Disetujui</option>
+              <option value="DITOLAK">Ditolak</option>
+              <option value="PENDING">Pending</option>
             </select>
           </div>
         </div>
@@ -383,7 +430,7 @@ export default function ApprovalSuratAlat() {
                 ) : (
                   paginatedData.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-2">{item.tanggal}</td>
+                      <td className="px-4 py-2"> {formatDateWIB(new Date(item.tanggal))}</td>
                       <td className="px-4 py-2">{item.keperluan}</td>
                       <td className="px-4 py-2">{item.nomorSurat}</td>
                       <td className="px-4 py-2">
@@ -405,7 +452,7 @@ export default function ApprovalSuratAlat() {
                           <Printer className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => handleHapus(index)}
+                          onClick={() => handleHapus(item.nomorSurat)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                           title="Hapus"
                         >
@@ -435,6 +482,7 @@ export default function ApprovalSuratAlat() {
       {showModal && selectedSurat && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50">
           <div className="bg-white text-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-auto">
+            
             {/* Header */}
             <div className="flex justify-between items-center px-5 sm:px-8 py-4 border-b bg-gray-50 rounded-t-xl">
               <h2 className="text-xl sm:text-2xl font-semibold">Detail Surat Alat</h2>
@@ -445,26 +493,28 @@ export default function ApprovalSuratAlat() {
                 ✕
               </button>
             </div>
-  
+
             {/* Body */}
             <div className="px-5 sm:px-10 py-4 sm:py-6 space-y-6 text-sm sm:text-base">
+
+              {/* Info Surat */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-600">Nomor Surat</h3>
                 <p className="text-gray-800 break-words">{selectedSurat.nomorSurat}</p>
               </div>
-  
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <span className="font-semibold text-gray-700">Tanggal:</span>
-                  <p className="text-gray-600 mt-1">{selectedSurat.tanggal}</p>
+                  <p className="text-gray-600 mt-1">{formatDateWIB(new Date(selectedSurat.tanggal))}</p>
                 </div>
                 <div>
                   <span className="font-semibold text-gray-700">Keperluan:</span>
                   <p className="text-gray-600 mt-1">{selectedSurat.keperluan}</p>
                 </div>
               </div>
-  
-              {/* Table Barang */}
+
+              {/* Tabel Alat */}
               <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-sm">
                 <table className="min-w-full text-xs sm:text-sm text-center border-collapse">
                   <thead className="bg-gray-100 text-gray-700">
@@ -473,6 +523,7 @@ export default function ApprovalSuratAlat() {
                       <th className="border p-2 sm:p-3">Nama</th>
                       <th className="border p-2 sm:p-3">Merk</th>
                       <th className="border p-2 sm:p-3">Type</th>
+                      <th className="border p-2 sm:p-3">Kode Unit</th>
                       <th className="border p-2 sm:p-3">No Seri</th>
                       <th className="border p-2 sm:p-3">Asesoris</th>
                       <th className="border p-2 sm:p-3">Kabel</th>
@@ -481,26 +532,35 @@ export default function ApprovalSuratAlat() {
                       <th className="border p-2 sm:p-3">Fisik</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {selectedSurat.barangList.map((b, i) => (
+                 <tbody>
+                  {Array.isArray(selectedSurat.daftarAlat) && selectedSurat.daftarAlat.length > 0 ? (
+                    selectedSurat.daftarAlat.map((b: alatItem, i: number) => (
                       <tr key={i} className="hover:bg-gray-50">
                         <td className="border p-2 sm:p-3">{i + 1}</td>
                         <td className="border p-2 sm:p-3">{b.nama}</td>
                         <td className="border p-2 sm:p-3">{b.merk}</td>
                         <td className="border p-2 sm:p-3">{b.type}</td>
+                        <td className="border p-2 sm:p-3">{b.kodeUnit}</td>
                         <td className="border p-2 sm:p-3">{b.noSeri}</td>
-                        <td className="border p-2 sm:p-3">{b.kondisi.accesoris}</td>
+                        <td className="border p-2 sm:p-3">{b.kondisi.accessories}</td>
                         <td className="border p-2 sm:p-3">{b.kondisi.kabel}</td>
                         <td className="border p-2 sm:p-3">{b.kondisi.tombol}</td>
                         <td className="border p-2 sm:p-3">{b.kondisi.fungsi}</td>
                         <td className="border p-2 sm:p-3">{b.kondisi.fisik}</td>
                       </tr>
-                    ))}
-                  </tbody>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={11} className="text-center p-4 text-gray-500">
+                        Tidak ada unit alat
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
                 </table>
               </div>
             </div>
-  
+
             {/* Footer */}
             <div className="px-5 sm:px-10 py-4 sm:py-5 border-t bg-gray-50 flex flex-wrap gap-3 justify-end rounded-b-xl">
               {role === "MANAJER" ? (
@@ -527,7 +587,7 @@ export default function ApprovalSuratAlat() {
                   Print Surat
                 </button>
               )}
-  
+
               <button
                 onClick={() => setShowModal(false)}
                 className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm sm:text-base"
@@ -538,6 +598,8 @@ export default function ApprovalSuratAlat() {
           </div>
         </div>
       )}
+
+
     </div>
   );
 }  
