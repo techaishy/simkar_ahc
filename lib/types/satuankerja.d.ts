@@ -43,6 +43,6 @@ export interface Puskesmas {
     deskripsi: string;
     jumlahPuskesmas: number;
     jumlahRS: number;
-    populasi: string;
+    populasi?: string;
     image?: string;
   }

@@ -7,11 +7,21 @@ import { useParams, useRouter } from 'next/navigation'
 import { Building2, Hospital, Shield, MapPin, Phone, Clock, ArrowLeft } from 'lucide-react'
 import type { Puskesmas, RumahSakit, Klinik } from '@/lib/types/satuankerja'
 import { WilayahKerjaProps } from '@/lib/types/satuankerja'
+import TambahWilayahForm from './FormWilayahKerja'
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog"
+import { KotaWilayah } from '@/lib/types/satuankerja'
 
-export default function WilayahKerja(WilayahKerjaProps: WilayahKerjaProps) {
+export default function WilayahKerja({}: WilayahKerjaProps) {
   const { kotaId } = useParams() as { kotaId: string }
   const [activeTab, setActiveTab] = useState('puskesmas')
   const router = useRouter();
+  const [openTambah, setOpenTambah] = useState(false);
+  const [KotaWilayah, setKotaWilayah] = useState<KotaWilayah | null>(null);
+
+  const handleSave = (kotaBaru: KotaWilayah) => {
+    setKotaWilayah(kotaBaru);
+    setOpenTambah(false);
+  };
 
   const handleBack = () => {
     router.push("/satuan_kerja"); 
@@ -63,6 +73,8 @@ export default function WilayahKerja(WilayahKerjaProps: WilayahKerjaProps) {
       <span>Kembali ke Menu</span>
     </button>
     </div>
+
+  
       <div className="p-8 text-center text-gray-600">
         
         <h1 className="text-2xl font-semibold mb-2">Data tidak ditemukan</h1>
@@ -96,6 +108,7 @@ export default function WilayahKerja(WilayahKerjaProps: WilayahKerjaProps) {
 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        
         
         {data.map((item) => (
           <div
@@ -131,6 +144,24 @@ export default function WilayahKerja(WilayahKerjaProps: WilayahKerjaProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-3 sm:px-6 pt-0 pb-5">
+        <div className='flex flex-wrap gap-2 justify-end mb-4'>
+      <Dialog open={openTambah} onOpenChange={setOpenTambah}>
+        <DialogTrigger asChild>
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-black  to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+          >
+            <span>Tambah Data Wilayah</span>
+          </button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">Tambah Data Wilayah Kerja</DialogTitle>
+          </DialogHeader>
+          <TambahWilayahForm onSave={handleSave} />
+          </DialogContent>
+          </Dialog>
+
+    </div>
        <div className='p-0 pl-5 pt-2'> <button
       onClick={handleBack}
       className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-black  to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
