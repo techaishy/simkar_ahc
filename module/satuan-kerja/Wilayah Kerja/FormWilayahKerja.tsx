@@ -70,7 +70,7 @@ export default function TambahWilayahForm({ onSave }: Props) {
           <form onSubmit={handleSubmit} className="p-4 space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar">
             {/* ID Kota */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-50 mb-1">
                 ID Kota (slug)
               </label>
               <input
@@ -86,7 +86,7 @@ export default function TambahWilayahForm({ onSave }: Props) {
 
             {/* Nama Kota */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-50 mb-1">
                 Nama Kota
               </label>
               <input
@@ -102,7 +102,7 @@ export default function TambahWilayahForm({ onSave }: Props) {
 
             {/* Deskripsi */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-50 mb-1">
                 Deskripsi
               </label>
               <textarea
@@ -119,7 +119,7 @@ export default function TambahWilayahForm({ onSave }: Props) {
             {/* Jumlah Puskesmas & RS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-50 mb-1">
                   Jumlah Puskesmas
                 </label>
                 <input
@@ -132,7 +132,7 @@ export default function TambahWilayahForm({ onSave }: Props) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-50 mb-1">
                   Jumlah Rumah Sakit
                 </label>
                 <input
@@ -148,7 +148,7 @@ export default function TambahWilayahForm({ onSave }: Props) {
 
             {/* Populasi */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-50 mb-1">
                 Populasi
               </label>
               <input
