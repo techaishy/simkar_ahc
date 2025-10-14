@@ -165,10 +165,8 @@
                 </div>
 
                 <div className="p-6">
-                  {/* Hapus deskripsi, bisa tampilkan nama kota lagi jika mau */}
                   {/* <p className="text-gray-600 text-sm mb-4 line-clamp-2">{kota.deskripsi || "-"}</p> */}
 
-                  {/* Stats */}
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
