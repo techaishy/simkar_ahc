@@ -50,7 +50,6 @@ export async function GET(req: NextRequest, { params }: { params: { kotaId: stri
         case "TSK-001":
           break;
         case "TSK-002":
-        case "TSK-003":
         case "TSK-004":
         case "TSK-006":
           rsPemerintah.push({
@@ -62,7 +61,7 @@ export async function GET(req: NextRequest, { params }: { params: { kotaId: stri
             jenisPelayanan: "-",
           });
           break;
-        default:
+        case "TSK-003":
           klinik.push({
             id: lokasi.id,
             nama: lokasi.name,
@@ -70,6 +69,8 @@ export async function GET(req: NextRequest, { params }: { params: { kotaId: stri
             telp: "-",
             jamBuka: "-",
           });
+        default:
+           break;
       }
     });
 

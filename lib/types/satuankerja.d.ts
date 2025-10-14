@@ -43,7 +43,8 @@ export interface KotaWilayah {
   populasi?: string;
   image?: string;
   jumlahPuskesmas: number;
-  jumlahRS: number; 	
+  jumlahRS: number;
+  jumlahKL :number; 	
 
   puskesmas: Puskesmas[];
   rsPemerintah: RumahSakit[];

@@ -27,6 +27,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const lokasi = wilayahList.map((w) => {
       let jumlahPuskesmas = 0;
       let jumlahRS = 0;
+      let jumlahKL = 0;
 
       w.lokasiList.forEach((lokasi) => {
         switch (lokasi.SK) {
@@ -37,6 +38,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
             break; 
           case "TSK-002":
           case "TSK-003":
+            jumlahKL += 1;
+          break;
           case "TSK-004":
           case "TSK-006":
             jumlahRS += 1;
@@ -52,6 +55,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         deskripsi: "",       
         jumlahPuskesmas,
         jumlahRS,
+        jumlahKL,
         populasi: "0",      
       };
     });

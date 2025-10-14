@@ -20,6 +20,7 @@ export default function TambahWilayahForm({ onSave }: Props) {
     deskripsi: "",
     jumlahPuskesmas: 0,
     jumlahRS: 0,
+    jumlahKL:0,
     populasi: "",
     puskesmas: [],
     rsPemerintah: [],

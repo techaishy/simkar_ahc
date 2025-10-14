@@ -34,6 +34,7 @@
           nama: item.name,
           deskripsi: item.deskripsi || "",     
           jumlahPuskesmas: item.jumlahPuskesmas || 0,
+          jumlahKL: item.jumlahKL || 0,
           jumlahRS: item.jumlahRS || 0,
           populasi: item.populasi || "0",
         }));
@@ -186,9 +187,9 @@
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-purple-600" />
-                        <span className="text-gray-600">Populasi</span>
+                        <span className="text-gray-600">Klinik</span>
                       </div>
-                      <span className="font-semibold text-gray-800">{kota.populasi}</span>
+                      <span className="font-semibold text-gray-800">{kota.jumlahKL}</span>
                     </div>
                   </div>
 
