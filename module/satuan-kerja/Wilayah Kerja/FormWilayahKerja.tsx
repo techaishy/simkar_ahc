@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -22,6 +21,11 @@ export default function TambahWilayahForm({ onSave }: Props) {
     jumlahPuskesmas: 0,
     jumlahRS: 0,
     populasi: "",
+    puskesmas: [],
+    rsPemerintah: [],
+    rsSwasta: [],
+    rsTentara: [],
+    klinik: [],
   });
 
   const validate = () => {

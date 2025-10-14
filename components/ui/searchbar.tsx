@@ -1,42 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
   placeholder?: string;
+  delay?: number; 
 }
 
-export default function SearchBar({ onSearch, placeholder = "Cari..." }: SearchBarProps) {
+export default function SearchBar({
+  onSearch,
+  placeholder = "Cari...",
+  delay = 200,
+}: SearchBarProps) {
   const [query, setQuery] = useState("");
 
-  const handleSearch = () => {
-    onSearch(query.trim());
-  };
+  useEffect(() => {
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
+    const handler = setTimeout(() => {
+      onSearch(query.trim());
+    }, delay);
+
+    return () => clearTimeout(handler);
+  }, [query, delay, onSearch]);
 
   return (
-    <div className="flex items-center gap-2 w-full max-w-sm">
+    <div className="w-full max-w-sm">
       <Input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="flex-1"
+        className="w-full"
       />
-      <Button onClick={handleSearch} className="flex items-center gap-1">
-        <Search size={16} />
-        Cari
-      </Button>
     </div>
   );
 }

@@ -1,19 +1,21 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Building2, Hospital, Shield, MapPin, Phone, Clock, ArrowLeft } from 'lucide-react'
 import type { Puskesmas, RumahSakit, Klinik, KotaWilayah } from '@/lib/types/satuankerja'
 import TambahWilayahForm from './FormWilayahKerja'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import PaginationControl from '@/components/ui/PaginationControl'
 
-export default function WilayahKerjaTable({}: {}) {
-  const { kotaId } = useParams() as { kotaId: string }
+export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
   const [activeTab, setActiveTab] = useState('puskesmas')
   const router = useRouter()
   const [openTambah, setOpenTambah] = useState(false)
   const [kotaWilayah, setKotaWilayah] = useState<KotaWilayah | null>(null)
   const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 6
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,7 +68,8 @@ export default function WilayahKerjaTable({}: {}) {
     { id: 'klinik', label: 'Klinik', icon: Building2, count: kotaWilayah.klinik.length }
   ]
 
-  const renderData = () => {
+  // Fungsi untuk ambil data sesuai tab dan pagination
+  const getCurrentItems = () => {
     let data: readonly (Puskesmas | RumahSakit | Klinik)[] = []
     switch (activeTab) {
       case 'puskesmas': data = kotaWilayah.puskesmas; break
@@ -75,46 +78,84 @@ export default function WilayahKerjaTable({}: {}) {
       case 'rs-tentara': data = kotaWilayah.rsTentara; break
       case 'klinik': data = kotaWilayah.klinik; break
     }
+    const indexOfLastItem = currentPage * itemsPerPage
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage
+    return data.slice(indexOfFirstItem, indexOfLastItem)
+  }
 
+  const totalPages = (() => {
+    let dataLength = 0
+    switch (activeTab) {
+      case 'puskesmas': dataLength = kotaWilayah.puskesmas.length; break
+      case 'rs-pemerintah': dataLength = kotaWilayah.rsPemerintah.length; break
+      case 'rs-swasta': dataLength = kotaWilayah.rsSwasta.length; break
+      case 'rs-tentara': dataLength = kotaWilayah.rsTentara.length; break
+      case 'klinik': dataLength = kotaWilayah.klinik.length; break
+    }
+    return Math.ceil(dataLength / itemsPerPage)
+  })()
+
+  const renderData = () => {
+    const data = getCurrentItems()
     if (!data.length) return <p className="text-gray-500 text-sm text-center">Tidak ada data tersedia.</p>
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {data.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">{item.nama}</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-start gap-2 text-gray-600">
-                <MapPin className="w-4 h-4 mt-0.5 text-blue-600" />
-                <span>{item.alamat}</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <Phone className="w-4 h-4 text-green-600" />
-                <span>{item.telp}</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <Clock className="w-4 h-4 text-orange-600" />
-                <span>{item.jamBuka}</span>
-              </div>
-              {'jenisPelayanan' in item && item.jenisPelayanan && (
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <p className="text-xs text-gray-500 font-medium mb-1">Jenis Pelayanan:</p>
-                  <p className="text-sm text-gray-700">{item.jenisPelayanan}</p>
+      <div className="space-y-4 " >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {data.map((item) => (
+            <div key={item.id} className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">{item.nama}</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-start gap-2 text-gray-600">
+                  <MapPin className="w-4 h-4 mt-0.5 text-blue-600" />
+                  <span>{item.alamat}</span>
                 </div>
-              )}
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Phone className="w-4 h-4 text-green-600" />
+                  <span>{item.telp}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Clock className="w-4 h-4 text-orange-600" />
+                  <span>{item.jamBuka}</span>
+                </div>
+                {'jenisPelayanan' in item && item.jenisPelayanan && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-xs text-gray-500 font-medium mb-1">Jenis Pelayanan:</p>
+                    <p className="text-sm text-gray-700">{item.jenisPelayanan}</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {totalPages > 1 && (
+          <PaginationControl
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-3 sm:px-6 pt-0 pb-5">
-      <div className='flex flex-wrap gap-2 justify-end mb-4'>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-3 sm:px-6 pt-1 pb-1">
+      <div className="flex flex-wrap justify-between items-center gap-3 my-4">
+        <div>
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Kembali ke Menu</span>
+          </button>
+        </div>
+
         <Dialog open={openTambah} onOpenChange={setOpenTambah}>
           <DialogTrigger asChild>
-            <button className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg">
+            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               <span>Tambah Data Wilayah</span>
             </button>
           </DialogTrigger>
@@ -125,13 +166,6 @@ export default function WilayahKerjaTable({}: {}) {
             <TambahWilayahForm onSave={handleSave} />
           </DialogContent>
         </Dialog>
-      </div>
-
-      <div className='p-0 pl-5 pt-2'>
-        <button onClick={handleBack} className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg">
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Menu</span>
-        </button>
       </div>
 
       <div className="max-w-7xl mx-auto space-y-6">
@@ -151,7 +185,7 @@ export default function WilayahKerjaTable({}: {}) {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => { setActiveTab(tab.id); setCurrentPage(1) }}
                   className={`flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-3 rounded-lg font-medium text-sm sm:text-base ${
                     activeTab === tab.id
                       ? 'text-white bg-black shadow-md'
@@ -167,7 +201,6 @@ export default function WilayahKerjaTable({}: {}) {
               )
             })}
           </div>
-
           {/* Data List */}
           {renderData()}
         </div>

@@ -5,6 +5,7 @@
   import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog"
   import { useState, useEffect } from 'react';
   import SearchBar from '@/components/ui/searchbar';
+  import PaginationControl from '@/components/ui/PaginationControl';
 
   export default function ListDaerah() {
     const router = useRouter();
@@ -54,61 +55,6 @@
       setFilteredKota((prev) => [...prev, kotaBaru]);
       setOpenTambah(false);
     } ;
-
-   
-
-    // const dataKota: KotaWilayah[] = [
-    //   {
-    //     id: 'lhokseumawe',
-    //     nama: 'Kota Lhokseumawe',
-    //     deskripsi: 'Kota industri dan pelabuhan strategis di pesisir timur Aceh',
-    //     jumlahPuskesmas: 10,
-    //     jumlahRS: 6,
-    //     populasi: '188.713'
-    //   },
-    //   {
-    //     id: 'banda-aceh',
-    //     nama: 'Kota Banda Aceh',
-    //     deskripsi: 'Ibu kota Provinsi Aceh dengan fasilitas kesehatan lengkap',
-    //     jumlahPuskesmas: 12,
-    //     jumlahRS: 8,
-    //     populasi: '265.111'
-    //   },
-    //   {
-    //     id: 'langsa',
-    //     nama: 'Kota Langsa',
-    //     deskripsi: 'Kota perdagangan dengan akses kesehatan yang memadai',
-    //     jumlahPuskesmas: 8,
-    //     jumlahRS: 4,
-    //     populasi: '185.971'
-    //   },
-    //   {
-    //     id: 'sabang',
-    //     nama: 'Kota Sabang',
-    //     deskripsi: 'Kota pulau dengan layanan kesehatan kepulauan',
-    //     jumlahPuskesmas: 4,
-    //     jumlahRS: 2,
-    //     populasi: '43.337'
-    //   },
-    //   {
-    //     id: 'subulussalam',
-    //     nama: 'Kota Subulussalam',
-    //     deskripsi: 'Kota dengan pelayanan kesehatan berbasis komunitas',
-    //     jumlahPuskesmas: 6,
-    //     jumlahRS: 3,
-    //     populasi: '91.488'
-    //   },
-    //   {
-    //     id: 'aceh-besar',
-    //     nama: 'Kabupaten Aceh Besar',
-    //     deskripsi: 'Kabupaten dengan jaringan puskesmas yang luas',
-    //     jumlahPuskesmas: 25,
-    //     jumlahRS: 5,
-    //     populasi: '420.000'
-    //   }
-    // ];
-
-    // const allKota = [ dataKota, ...KotaWilayah];
     
     const allKota = KotaWilayah;
 
@@ -123,11 +69,10 @@
       }
       const lower = query.toLowerCase();
       setFilteredKota(
-        allKota.filter((a) => 
-          a.nama.toLowerCase().includes(lower)
-        )
+        KotaWilayah.filter((a) => a.nama.toLowerCase().includes(lower))
       );
-    }
+      setCurrentPage(1); 
+    };
   
 
     const handleNavigate = (kotaId: string) => {
@@ -140,15 +85,17 @@
     const totalPages = Math.ceil(filteredKota.length / itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-4 pt-0">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-4 pt-4">
  
-      {/* Top Bar */}
-      <div className="flex flex-wrap justify-end gap-2 mb-4">
+    <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <div className="flex-1 flex justify-center order-2 sm:order-1 w-full sm:w-auto">
         <SearchBar placeholder="Cari Kota..." onSearch={handleSearch} />
+      </div>
+      <div className="order-1 sm:order-2 flex justify-end w-full sm:w-auto">
         <Dialog open={openTambah} onOpenChange={setOpenTambah}>
           <DialogTrigger asChild>
             {!openTambah && (
-              <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-white font-medium text-base sm:text-lg rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+              <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-white font-medium text-base rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
                 Tambah Data Wilayah
               </button>
             )}
@@ -161,11 +108,12 @@
           </DialogContent>
         </Dialog>
       </div>
+    </div>
 
       {/* Header */}
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Statistik */}
-        <div className="bg-white rounded-2xl shadow-xl p-2 pt-0 mb-8">
+        <div className="bg-white rounded-2xl shadow-xl p-2 pt-1 mb-8">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-3 bg-gradient-to-r from-[#d2e67a] to-[#f9fc4f] rounded-xl">
               <MapPin className="w-8 h-8 text-black" />
@@ -258,18 +206,12 @@
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center mt-8 gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                className={`px-4 py-2 rounded-md border ${
-                  page === currentPage ? "bg-blue-600 text-white" : "bg-white text-gray-700"
-                }`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ))}
+          <div className="mt-8 flex justify-center w-full">
+            <PaginationControl
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )}
 

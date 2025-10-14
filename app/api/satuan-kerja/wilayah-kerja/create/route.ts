@@ -1,98 +1,41 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAuth, AuthPayload } from "@/lib/requestaAuth";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const auth = requireAuth(req);
+  if (!(auth as AuthPayload).id) return auth as NextResponse;
+
+  const user = auth as AuthPayload;
+
+  if (!["ADMIN", "MANAJER", "OWNER"].includes(user.role || "")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
-    const {
-      nomorSurat,
-      wilayah,
-      tanggalMulai,
-      tanggalSelesai,
-      keterangan,
-      pembuatSuratId,
-      employees,
-      jamBerangkat,
-      akomodasi,
-      agenda,
-      tanggal_berangkat,
-      kendaraan,
-    } = body;
+    const { nama, latitude, longitude } = body;
 
-    if (!nomorSurat || !tanggalMulai || !pembuatSuratId) {
+    // Validasi field wajib
+    if (!nama || latitude == null || longitude == null) {
       return NextResponse.json(
-        { error: "Nomor surat, tanggal mulai, dan pembuat surat wajib diisi." },
+        { error: "Nama, Latitude, dan Longitude wajib diisi" },
         { status: 400 }
       );
     }
 
-    if (!Array.isArray(employees) || employees.length === 0) {
-      return NextResponse.json(
-        { error: "Minimal satu anggota harus ditambahkan." },
-        { status: 400 }
-      );
-    }
-
-    const result = await prisma.$transaction(async (tx) => {
-      const suratTugas = await tx.suratTugas.create({
-        data: {
-          nomor_surat: nomorSurat,
-          judul_tugas: wilayah,
-          jam_berangkat: jamBerangkat,
-          akomodasi: akomodasi,
-          wilayah: wilayah,
-          kendaraan: kendaraan,
-          tanggal_berangkat: new Date(tanggalMulai),
-          tanggal_mulai: new Date(tanggalMulai),
-          tanggal_selesai: tanggalSelesai
-            ? new Date(tanggalSelesai)
-            : new Date(tanggalMulai),
-          keterangan: agenda,
-          approval_status_admin: "PENDING",
-          approval_status_owner: "PENDING",
-          pembuat_surat: {
-            connect: { customId: pembuatSuratId },
-          },
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
-      });
-
-      await tx.suratTugasAnggota.createMany({
-        data: employees.map((emp: any) => ({
-          nomor_surat: nomorSurat,
-          karyawan_id: emp.id_karyawan,
-          peran: emp.peran || null,
-        })),
-        skipDuplicates: true,
-      });
-
-      await tx.user.updateMany({
-        where: {
-          karyawan: {
-            OR: employees.map((a: any) => ({
-              name: a.nama,
-              position: a.jabatan,
-            })),
-          },
-        },
-        data: {
-          kantorTetap: false,
-        },
-      });
-
-      return suratTugas;
+    // Simpan data wilayah baru
+    const newWilayah = await prisma.wilayah.create({
+      data: {
+        nama_wilayah: nama,
+        latitude: Number(latitude),
+        longitude: Number(longitude),
+      },
     });
 
-    return NextResponse.json(
-      { message: "Surat tugas berhasil dibuat.", data: result },
-      { status: 201 }
-    );
-  } catch (error: any) {
-    console.error("❌ Gagal membuat surat tugas:", error);
-    return NextResponse.json(
-      { error: "Gagal membuat surat tugas", detail: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true, data: newWilayah }, { status: 201 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Gagal menyimpan data" }, { status: 500 });
   }
 }
