@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react"; 
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -17,7 +18,6 @@ export default function SearchBar({
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-
     const handler = setTimeout(() => {
       onSearch(query.trim());
     }, delay);
@@ -26,13 +26,18 @@ export default function SearchBar({
   }, [query, delay, onSearch]);
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="relative w-full max-w-sm">
+      {/* Icon pencarian */}
+      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <Search className="w-5 h-5 text-gray-400" />
+      </div>
+
       <Input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
-        className="w-full"
+        className="w-full pl-10" 
       />
     </div>
   );

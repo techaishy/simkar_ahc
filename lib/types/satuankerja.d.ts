@@ -52,3 +52,22 @@ export interface KotaWilayah {
   rsTentara: RumahSakit[];
   klinik: Klinik[];
 }
+  export interface WilayahKerjaProps {
+    kotaId: string;
+  }
+
+//tipe untuk data alat & form
+  export interface Alat {
+    nama: string
+    unit: number
+  }
+  
+   export interface FormData {
+    nama: string
+    alamat: string
+    telp: string
+    jamBuka: string
+    jenisPelayanan?: string
+    tipe?: KategoriWilayah
+    alat: Alat[]
+  }
