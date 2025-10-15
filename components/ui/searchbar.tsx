@@ -12,7 +12,7 @@ interface SearchBarProps {
 
 export default function SearchBar({
   onSearch,
-  placeholder = "Cari...",
+  placeholder = "Cari fasilitas kesehatan...",
   delay = 200,
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
@@ -26,10 +26,9 @@ export default function SearchBar({
   }, [query, delay, onSearch]);
 
   return (
-    <div className="relative w-full max-w-sm">
-      {/* Icon pencarian */}
+    <div className="relative w-full">
       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-        <Search className="w-5 h-5 text-gray-400" />
+        <Search className="w-5 h-5 text-gray-700" />
       </div>
 
       <Input
@@ -37,7 +36,7 @@ export default function SearchBar({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-10" 
+        className="w-full pl-12 text-gray-800 placeholder-gray-500 sm:text-base"
       />
     </div>
   );

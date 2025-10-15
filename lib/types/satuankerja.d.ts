@@ -7,6 +7,7 @@ export interface Puskesmas {
   latitude: number;
   longitude: number;
   radius: number;
+  alat?: Alat[];
 }
 
 export interface RumahSakit {
@@ -19,6 +20,7 @@ export interface RumahSakit {
   latitude: number;
   longitude: number;
   radius: number;
+  alat?: Alat[];
 }
 
 export interface Klinik {
@@ -31,6 +33,7 @@ export interface Klinik {
   latitude: number;
   longitude: number;
   radius: number;
+  alat?: Alat[];
 }
 
 // Kategori SK
@@ -38,7 +41,7 @@ export type KategoriWilayah = 'rs-pemerintah' | 'rs-swasta' | 'rs-tentara' | 'pu
 
 export interface KotaWilayah {
   id: string;
-  nama: string;
+  nama_wilayah: string;
   deskripsi?: string;
   populasi?: string;
   image?: string;
@@ -56,9 +59,8 @@ export interface KotaWilayah {
     kotaId: string;
   }
 
-//tipe untuk data alat & form
   export interface Alat {
-    nama: string
+    nama_alat: string
     unit: number
   }
   

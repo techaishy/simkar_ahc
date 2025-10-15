@@ -16,7 +16,7 @@ export default function TambahWilayahForm({ onSave }: Props) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<KotaWilayah>({
     id: "",
-    nama: "",
+    nama_wilayah: "",
     deskripsi: "",
     jumlahPuskesmas: 0,
     jumlahRS: 0,
@@ -32,7 +32,7 @@ export default function TambahWilayahForm({ onSave }: Props) {
   const validate = () => {
     const errors: Record<string, string> = {};;
     if (!formData.id.trim()) errors.id = "ID Kota wajib diisi.";
-    if (!formData.nama.trim()) errors.nama = "Nama Kota wajib diisi.";
+    if (!formData.nama_wilayah.trim()) errors.nama_wilayah = "Nama Kota wajib diisi.";
     if ((formData.jumlahPuskesmas ?? 0) <= 0) errors.jumlahPuskesmas = "Jumlah Puskesmas wajib diisi.";
 
     if ((formData.jumlahRS ?? 0 ) <= 0) 
@@ -95,8 +95,8 @@ export default function TambahWilayahForm({ onSave }: Props) {
         </label>
         <input
           type="text"
-          name="nama"
-          value={formData.nama}
+          name="nama_wilayah"
+          value={formData.nama_wilayah}
           onChange={handleChange}
           placeholder="contoh: Kota Banda Aceh"
           className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-black"
@@ -178,8 +178,6 @@ export default function TambahWilayahForm({ onSave }: Props) {
             required
           />
       </div>
-  
-  
 
       {/* FOOTER BUTTON */}
       <div className="px-6 py-4 border-t">

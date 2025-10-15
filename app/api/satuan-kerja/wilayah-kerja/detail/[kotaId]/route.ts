@@ -2,12 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { requireAuth, AuthPayload } from "@/lib/requestaAuth";
 
-const slugToName = (slug: string) => {
-  return slug
+const slugToName = (slug: string) =>
+  slug
     .split("-")
     .map(s => s.charAt(0).toUpperCase() + s.slice(1))
     .join(" ");
-}
 
 export async function GET(req: NextRequest, { params }: { params: { kotaId: string } }) {
   const auth = requireAuth(req);
@@ -24,11 +23,19 @@ export async function GET(req: NextRequest, { params }: { params: { kotaId: stri
     const wilayah = await prisma.wilayah.findFirst({
       where: { nama_wilayah: namaWilayah },
       include: {
-        lokasiList: true, 
+        lokasiList: {
+          include: {
+            wilayahKerja: {
+              include: { alatKalibrasi: true }, 
+            },
+          },
+        },
       },
     });
 
-    if (!wilayah) return NextResponse.json({ error: "Wilayah tidak ditemukan" }, { status: 404 });
+    if (!wilayah) {
+      return NextResponse.json({ error: "Wilayah tidak ditemukan" }, { status: 404 });
+    }
 
     const puskesmas: any[] = [];
     const rsPemerintah: any[] = [];
@@ -37,45 +44,58 @@ export async function GET(req: NextRequest, { params }: { params: { kotaId: stri
     const klinik: any[] = [];
 
     wilayah.lokasiList.forEach(lokasi => {
+      const alatMap: Record<string, number> = {};
+
+      lokasi.wilayahKerja.forEach(wk => {
+        const alat = wk.alatKalibrasi;
+        if (!alat) return;
+        const unit = typeof wk.unit === "number" ? wk.unit : 0;
+        alatMap[alat.nama_alat] = (alatMap[alat.nama_alat] || 0) + unit;
+      });
+
+      const alat = Object.entries(alatMap).map(([nama_alat, unit]) => ({
+        nama_alat, 
+        unit,      
+      }));
+
+      const baseData = {
+        id: lokasi.id,
+        nama: lokasi.name,
+        alamat: lokasi.Lokasi,
+        telp: "-",
+        jamBuka: "-",
+        alat,
+      };
+
       switch (lokasi.SK) {
-        case "TSK-005":
-          puskesmas.push({
-            id: lokasi.id,
-            nama: lokasi.name,
-            alamat: lokasi.Lokasi,
-            telp: "-",
-            jamBuka: "-",
-          });
+        case "TSK-005": 
+          puskesmas.push(baseData);
           break;
-        case "TSK-001":
-          break;
-        case "TSK-002":
+
         case "TSK-004":
-        case "TSK-006":
-          rsPemerintah.push({
-            id: lokasi.id,
-            nama: lokasi.name,
-            alamat: lokasi.Lokasi,
-            telp: "-",
-            jamBuka: "-",
-            jenisPelayanan: "-",
-          });
+          rsPemerintah.push({ ...baseData, jenisPelayanan: "-" });
           break;
-        case "TSK-003":
-          klinik.push({
-            id: lokasi.id,
-            nama: lokasi.name,
-            alamat: lokasi.Lokasi,
-            telp: "-",
-            jamBuka: "-",
-          });
+
+        case "TSK-006": 
+          rsSwasta.push({ ...baseData, jenisPelayanan: "-" });
+          break;
+
+        case "TSK-002": 
+          rsTentara.push({ ...baseData, jenisPelayanan: "-" });
+          break;
+
+        case "TSK-003": 
+          klinik.push(baseData);
+          break;
+
+        case "TSK-001": 
         default:
-           break;
+                break;
       }
     });
 
     return NextResponse.json({
-      nama: wilayah.nama_wilayah,
+      nama_wilayah: wilayah.nama_wilayah,
       puskesmas,
       rsPemerintah,
       rsSwasta,
@@ -83,7 +103,7 @@ export async function GET(req: NextRequest, { params }: { params: { kotaId: stri
       klinik,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error GET wilayah detail:", error);
     return NextResponse.json({ error: "Gagal mengambil data" }, { status: 500 });
   }
 }

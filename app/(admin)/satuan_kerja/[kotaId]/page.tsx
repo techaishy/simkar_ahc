@@ -1,4 +1,4 @@
-import WilayahKerja from "@/module/satuan-kerja/Wilayah Kerja/WilayahKerjaTable";
+import WilayahKerja from "@/module/satuan-kerja/Wilayah Kerja/FasilitasKesehatan";
 import Breadcrumbs from "@/components/ui/breadcrumb";
 
 export default function Page({ params }: { params: { kotaId: string } }) {
