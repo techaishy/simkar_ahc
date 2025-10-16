@@ -9,8 +9,6 @@ import PaginationControl from '@/components/ui/PaginationControl';
 
 export default function ListDaerah() {
   const router = useRouter();
-
-  // State
   const [openTambah, setOpenTambah] = useState(false);
   const [kotaWilayahList, setKotaWilayahList] = useState<KotaWilayahType[]>([]);
   const [filteredKota, setFilteredKota] = useState<KotaWilayahType[]>([]);
@@ -19,12 +17,10 @@ export default function ListDaerah() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Helper
   function generateIdFromName(name: string) {
     return name.toLowerCase().trim().replace(/\s+/g, "-");
   }
 
-  // Fetch data
   useEffect(() => {
     const fetchKota = async () => {
       try {
@@ -54,7 +50,6 @@ export default function ListDaerah() {
     fetchKota();
   }, []);
 
-  // Search
   const handleSearch = (query: string) => {
     if (!query) {
       setFilteredKota(kotaWilayahList);
@@ -67,19 +62,16 @@ export default function ListDaerah() {
     setCurrentPage(1);
   };
 
-  // Navigation
   const handleNavigate = (namaKota: string) => {
     const slug = generateIdFromName(namaKota);
     router.push(`/satuan_kerja/${slug}`);
   };
 
-  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredKota.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredKota.length / itemsPerPage);
 
-  // Handle tambah kota
   const handleSave = (kotaBaru: KotaWilayahType) => {
     setKotaWilayahList((prev) => [...prev, kotaBaru]);
     setFilteredKota((prev) => [...prev, kotaBaru]);

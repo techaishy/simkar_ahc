@@ -5,22 +5,23 @@ import { useRouter } from "next/navigation";
 import { Save } from "lucide-react";
 import { KotaWilayah } from "@/lib/types/satuankerja";
 
-
 type Props = {
   onSave: (kotaBaru: KotaWilayah) => void;
   onClose?: () => void;
 };
 
-export default function TambahWilayahForm({ onSave }: Props) {
+export default function TambahWilayahForm({ onSave, onClose }: Props) {
   const router = useRouter();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formData, setFormData] = useState<KotaWilayah>({
     id: "",
     nama_wilayah: "",
     deskripsi: "",
     jumlahPuskesmas: 0,
     jumlahRS: 0,
-    jumlahKL:0,
+    jumlahKL: 0,
     populasi: "",
     puskesmas: [],
     rsPemerintah: [],
@@ -30,48 +31,81 @@ export default function TambahWilayahForm({ onSave }: Props) {
   });
 
   const validate = () => {
-    const errors: Record<string, string> = {};;
+    const errors: Record<string, string> = {};
     if (!formData.id.trim()) errors.id = "ID Kota wajib diisi.";
     if (!formData.nama_wilayah.trim()) errors.nama_wilayah = "Nama Kota wajib diisi.";
-    if ((formData.jumlahPuskesmas ?? 0) <= 0) errors.jumlahPuskesmas = "Jumlah Puskesmas wajib diisi.";
+    if (!(formData.deskripsi ?? "").trim()) errors.deskripsi = "Deskripsi wajib diisi.";
+    return errors;
+  };
 
-    if ((formData.jumlahRS ?? 0 ) <= 0) 
-      errors.jumlahRS = "Jumlah Rumah Sakit wajib diisi.";
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-};
-
-
+  const capitalizeWords = (text: string) =>
+    text
+      .toLowerCase()
+      .split(" ")
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === "jumlahPuskesmas" || name === "jumlahRS"
-          ? Number(value)
+        name === "nama_wilayah"
+          ? capitalizeWords(value) 
           : value,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    if (!validate()) {
-      
-    return;}
-   
-   if (onSave){ 
-  onSave(formData);}
-    alert("Data wilayah berhasil ditambahkan 🚀");
-    router.push("/satuan_kerja");
+    const errors = validate();
+    setFieldErrors(errors);
 
+    if (Object.keys(errors).length > 0) {
+      return; 
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const res = await fetch("/api/satuan-kerja/wilayah-kerja/wilayah/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nama_wilayah: formData.nama_wilayah,
+          deskripsi: formData.deskripsi,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Gagal menambahkan data wilayah ❌");
+        return;
+      }
+
+      if (onSave) onSave(formData);
+      alert("✅ Data wilayah berhasil ditambahkan!");
+
+      if (onClose) onClose();
+      else router.push("/satuan_kerja");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Terjadi kesalahan saat menyimpan data.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar">
+    <form
+      onSubmit={handleSubmit}
+      className="p-4 space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar"
+    >
       {/* ID Kota */}
       <div>
         <label className="block text-sm font-medium text-gray-50 mb-1">
@@ -84,8 +118,10 @@ export default function TambahWilayahForm({ onSave }: Props) {
           onChange={handleChange}
           placeholder="contoh: banda-aceh"
           className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-black"
-          required
         />
+        {fieldErrors.id && (
+          <p className="text-sm text-red-400 mt-1">{fieldErrors.id}</p>
+        )}
       </div>
 
       {/* Nama Kota */}
@@ -100,8 +136,12 @@ export default function TambahWilayahForm({ onSave }: Props) {
           onChange={handleChange}
           placeholder="contoh: Kota Banda Aceh"
           className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-black"
-          required
         />
+        {fieldErrors.nama_wilayah && (
+          <p className="text-sm text-red-400 mt-1">
+            {fieldErrors.nama_wilayah}
+          </p>
+        )}
       </div>
 
       {/* Deskripsi */}
@@ -116,78 +156,21 @@ export default function TambahWilayahForm({ onSave }: Props) {
           placeholder="contoh: Ibu kota Provinsi Aceh dengan fasilitas kesehatan lengkap"
           className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-black"
           rows={3}
-          required
         />
+        {fieldErrors.deskripsi && (
+          <p className="text-sm text-red-400 mt-1">{fieldErrors.deskripsi}</p>
+        )}
       </div>
 
-      {/* Jumlah Puskesmas & RS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-50 mb-1">
-            Jumlah Puskesmas
-          </label>
-          <input
-            type="number"
-            name="jumlahPuskesmas"
-            value={formData.jumlahPuskesmas}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-black"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-50 mb-1">
-            Jumlah Rumah Sakit
-          </label>
-          <input
-            type="number"
-            name="jumlahRS"
-            value={formData.jumlahRS}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-black"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-50 mb-1">
-            Jumlah Klinik
-          </label>
-          <input
-              type="number"
-              name="jumlahKL"
-              value={formData.jumlahKL}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-black"
-              required
-            />
-        </div>
-      </div>
-
-      {/* Populasi */}
-      <div>
-        <label className="block text-sm font-medium text-gray-50 mb-1">
-          Populasi
-        </label>
-       <input
-            type="text"
-            name="populasi"
-            value={formData.populasi}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-black"
-            placeholder="contoh : 11235"
-            required
-          />
-      </div>
-
-      {/* FOOTER BUTTON */}
+      {/* Tombol Simpan */}
       <div className="px-6 py-4 border-t">
         <button
           type="submit"
-          
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-black to-gray-900 hover:from-[#d2e67a] hover:to-[#f9fc4f] text-white hover:text-black px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+          disabled={isSubmitting}
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-black to-gray-900 hover:from-[#d2e67a] hover:to-[#f9fc4f] text-white hover:text-black px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-60"
         >
           <Save className="w-5 h-5" />
-          Simpan Data
+          {isSubmitting ? "Menyimpan..." : "Simpan Data"}
         </button>
       </div>
     </form>

@@ -145,8 +145,9 @@ model LokasiDinas {
 model Wilayah {
   id           Int      @id @default(autoincrement())
   nama_wilayah String
-  longitude    Float
-  latitude     Float
+  longitude    Float?
+  latitude     Float?
+  Deskripsi    String?
 
   lokasiList   LokasiDinas[]
 
