@@ -1,30 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search } from "lucide-react"; 
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
   placeholder?: string;
+  delay?: number; 
 }
 
-export default function SearchBar({ onSearch, placeholder = "Cari..." }: SearchBarProps) {
+export default function SearchBar({
+  onSearch,
+  placeholder = "Cari fasilitas kesehatan...",
+  delay = 200,
+}: SearchBarProps) {
   const [query, setQuery] = useState("");
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      onSearch(query.trim());
+    }, delay);
+
+    return () => clearTimeout(handler);
+  }, [query, delay, onSearch]);
+
   return (
-    <div className="flex items-center gap-2 w-full max-w-sm relative">
-      <Search size={16} className="absolute left-3 text-gray-400" />
+    <div className="relative w-full">
+      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <Search className="w-5 h-5 text-gray-700" />
+      </div>
+
       <Input
         type="text"
         value={query}
-        onChange={(e) => {
-          const value = e.target.value;
-          setQuery(value);
-          onSearch(value.trim()); 
-        }}
+        onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 pl-9" 
+        className="w-full pl-12 text-gray-800 placeholder-gray-500 sm:text-base"
       />
     </div>
   );
