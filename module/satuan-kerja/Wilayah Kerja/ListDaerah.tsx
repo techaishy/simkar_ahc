@@ -15,7 +15,7 @@ export default function ListDaerah() {
   const [loading, setLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
 
   function generateIdFromName(name: string) {
     return name.toLowerCase().trim().replace(/\s+/g, "-");
@@ -227,9 +227,8 @@ export default function ListDaerah() {
               <PaginationControl
                 totalPages={totalPages}
                 currentPage={currentPage}
-                perPage={itemsPerPage}
-                onPageChange={(page) => setCurrentPage(page)}
-                showPerPage={false} 
+                onPageChange={setCurrentPage}
+                showPerPage={false}
               />
             </div>
           )}
