@@ -228,6 +228,7 @@ export default function ListDaerah() {
                 totalPages={totalPages}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
+                showPerPage={false}
               />
             </div>
           )}

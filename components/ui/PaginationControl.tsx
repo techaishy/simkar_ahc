@@ -1,97 +1,145 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PaginationControlProps {
   totalPages: number;
-  currentPage: number;
-  onPageChange: (page: number) => void;
-  classname?: string;
+  currentPage?: number;
+  perPage?: number;
+  onPageChange: (page: number, perPage: number) => void;
+  showPerPage?: boolean; 
 }
 
 export default function PaginationControl({
   totalPages,
-  currentPage,
+  currentPage: controlledPage,
+  perPage: controlledPerPage,
   onPageChange,
+  showPerPage = true, 
 }: PaginationControlProps) {
+  const [currentPage, setCurrentPage] = useState(controlledPage ?? 1);
+  const [perPage, setPerPage] = useState(controlledPerPage ?? 5);
+
+  useEffect(() => {
+    onPageChange(currentPage, perPage);
+  }, []);
+
   const changePage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      onPageChange(page);
+      setCurrentPage(page);
+      onPageChange(page, perPage);
     }
   };
 
-  // 🔹 Generate daftar halaman dengan ellipsis
+  const handlePerPageChange = (value: string) => {
+    const newPerPage = parseInt(value, 10);
+    setPerPage(newPerPage);
+    setCurrentPage(1);
+    onPageChange(1, newPerPage);
+  };
+
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
-
     if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       pages.push(1);
+      let start = Math.max(2, currentPage - 1);
+      let end = Math.min(totalPages - 1, currentPage + 1);
 
-      if (currentPage > 4) {
-        pages.push("...");
+      if (currentPage <= 3) {
+        start = 2;
+        end = 4;
+      } else if (currentPage >= totalPages - 2) {
+        start = totalPages - 3;
+        end = totalPages - 1;
       }
 
-      const startPage = Math.max(2, currentPage - 1);
-      const endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-
-      if (currentPage < totalPages - 3) {
-        pages.push("...");
-      }
-
+      if (start > 2) pages.push("...");
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (end < totalPages - 1) pages.push("...");
       pages.push(totalPages);
     }
-
     return pages;
   };
 
   return (
-    <div className="w-full mt-4 flex justify-center sm:justify-end">
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* Tombol Prev */}
+     <div className={`flex items-center mt-4 w-full flex-wrap gap-4 ${
+          showPerPage ? "justify-between" : "justify-center" }`}
+  >
+      {/* Dropdown Per Page (opsional) */}
+      {showPerPage && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">Tampilkan</span>
+          <Select value={perPage.toString()} onValueChange={handlePerPageChange}>
+            <SelectTrigger className="w-[80px] bg-white border text-gray-800 dark:bg-gray-800 dark:text-gray-100">
+              <SelectValue placeholder="5" />
+            </SelectTrigger>
+            <SelectContent className="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+              {["5", "10", "20", "30"].map((value) => (
+                <SelectItem
+                  key={value}
+                  value={value}
+                  className="
+                    hover:bg-primary/80 focus:bg-primary
+                    aria-selected:bg-primary aria-selected:text-white
+                    aria-selected:hover:bg-primary aria-selected:hover:text-white
+                  "
+                >
+                  {value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-gray-600">per halaman</span>
+        </div>
+      )}
+
+      {/* Pagination */}
+      <div className="flex items-center gap-2 flex-wrap justify-center">
         <Button
           onClick={() => changePage(currentPage - 1)}
           disabled={currentPage === 1}
           className={`px-4 py-2 text-sm font-medium rounded ${
             currentPage === 1
-              ? "bg-gray-600 text-white cursor-not-allowed"
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
               : "bg-white text-gray-700 border hover:bg-gray-100"
           }`}
         >
           Prev
         </Button>
 
-        {/* Nomor Halaman */}
-        <div className="flex gap-2 flex-wrap justify-center">
-          {getPageNumbers().map((page, idx) =>
-            typeof page === "string" ? (
-              <span key={idx} className="px-3 py-2 text-gray-400 select-none">
-                {page}
-              </span>
-            ) : (
-              <Button
-                key={page}
-                onClick={() => changePage(page)}
-                className={`px-4 py-2 text-sm font-medium rounded ${
-                  currentPage === page
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-white text-gray-700 border hover:bg-gray-100"
-                }`}
-              >
-                {page}
-              </Button>
-            )
-          )}
-        </div>
+        {getPageNumbers().map((page, idx) =>
+          typeof page === "string" ? (
+            <span
+              key={`ellipsis-${idx}`}
+              className="px-3 py-2 text-gray-400 select-none"
+            >
+              {page}
+            </span>
+          ) : (
+            <Button
+              key={page}
+              onClick={() => changePage(page)}
+              className={`px-4 py-2 text-sm font-medium rounded ${
+                currentPage === page
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "bg-white text-gray-700 border hover:bg-gray-100"
+              }`}
+            >
+              {page}
+            </Button>
+          )
+        )}
 
-        {/* Tombol Next */}
         <Button
           onClick={() => changePage(currentPage + 1)}
           disabled={currentPage === totalPages}
@@ -107,4 +155,3 @@ export default function PaginationControl({
     </div>
   );
 }
-
