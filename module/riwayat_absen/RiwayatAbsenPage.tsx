@@ -11,7 +11,7 @@ export default function RiwayatAbsenPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterValues>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(5);
 
   useEffect(() => {
     setCurrentPage(1);

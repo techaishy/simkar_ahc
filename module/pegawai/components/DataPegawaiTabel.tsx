@@ -39,7 +39,7 @@ export default function DataPegawaiTable() {
   const [openDelete, setOpenDelete] = useState(false); 
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(7);
+  const [perPage, setPerPage] = useState(5);
 
   // Ambil data pegawai dari API
   useEffect(() => {

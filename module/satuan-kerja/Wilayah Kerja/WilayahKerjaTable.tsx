@@ -17,7 +17,7 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState('')
-  const itemsPerPage = 6
+  const itemsPerPage = 5
   const [expandedAlat, setExpandedAlat] = useState<string | null>(null)
 
   // Fetch data
@@ -175,7 +175,8 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
             totalPages={totalPages}
             currentPage={currentPage}
             perPage={itemsPerPage}
-            onPageChange={setCurrentPage}
+            onPageChange={(page) => setCurrentPage(page)}
+            showPerPage={false} 
           />
         )}
       </div>
