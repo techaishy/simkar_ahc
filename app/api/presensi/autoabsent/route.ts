@@ -6,12 +6,17 @@ import { AttendanceMasuk } from "@prisma/client";
 export async function GET() {
   try {
     const now = nowWIB();
+    console.log("⏰ Now WIB:", now);
+
     if (isWeekendWIB(now)) {
+      console.log("⚠️ Hari ini weekend, tidak membuat record");
       return NextResponse.json({ message: "Hari ini libur (weekend)" });
     }
 
     const minutes = now.getHours() * 60 + now.getMinutes();
+    console.log("🕒 Minutes:", minutes);
     if (minutes <= 9 * 60) {
+      console.log("⏳ Belum waktunya membuat record otomatis");
       return NextResponse.json({ message: "Belum waktunya membuat record otomatis" });
     }
 
@@ -19,6 +24,7 @@ export async function GET() {
       where: { role: { not: "OWNER" } },
       select: { customId: true, kantorId: true, role: true },
     });
+    console.log("👥 Users found:", users.map(u => u.customId));
 
     const createdRecords: any[] = [];
 
@@ -32,8 +38,9 @@ export async function GET() {
           },
         },
       });
+      console.log("🔍 Checking user:", user.customId, "Existing:", existing ? true : false);
 
-      if (existing) continue; 
+      if (existing) continue;
 
       const created = await prisma.attendance.create({
         data: {
@@ -58,6 +65,8 @@ export async function GET() {
 
       createdRecords.push(created);
     }
+
+    console.log("✅ Records created:", createdRecords.length);
 
     return NextResponse.json({
       message: `Record TIDAK_HADIR dibuat untuk ${createdRecords.length} user`,
