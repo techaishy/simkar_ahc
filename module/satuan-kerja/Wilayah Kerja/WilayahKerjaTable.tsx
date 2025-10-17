@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Building2, Hospital, Shield, MapPin, Phone, Clock, ArrowLeft, Package, ChevronDown, ChevronUp } from 'lucide-react'
 import type { Puskesmas, RumahSakit, Klinik, KotaWilayah, KategoriWilayah } from '@/lib/types/satuankerja'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import PaginationControl from '@/components/ui/PaginationControl'
 import FormTambahFasilitas from './FormFK'
 import SearchBar from '@/components/ui/searchbar'
@@ -193,37 +193,35 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
               Tambah Data Wilayah
             </button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-semibold">
-                Tambah Fasilitas {activeTab === 'puskesmas' ? 'Puskesmas' :
-                                  activeTab === 'rs-pemerintah' ? 'Rumah Sakit Pemerintah' :
-                                  activeTab === 'rs-swasta' ? 'Rumah Sakit Swasta' :
-                                  activeTab === 'rs-tentara' ? 'Rumah Sakit Tentara' : 'Klinik'}
-              </DialogTitle>
-            </DialogHeader>
 
-            <FormTambahFasilitas
-              tipe={activeTab}
-              onSave={(faskesBaru) => {
-                setKotaWilayah(prev => {
-                  if (!prev) return prev
-                  const mapping: Record<KategoriWilayah, any[]> = {
-                    'puskesmas': prev.puskesmas,
-                    'rs-pemerintah': prev.rsPemerintah,
-                    'rs-swasta': prev.rsSwasta,
-                    'rs-tentara': prev.rsTentara,
-                    'klinik': prev.klinik
-                  }
-                  return {
-                    ...prev,
-                    [activeTab]: [...mapping[activeTab], faskesBaru]
-                  }
-                })
-                setOpenTambah(false)
-              }}
-              onCancel={() => setOpenTambah(false)}
-            />
+          <DialogContent
+            className="bg-transparent border-none shadow-none p-0 sm:max-w-3xl max-h-[80vh] overflow-y-auto custom-scrollbar"
+          >
+            {/* Form tampil sebagai isi utama */}
+            <div className="bg-gradient-to-br from-black via-gray-950 to-gray-800 rounded-xl px-6 py-6 w-full">
+              <FormTambahFasilitas
+                tipe={activeTab}
+                wilayahKerja={kotaWilayah.nama_wilayah} 
+                onSave={(faskesBaru) => {
+                  setKotaWilayah(prev => {
+                    if (!prev) return prev
+                    const mapping: Record<KategoriWilayah, any[]> = {
+                      'puskesmas': prev.puskesmas,
+                      'rs-pemerintah': prev.rsPemerintah,
+                      'rs-swasta': prev.rsSwasta,
+                      'rs-tentara': prev.rsTentara,
+                      'klinik': prev.klinik
+                    }
+                    return {
+                      ...prev,
+                      [activeTab]: [...mapping[activeTab], faskesBaru]
+                    }
+                  })
+                  setOpenTambah(false)
+                }}
+                onCancel={() => setOpenTambah(false)}
+              />
+            </div>
           </DialogContent>
         </Dialog>
       </div>

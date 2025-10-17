@@ -1,3 +1,5 @@
+export const runtime = "nodejs"; 
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
@@ -40,7 +42,7 @@ export function middleware(request: NextRequest) {
 
       return NextResponse.next({
         request: {
-          headers, 
+          headers,
         },
       });
     }
@@ -57,5 +59,4 @@ export const config = {
     "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
     "/api/:path*",
   ],
-  runtime : "nodejs",
 };
