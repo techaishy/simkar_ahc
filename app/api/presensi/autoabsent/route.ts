@@ -68,10 +68,13 @@ export async function GET() {
 
     console.log("✅ Records created:", createdRecords.length);
 
-    return NextResponse.json({
+    return NextResponse.json( {
       message: `Record TIDAK_HADIR dibuat untuk ${createdRecords.length} user`,
-      records: createdRecords,
-    });
+      records: createdRecords,},{
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
+      }});
+      
   } catch (error) {
     console.error("❌ Error autoabsent:", error);
     return NextResponse.json(
