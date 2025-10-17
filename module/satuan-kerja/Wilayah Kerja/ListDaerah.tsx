@@ -224,11 +224,12 @@ export default function ListDaerah() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center w-full">
-              <PaginationControl
-                totalPages={totalPages}
-                currentPage={currentPage}
-                onPageChange={setCurrentPage}
-              />
+               <PaginationControl
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  perPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
+                />
             </div>
           )}
         </div>

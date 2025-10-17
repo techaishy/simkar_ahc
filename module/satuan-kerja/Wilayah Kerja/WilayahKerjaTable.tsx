@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Building2, Hospital, Shield, MapPin, Phone, Clock, ArrowLeft, Package, ChevronDown, ChevronUp } from 'lucide-react'
 import type { Puskesmas, RumahSakit, Klinik, KotaWilayah, KategoriWilayah } from '@/lib/types/satuankerja'
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import PaginationControl from '@/components/ui/PaginationControl'
 import FormTambahFasilitas from './FormFK'
 import SearchBar from '@/components/ui/searchbar'
@@ -171,7 +171,12 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <PaginationControl totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} />
+          <PaginationControl
+            totalPages={totalPages}
+            currentPage={currentPage}
+            perPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
     )

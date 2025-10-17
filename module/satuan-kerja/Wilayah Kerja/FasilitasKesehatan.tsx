@@ -171,7 +171,12 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <PaginationControl totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} />
+          <PaginationControl
+            totalPages={totalPages}
+            currentPage={currentPage}
+            perPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
     )
