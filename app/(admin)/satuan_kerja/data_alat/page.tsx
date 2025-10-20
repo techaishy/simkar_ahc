@@ -1,14 +1,14 @@
 "use client"
 
-import SatuanKerjaPage from "@/module/satuan-kerja/SatuanKerjaPage";
+import DataAlatPage from "@/module/satuan-kerja/Data Alat Faskes/DataAlatPage";
 import Breadcrumbs from "@/components/ui/breadcrumb";
 
 export default function Page() {
   return (
     
   <div className="p-4">
-        <div className="p-4 pl-10 font-semibold">
+        <div className="p-4  font-semibold">
       <Breadcrumbs />
     </div>
-    <SatuanKerjaPage /></div>);
+    <DataAlatPage /></div>);
 }
