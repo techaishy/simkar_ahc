@@ -1,54 +1,66 @@
-// Type untuk Puskesmas
 export interface Puskesmas {
-    id: number;
-    nama: string;
-    alamat: string;
-    telp: string;
-    jamBuka: string;
-  }
-  
-  // Type untuk Rumah Sakit (Pemerintah, Swasta, Tentara)
-  export interface RumahSakit {
-    id: number;
-    nama: string;
-    alamat: string;
-    telp: string;
-    jamBuka: string;
-    jenisPelayanan: string;
-  }
+  id: string;
+  nama: string;
+  alamat: string;
+  telp?: string;
+  jamBuka?: string;
+  latitude: number;
+  longitude: number;
+  radius: number;
+  alat?: Alat[];
+}
 
-  export interface Klinik {
-    id: number;
-    nama: string;
-    alamat: string;
-    telp: string;
-    jamBuka: string;
-    jenisPelayanan: string;
-  }
-  
+export interface RumahSakit {
+  id: string;
+  nama: string;
+  alamat: string;
+  telp?: string;
+  jamBuka?: string;
+  jenisPelayanan?: string;
+  latitude: number;
+  longitude: number;
+  radius: number;
+  alat?: Alat[];
+}
 
+export interface Klinik {
+  id: string;
+  nama: string;
+  alamat: string;
+  telp?: string;
+  jamBuka?: string;
+  jenisPelayanan?: string;
+  latitude: number;
+  longitude: number;
+  radius: number;
+  alat?: Alat[];
+}
+
+// Kategori SK
+export type KategoriWilayah = 'rs-pemerintah' | 'rs-swasta' | 'rs-tentara' | 'puskesmas' | 'klinik';
+
+export interface KotaWilayah {
+  id: string;
+  nama_wilayah: string;
+  deskripsi?: string;
+  populasi?: string;
+  image?: string;
+  jumlahPuskesmas: number;
+  jumlahRS: number;
+  jumlahKL :number; 	
+
+  puskesmas: Puskesmas[];
+  rsPemerintah: RumahSakit[];
+  rsSwasta: RumahSakit[];
+  rsTentara: RumahSakit[];
+  klinik: Klinik[];
+}
   export interface WilayahKerjaProps {
     kotaId: string;
   }
 
-  
-  // Type untuk kategori/tab
-  export type KategoriWilayah = 'rs-pemerintah' | 'rs-swasta' | 'rs-tentara' | 'puskesmas' | 'klinik';
-
- export interface KotaWilayah {
-    id: string;
-    nama: string;
-    deskripsi: string;
-    jumlahPuskesmas: number;
-    jumlahRS: number;
-    populasi?: string;
-    image?: string;
-  }
-
-
-//tipe untuk data alat & form
   export interface Alat {
-    nama: string
+    nama_alat: string
     unit: number
   }
   
@@ -58,6 +70,6 @@ export interface Puskesmas {
     telp: string
     jamBuka: string
     jenisPelayanan?: string
-    tipe?: 'puskesmas' | 'rs-pemerintah' | 'rs-swasta' | 'rs-tentara' | 'klinik'
+    tipe?: KategoriWilayah
     alat: Alat[]
   }

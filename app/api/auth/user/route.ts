@@ -5,9 +5,10 @@ export const runtime = "nodejs";
 import jwt from 'jsonwebtoken'
 import type { JwtPayload } from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'rahasia_super_aman'
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(req: Request) {
+  if (!JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");
   try {
     const cookieHeader = req.headers.get('cookie') || '';
     const match = cookieHeader.match(/token=([^;]+)/);

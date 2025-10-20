@@ -24,22 +24,22 @@ export const menuItems: MenuItem[] = [
     name: 'Dashboard',
     href: '/dashboard',
     icon: IconDashboard,
-    allowedRoles: ['ADMIN', 'OWNER', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN']
+    allowedRoles: ['ADMIN', 'OWNER', 'DIREKTUR', 'MANAJER']
   },
   {
     name: 'Presensi',
-    href: '/admin/dashboard/presensi',
+    href: '/dashboard/presensi',
     icon: IconListDetails,
     items: [
       {
         name: 'Absen',
-        href: '/admin/absen',
+        href: '/absen',
         icon: IconListDetails,
         allowedRoles: ['ADMIN', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN']
       },
       {
         name: 'History',
-        href: '/admin/absen/history',
+        href: '/absen/history',
         icon: IconListDetails,
         allowedRoles: ['ADMIN', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN']
       }
@@ -48,36 +48,48 @@ export const menuItems: MenuItem[] = [
   },
   {
     name: 'Riwayat Absensi',
-    href: '/admin/riwayat_absensi',
+    href: '/riwayat_absensi',
     icon: IconChartBar,
     allowedRoles: ['ADMIN', 'OWNER', 'MANAJER']
   },
   {
-    name: 'Surat Keluar',
-    href: '/admin/surat_keluar',
+    name: 'Surat',
+    href: '/surat_keluar',
     icon: IconFolder,
+    items: [{
+      name:'Surat Keluar',
+      href:'/surat_keluar',
+      icon: IconFolder,
+      allowedRoles: ['ADMIN', 'MANAJER']
+    },
+    {
+      name:'Approval Surat',
+      href:'/surat_keluar/approval_surat',
+      icon: IconFolder,
+      allowedRoles: ['OWNER', 'MANAJER', 'ADMIN']
+   } ],
     allowedRoles: ['ADMIN', 'OWNER', 'MANAJER']
   },
   {
     name: 'Pegawai',
-    href: '/admin/pegawai',
+    href: '/pegawai',
     icon: IconUsers,
     allowedRoles: ['ADMIN', 'MANAJER']
   },
   {
     name: 'Inventory',
-    href: '/admin/inventory',
+    href: '/inventory',
     icon: IconArchive,
     items: [
       {
         name: 'Alat Kalibrasi',
-        href: '/admin/inventory/alat_kalibrasi',
+        href: '/inventory/alat_kalibrasi',
         icon: IconArchive,
         allowedRoles: ['ADMIN', 'DIREKTUR', 'KEPALA_GUDANG', 'TEKNISI']
       },
       {
         name: 'Sparepart',
-        href: '/admin/inventory/spare_part',
+        href: '/inventory/spare_part',
         icon: IconArchive,
         allowedRoles: ['ADMIN', 'KEPALA_GUDANG', 'TEKNISI']
       }
@@ -105,14 +117,8 @@ export const menuItems: MenuItem[] = [
     allowedRoles: ['ADMIN', 'MANAJER']
   },
   {
-    name: 'Pengaturan Sistem',
-    href: '/admin/pengaturan',
-    icon: IconSettings,
-    allowedRoles: ['ADMIN']
-  },
-  {
     name: 'Laporan',
-    href: '/admin/laporan',
+    href: '/laporan',
     icon: IconReport,
     allowedRoles: ['ADMIN']
   }

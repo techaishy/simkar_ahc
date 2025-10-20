@@ -25,7 +25,6 @@ export default function AdminLayout({
     setSidebarOpen((prev) => !prev);
   };
 
-  // Kalau belum login, redirect ke login
   if (!isLoading && !isAuthenticated) {
     return (
       <div className="flex items-center justify-center h-screen">
