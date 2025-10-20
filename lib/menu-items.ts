@@ -9,6 +9,8 @@ import {
   IconSettings,
   IconReport,
 } from '@tabler/icons-react';
+
+import { Barcode } from 'lucide-react';
 import { BuildingOfficeIcon } from '@heroicons/react/24/outline';
 
 export interface MenuItem {
@@ -103,6 +105,32 @@ export const menuItems: MenuItem[] = [
       }
     ],
     allowedRoles: ['ADMIN', 'MANAJER']
+  },
+  {
+  name: 'Barcode',
+  href: '#',
+  icon: Barcode,
+  items: [
+    {
+    name: 'Generate Barcode',
+    href: '/barcode/generate',
+    icon: Barcode,
+    allowedRoles: ['ADMIN', 'DIREKTUR', 'TEKNISI']
+  }, 
+  {
+    name: 'Scan Barcode',
+    href: '/barcode/scan',
+    icon: Barcode,
+    allowedRoles: ['ADMIN', 'DIREKTUR', 'TEKNISI']
+  }],
+
+  allowedRoles: ['ADMIN', 'DIREKTUR', 'TEKNISI']
+  },
+  {
+    name: 'Pengaturan',
+    href: '/settings',
+    icon: IconSettings,
+    allowedRoles: ['ADMIN']
   },
   {
     name: 'Laporan',
