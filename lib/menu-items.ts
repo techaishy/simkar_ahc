@@ -55,9 +55,21 @@ export const menuItems: MenuItem[] = [
     allowedRoles: ['ADMIN', 'OWNER', 'MANAJER']
   },
   {
-    name: 'Surat Keluar',
+    name: 'Surat',
     href: '/surat_keluar',
     icon: IconFolder,
+    items: [{
+      name:'Surat Keluar',
+      href:'/surat_keluar',
+      icon: IconFolder,
+      allowedRoles: ['ADMIN', 'MANAJER']
+    },
+    {
+      name:'Approval Surat',
+      href:'/surat_keluar/approval_surat',
+      icon: IconFolder,
+      allowedRoles: ['OWNER', 'MANAJER', 'ADMIN']
+   } ],
     allowedRoles: ['ADMIN', 'OWNER', 'MANAJER']
   },
   {
