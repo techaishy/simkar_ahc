@@ -21,7 +21,10 @@ export async function GET() {
     }
 
     const users = await prisma.user.findMany({
-      where: { role: { not: "OWNER" } },
+      where: {
+        role: { not: "OWNER" },
+        customId: { notIn: ["USR-001", "USR-002", "USR-008"] }
+      },
       select: { customId: true, kantorId: true, role: true },
     });
     console.log("👥 Users found:", users.map(u => u.customId));

@@ -247,7 +247,8 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
                 setKotaWilayah(prev => {
                   if (!prev) return prev
                   const key = normalizeTabKey(activeTab)
-                  return { ...prev, [key]: [...prev[key], mappedItem] }
+                  const currentList = (prev[key] as (Puskesmas | RumahSakit | Klinik)[]) || []
+                  return { ...prev, [key]: [...currentList, mappedItem] }
                 })
 
                 setOpenTambah(false)
