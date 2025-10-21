@@ -62,8 +62,8 @@ export async function GET(req: NextRequest, { params }: { params: { kotaId: stri
         id: lokasi.id,
         nama: lokasi.name,
         alamat: lokasi.Lokasi,
-        telp: "-",
-        jamBuka: "-",
+        telp: lokasi.telp,
+        jamBuka: lokasi.jamBuka,
         alat,
       };
 

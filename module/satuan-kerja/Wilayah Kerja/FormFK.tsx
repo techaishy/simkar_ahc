@@ -47,13 +47,17 @@ export default function FormTambahFasilitas({ tipe, wilayahKerja, onSave, onCanc
     alat: [],
     // latitude: 0,
     // longitude: 0,
+    // radius:20,
   })
 
   const [lokasi, setLokasi] = useState<{ lat: number; lng: number } | null>(null)
   const [currentAlat, setCurrentAlat] = useState<{ nama_alat: string; unit: number }>({ nama_alat: '', unit: 0 })
+  const [filteredAlat, setFilteredAlat] = useState<{ id_alat: string; nama_alat: string }[]>([])
+  const [showDropdown, setShowDropdown] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [searchQuery, setSearchQuery] = useState('')
   const [searching, setSearching] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     const fetchWilayahKerja = async () => {
@@ -86,9 +90,17 @@ export default function FormTambahFasilitas({ tipe, wilayahKerja, onSave, onCanc
 
   const handleAddAlat = () => {
     if (currentAlat.nama_alat.trim() && currentAlat.unit > 0) {
+      const sudahAda = formData.alat.some(
+        (a) => (a.nama_alat ?? '').toLowerCase() === (currentAlat.nama_alat ?? '').toLowerCase()
+      )
+      if (sudahAda) {
+        alert('Alat ini sudah ada di daftar!')
+        return
+      }
       const newAlat: Alat = { ...currentAlat }
       setFormData(prev => ({ ...prev, alat: [...prev.alat, newAlat] }))
       setCurrentAlat({ nama_alat: '', unit: 0 })
+      setShowDropdown(false)
     }
   }
 
@@ -135,10 +147,47 @@ export default function FormTambahFasilitas({ tipe, wilayahKerja, onSave, onCanc
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (validateForm()) onSave(formData)
+    if (!validateForm()) return
+
+    setSubmitting(true)
+    try {
+      const tipeToKodeSK: Record<string, string> = {
+        puskesmas: "TSK-005",
+        "rs-pemerintah": "TSK-004",
+        "rs-swasta": "TSK-006",
+        "rs-tentara": "TSK-002",
+        klinik: "TSK-003",
+      }
+      const kodeSK = tipeToKodeSK[tipe] || "TSK-001"
+       const payload = {
+      ...formData,
+      kodeSK,
+      wilayahKerja: wilayahKerja
+    }
+
+    const res = await fetch('/api/satuan-kerja/wilayah-kerja/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    if (res.ok) {
+      const result = await res.json()
+      alert('✅ Data fasilitas berhasil disimpan!')
+      onSave(result)
+    } else {
+      const err = await res.json()
+      alert(`❌ Gagal menyimpan data: ${err.message || 'Terjadi kesalahan'}`)
+    }
+  } catch (err) {
+    console.error('❌ Error submit:', err)
+    alert('Terjadi kesalahan saat mengirim data.')
+  } finally {
+    setSubmitting(false)
   }
+}
 
   const getTipeLabel = () => {
     switch (tipe) {
@@ -295,18 +344,64 @@ export default function FormTambahFasilitas({ tipe, wilayahKerja, onSave, onCanc
 
         {/* Input Alat */}
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-5 rounded-xl border border-gray-200 space-y-3">
-          <p className="text-sm font-medium text-gray-700 mb-2">Tambah Alat Baru:</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="md:col-span-2 text-black space-y-1">
-              <label className="block text-xs font-medium text-gray-600">Nama Alat</label>
+        <p className="text-sm font-medium text-gray-700 mb-2">Tambah Alat Baru:</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="md:col-span-2 text-black space-y-1 relative">
+            <label className="block text-xs font-medium text-gray-600">Nama Alat</label>
+            <div className="relative">
               <input
                 type="text"
                 value={currentAlat.nama_alat}
-                onChange={(e) => setCurrentAlat(prev => ({ ...prev, nama_alat: e.target.value }))}
-                placeholder="Contoh: Tensimeter Digital, Stetoskop"
+                onChange={async (e) => {
+                  const val = e.target.value
+                  setCurrentAlat(prev => ({ ...prev, nama_alat: val }))
+
+                  if (val.trim().length > 0) {
+                    try {
+                      const res = await fetch(`/api/satuan-kerja/wilayah-kerja/data/alat?q=${encodeURIComponent(val)}`)
+                      if (res.ok) {
+                        const data = await res.json()
+                        const allAlat: { id_alat: string; nama_alat: string }[] = data.alat || []
+                        const existingNames = new Set(
+                          formData.alat.map((a) => a.nama_alat.toLowerCase())
+                        )
+                        const filtered = allAlat.filter(
+                          (a) => !existingNames.has(a.nama_alat.toLowerCase())
+                        )
+
+                        setFilteredAlat(filtered)
+                        setShowDropdown(filtered.length > 0)
+                      }
+                    } catch (err) {
+                      console.error('❌ Error search alat:', err)
+                    }
+                  } else {
+                    setShowDropdown(false)
+                  }
+                }}
+                placeholder="Cari nama alat kalibrasi..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm bg-white"
               />
+
+              {showDropdown && filteredAlat.length > 0 && (
+                <ul className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto text-sm">
+                  {filteredAlat.map((a) => (
+                    <li
+                      key={a.id_alat}
+                      onClick={() => {
+                        setCurrentAlat(prev => ({ ...prev, nama_alat: a.nama_alat }))
+                        setShowDropdown(false)
+                      }}
+                      className="px-3 py-2 hover:bg-indigo-100 cursor-pointer text-gray-700"
+                    >
+                      {a.nama_alat}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
+          </div>
+
             <div className="space-y-1 text-black">
               <label className="block text-xs font-medium text-gray-600">Jumlah Unit</label>
               <input
