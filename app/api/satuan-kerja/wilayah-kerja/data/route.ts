@@ -36,10 +36,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
             break;
           case "TSK-001":
             break; 
-          case "TSK-002":
           case "TSK-003":
             jumlahKL += 1;
           break;
+          case "TSK-002":
           case "TSK-004":
           case "TSK-006":
             jumlahRS += 1;
