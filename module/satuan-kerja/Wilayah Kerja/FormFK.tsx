@@ -149,6 +149,8 @@ export default function FormTambahFasilitas({ tipe, wilayahKerja, onSave, onCanc
 
  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (submitting) return;
     if (!validateForm()) return
 
     setSubmitting(true)
