@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Building2, Hospital, Shield, MapPin, Phone, Clock, ArrowLeft, Package, ChevronDown, ChevronUp } from 'lucide-react'
 import type { Puskesmas, RumahSakit, Klinik, KotaWilayah, KategoriWilayah } from '@/lib/types/satuankerja'
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import PaginationControl from '@/components/ui/PaginationControl'
 import FormTambahFasilitas from './FormFK'
 import SearchBar from '@/components/ui/searchbar'
@@ -20,7 +20,33 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
   const itemsPerPage = 6
   const [expandedAlat, setExpandedAlat] = useState<string | null>(null)
 
-  // Fetch data
+  interface ApiResponseLokasi {
+    success: boolean
+    message: string
+    data: {
+      lokasi: {
+        id: string
+        name: string
+        Lokasi: string
+        telp?: string
+        jamBuka?: string
+        jenisPelayanan?: string
+      }
+      alat_terkait: { nama_alat: string, unit: number }[]
+    }
+  }
+
+  const normalizeTabKey = (tab: KategoriWilayah): keyof KotaWilayah => {
+    const map: Record<KategoriWilayah, keyof KotaWilayah> = {
+      'puskesmas': 'puskesmas',
+      'rs-pemerintah': 'rsPemerintah',
+      'rs-swasta': 'rsSwasta',
+      'rs-tentara': 'rsTentara',
+      'klinik': 'klinik'
+    }
+    return map[tab]
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
@@ -79,11 +105,14 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
 
     const data = mapping[activeTab] || []
 
-    // Filter berdasarkan search
-    const filtered = data.filter(item =>
-      item.nama.toLowerCase().includes(search.toLowerCase()) ||
-      item.alamat.toLowerCase().includes(search.toLowerCase())
-    )
+   
+    const filtered = data.filter(item => {
+      const nama = item.nama ?? ''
+      const alamat = item.alamat ?? ''
+
+      return nama.toLowerCase().includes(search.toLowerCase()) ||
+            alamat.toLowerCase().includes(search.toLowerCase())
+    })
 
     const indexOfLastItem = currentPage * itemsPerPage
     const indexOfFirstItem = indexOfLastItem - itemsPerPage
@@ -171,7 +200,7 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <PaginationControl totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} showPerPage={false}/>
+          <PaginationControl totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} showPerPage={false} />
         )}
       </div>
     )
@@ -202,24 +231,29 @@ export default function WilayahKerjaTable({ kotaId }: { kotaId: string }) {
               <FormTambahFasilitas
                 tipe={activeTab}
                 wilayahKerja={kotaWilayah.nama_wilayah} 
-                onSave={(faskesBaru) => {
-                  setKotaWilayah(prev => {
-                    if (!prev) return prev
-                    const mapping: Record<KategoriWilayah, any[]> = {
-                      'puskesmas': prev.puskesmas,
-                      'rs-pemerintah': prev.rsPemerintah,
-                      'rs-swasta': prev.rsSwasta,
-                      'rs-tentara': prev.rsTentara,
-                      'klinik': prev.klinik
-                    }
-                    return {
-                      ...prev,
-                      [activeTab]: [...mapping[activeTab], faskesBaru]
-                    }
-                  })
-                  setOpenTambah(false)
-                }}
-                onCancel={() => setOpenTambah(false)}
+                onSave={(faskesBaru: unknown) => {
+                const apiRes = faskesBaru as ApiResponseLokasi
+
+                const mappedItem = {
+                  id: apiRes.data.lokasi.id,
+                  nama: apiRes.data.lokasi.name,
+                  alamat: apiRes.data.lokasi.Lokasi,
+                  telp: apiRes.data.lokasi.telp || '',
+                  jamBuka: apiRes.data.lokasi.jamBuka || '',
+                  jenisPelayanan: apiRes.data.lokasi.jenisPelayanan || '',
+                  alat: apiRes.data.alat_terkait || []
+                }
+
+                setKotaWilayah(prev => {
+                  if (!prev) return prev
+                  const key = normalizeTabKey(activeTab)
+                  const currentList = (prev[key] as (Puskesmas | RumahSakit | Klinik)[]) || []
+                  return { ...prev, [key]: [...currentList, mappedItem] }
+                })
+
+                setOpenTambah(false)
+              }}
+                              onCancel={() => setOpenTambah(false)}
               />
             </div>
           </DialogContent>
