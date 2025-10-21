@@ -1,7 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem } from "@/module/dashboard/components/Sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+} from "@/module/dashboard/components/Sidebar";
 import { NavMain } from "@/module/dashboard/components/NavMain";
 import { NavDocuments } from "@/module/dashboard/components/NavDocuments";
 import Logo from "@/components/ui/logo";
@@ -10,9 +17,10 @@ import { menuItems, MenuItem } from "@/lib/menu-items";
 
 function filterMenuByRole(items: MenuItem[], role: UserRole): MenuItem[] {
   return items
-    .filter(item => item.allowedRoles.includes(role))
-    .map(item => ({
+    .filter((item) => item.allowedRoles.length === 0 || item.allowedRoles.includes(role))
+    .map((item) => ({
       ...item,
+      href: item.available === false ? "/maintenance" : item.href, 
       items: item.items ? filterMenuByRole(item.items, role) : [],
     }));
 }
@@ -21,7 +29,10 @@ type AppSidebarProps = {
   role: UserRole;
 };
 
-export default function AppSidebar({ role, ...props }: AppSidebarProps & React.ComponentProps<typeof Sidebar>) {
+export default function AppSidebar({
+  role,
+  ...props
+}: AppSidebarProps & React.ComponentProps<typeof Sidebar>) {
   const filteredMenu = filterMenuByRole(menuItems, role);
 
   return (
@@ -50,7 +61,7 @@ export default function AppSidebar({ role, ...props }: AppSidebarProps & React.C
 
       <SidebarContent>
         <NavMain items={filteredMenu} role={role} />
-        <NavDocuments items={[]} /> 
+        <NavDocuments items={[]} />
       </SidebarContent>
 
       <SidebarFooter>

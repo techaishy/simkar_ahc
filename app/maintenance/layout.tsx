@@ -1,0 +1,11 @@
+export default function MaintenanceLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-center w-full h-screen bg-gray-50">
+      {children}
+    </div>
+  );
+}
