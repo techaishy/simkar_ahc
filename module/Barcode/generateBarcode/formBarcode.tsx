@@ -25,7 +25,10 @@ const BarcodeGenerator: React.FC = () => {
   useEffect(() => {
     if (!formData.namaAlat.trim()) return;
   
-    const nama = formData.namaAlat.trim().replace(/\s+/g, "").toUpperCase();
+    const nama = formData.namaAlat.trim() .split(" ")
+    .map((word) => word.substring(0, 3).toUpperCase()) 
+    .join("").substring(0, 9);
+
     const today = new Date();
     const tanggal = `${today.getFullYear()}${String(
       today.getMonth() + 1
@@ -194,7 +197,7 @@ const printBarcode = (): void => {
             width: 50mm;  /* 5cm */
             height: 30mm; /* 3cm */
             background: white;
-            border: 1px dashed #ccc;
+            border: 1px solid #ccc;
             display: flex;
             flex-direction: column;
             padding: 2mm;
@@ -328,7 +331,7 @@ const printBarcode = (): void => {
         <div class="sticker-container">
           <!-- Header Mini -->
           <div class="header">
-            <div class="header-title">Kalibrasi</div>
+            <div class="header-title">Telah Kalibrasi</div>
           </div>
           
           <!-- Content: QR + Info -->
