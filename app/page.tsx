@@ -32,16 +32,15 @@ export default function Login() {
   const [isClient, setIsClient] = useState(false);
   const [time, setTime] = useState(new Date());
 
-  // Pastikan ini hanya jalan di client
+  const [showPassword, setShowPassword] = useState(false);
   useEffect(() => setIsClient(true), []);
 
-  // Update waktu setiap detik
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Redirect otomatis jika sudah login
+
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {
       if (user.role === "ADMIN" || user.role === "OWNER" || user.role === "MANAJER") {
@@ -147,7 +146,7 @@ export default function Login() {
                   )}
                 />
 
-                <FormField
+               <FormField
                   control={form.control}
                   name="password"
                   render={({ field }) => (
@@ -156,12 +155,24 @@ export default function Login() {
                         <LockIcon />
                         <FormControl>
                           <Input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             {...field}
                             className="border-0 focus:ring-0 text-black placeholder:text-gray-500"
-                            placeholder="••••••••"
+                            placeholder= "Masukkan Password" 
                           />
                         </FormControl>
+                      </div>
+                      <div className=" flex items-center gap-2">
+                        <input
+                          id="togglePassword"
+                          type="checkbox"
+                          checked={showPassword}
+                          onChange={(e) => setShowPassword(e.target.checked)}
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor="togglePassword" className="text-sm text-gray-600">
+                          Tampilkan password
+                        </label>
                       </div>
                       <FormMessage />
                     </FormItem>
