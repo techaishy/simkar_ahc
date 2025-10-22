@@ -196,9 +196,12 @@ model wilayahKerja {
   unit        Int
   id_LK      String       @db.Uuid
   id_AK        String     @db.Uuid
+  tanggalKalibrasi   String?
+  tanggal_expired    String?
 
   alatKalibrasi AlatKalibrasi @relation(fields: [id_AK], references: [id])
   lokasiDinas   LokasiDinas   @relation(fields: [id_LK], references: [id])
+  @@map("wilayahKerja")
 }
 
 model AlatKalibrator {
