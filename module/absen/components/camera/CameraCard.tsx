@@ -115,23 +115,24 @@ export default function CameraCard({ userId,isWithinRadius, onClose, tipe }: Pro
       timestamp,
     ];
 
-    ctx.font = "18px sans-serif";
-    ctx.fillStyle = "white";
-    ctx.textBaseline = "bottom";
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "black";
+ const bgHeight = texts.length * 36 + 20;
+  ctx.textBaseline = "top";
+  ctx.font = "bold 32px 'Segoe UI', Arial, sans-serif";
 
-    texts.forEach((text, i) => {
-      const y = canvas.height - 10 - i * 22;
-      ctx.strokeText(text, 10, y);
-      ctx.fillText(text, 10, y);
-    });
+  texts.forEach((text, i) => {
+    const y = canvas.height - bgHeight + 10 + i * 36;
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(5, y - 2, ctx.measureText(text).width + 10, 30);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(text, 10, y);
+  });
 
-    const photoData = canvas.toDataURL("image/jpeg", 0.6);
-    setPhoto(photoData);
+  const photoData = canvas.toDataURL("image/jpeg", 0.6);
+  setPhoto(photoData);
 
-    stopCamera();
-  };
+  stopCamera();
+};
+
 
   const retakePhoto = () => {
     setPhoto(null);

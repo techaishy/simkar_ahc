@@ -138,8 +138,8 @@ export default function HistoryAbsensi() {
             <Image
               src={selectedImage}
               alt="Selfie Absensi"
-              width={300}
-              height={400}
+              width={360}
+              height={480}
               className="rounded-md"
             />
           </div>
