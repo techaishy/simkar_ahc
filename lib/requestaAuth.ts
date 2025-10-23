@@ -1,7 +1,7 @@
 
-export const runtime = "nodejs"; 
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
+export const runtime = "nodejs"; 
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error("JWT_SECRET environment variable is not set");

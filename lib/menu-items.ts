@@ -9,6 +9,8 @@ import {
   IconSettings,
   IconReport,
 } from '@tabler/icons-react';
+
+import { Barcode } from 'lucide-react';
 import { BuildingOfficeIcon } from '@heroicons/react/24/outline';
 
 export interface MenuItem {
@@ -17,6 +19,7 @@ export interface MenuItem {
   icon: React.ElementType;
   items?: MenuItem[];
   allowedRoles: UserRole[];
+  available?: boolean;
 }
 
 export const menuItems: MenuItem[] = [
@@ -24,7 +27,8 @@ export const menuItems: MenuItem[] = [
     name: 'Dashboard',
     href: '/dashboard',
     icon: IconDashboard,
-    allowedRoles: ['ADMIN', 'OWNER', 'DIREKTUR', 'MANAJER']
+    allowedRoles: ['ADMIN', 'OWNER', 'DIREKTUR', 'MANAJER'],
+    available: true,
   },
   {
     name: 'Presensi',
@@ -35,13 +39,15 @@ export const menuItems: MenuItem[] = [
         name: 'Absen',
         href: '/absen',
         icon: IconListDetails,
-        allowedRoles: ['ADMIN', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN']
+        allowedRoles: ['ADMIN', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN'],
+        available: true,
       },
       {
         name: 'History',
         href: '/absen/history',
         icon: IconListDetails,
-        allowedRoles: ['ADMIN', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN']
+        allowedRoles: ['ADMIN', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN'],
+        available: true,
       }
     ],
     allowedRoles: ['ADMIN', 'DIREKTUR', 'MANAJER', 'KEUANGAN', 'KEPALA_GUDANG', 'TEKNISI', 'KARYAWAN']
@@ -50,38 +56,43 @@ export const menuItems: MenuItem[] = [
     name: 'Riwayat Absensi',
     href: '/riwayat_absensi',
     icon: IconChartBar,
-    allowedRoles: ['ADMIN', 'OWNER', 'MANAJER']
+    allowedRoles: ['ADMIN', 'OWNER', 'MANAJER'],
+    available: true,
   },
   {
     name: 'Surat',
     href: '/surat_keluar',
     icon: IconFolder,
     items: [{
-      name:'Surat Keluar',
-      href:'/surat_keluar',
-      icon: IconFolder,
-      allowedRoles: ['ADMIN', 'MANAJER']
-    },
-    {
-      name:'Approval Surat Dinas',
-      href:'/surat_keluar/approval_surat',
-      icon: IconFolder,
-      allowedRoles: ['OWNER', 'MANAJER', 'ADMIN', 'KEUANGAN']
+        name:'Surat Keluar',
+        href:'/surat_keluar',
+        icon: IconFolder,
+        allowedRoles: ['ADMIN', 'MANAJER'],
+        available: true,
+      },
+      {
+        name:'Approval Surat',
+        href:'/surat_keluar/approval_surat',
+        icon: IconFolder,
+        allowedRoles: ['OWNER', 'MANAJER', 'ADMIN'],
+        available: true,
+      },
+       {
+        name:'Approval Surat Alat',
+        href:'/surat_keluar/approval_surat_alat',
+        icon: IconFolder,
+        allowedRoles: ['OWNER', 'MANAJER', 'ADMIN'],
+        available: true,
+      } 
+    ],
+    allowedRoles: ['ADMIN', 'OWNER', 'MANAJER']
   },
-  {
-    name: 'Approval Surat Alat',
-    href: '/surat_keluar/approval_surat_alat',
-    icon: IconFolder,
-    allowedRoles: ['MANAJER', 'ADMIN']
-  }],
-
-  allowedRoles: ['ADMIN', 'OWNER', 'MANAJER', 'KEUANGAN']
-}, 
   {
     name: 'Pegawai',
     href: '/pegawai',
     icon: IconUsers,
-    allowedRoles: ['ADMIN', 'MANAJER']
+    allowedRoles: ['ADMIN', 'MANAJER'],
+    available: true,
   },
   {
     name: 'Inventory',
@@ -92,13 +103,15 @@ export const menuItems: MenuItem[] = [
         name: 'Alat Kalibrasi',
         href: '/inventory/alat_kalibrasi',
         icon: IconArchive,
-        allowedRoles: ['ADMIN', 'DIREKTUR', 'KEPALA_GUDANG', 'TEKNISI']
+        allowedRoles: ['ADMIN', 'DIREKTUR', 'KEPALA_GUDANG', 'TEKNISI'],
+        available: true,
       },
       {
         name: 'Sparepart',
         href: '/inventory/spare_part',
         icon: IconArchive,
-        allowedRoles: ['ADMIN', 'KEPALA_GUDANG', 'TEKNISI']
+        allowedRoles: ['ADMIN', 'KEPALA_GUDANG', 'TEKNISI'],
+        available: true,
       }
     ],
     allowedRoles: ['ADMIN', 'DIREKTUR', 'KEPALA_GUDANG', 'TEKNISI']
@@ -112,21 +125,50 @@ export const menuItems: MenuItem[] = [
         name: 'Wilayah Kerja',
         href: '/satuan_kerja',
         icon: BuildingOfficeIcon,
-        allowedRoles: ['ADMIN', 'MANAJER']
+        allowedRoles: ['ADMIN', 'MANAJER'],
+        available: true,
       },
       {
         name: 'Data Alat',
         href: '/satuan_kerja/data_alat',
         icon: BuildingOfficeIcon,
-        allowedRoles: ['ADMIN', 'MANAJER']
+        allowedRoles: ['ADMIN', 'MANAJER'],
+        available: true,
       }
     ],
     allowedRoles: ['ADMIN', 'MANAJER']
   },
   {
+  name: 'QR Code',
+  href: '/barcode',
+  icon: Barcode,
+  items: [
+    {
+    name: 'Generate QR Code',
+    href: '/barcode',
+    icon: Barcode,
+    allowedRoles: ['ADMIN', 'DIREKTUR', 'TEKNISI']
+  }, 
+  {
+    name: 'Scan QR Code',
+    href: '/barcode/scanner',
+    icon: Barcode,
+    allowedRoles: ['ADMIN', 'DIREKTUR', 'TEKNISI']
+  }],
+
+  allowedRoles: ['ADMIN', 'DIREKTUR', 'TEKNISI']
+  },
+  {
+    name: 'Pengaturan',
+    href: '/settings',
+    icon: IconSettings,
+    allowedRoles: ['ADMIN']
+  },
+  {
     name: 'Laporan',
     href: '/laporan',
     icon: IconReport,
-    allowedRoles: ['ADMIN']
+    allowedRoles: ['ADMIN'],
+    available: false,
   }
 ];

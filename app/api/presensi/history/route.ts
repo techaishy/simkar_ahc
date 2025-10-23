@@ -2,7 +2,10 @@ import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { AttendanceMasuk, AttendancePulang } from "@/lib/types/user";
 import jwt from "jsonwebtoken";
+
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(req: NextRequest) {
