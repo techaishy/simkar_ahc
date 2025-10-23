@@ -6,19 +6,30 @@ import { AttendanceMasuk } from "@prisma/client";
 export async function GET() {
   try {
     const now = nowWIB();
+    console.log("⏰ Now WIB:", now);
+
     if (isWeekendWIB(now)) {
+      console.log("⚠️ Hari ini weekend, tidak membuat record");
       return NextResponse.json({ message: "Hari ini libur (weekend)" });
     }
 
     const minutes = now.getHours() * 60 + now.getMinutes();
+    console.log("🕒 Minutes:", minutes);
     if (minutes <= 9 * 60) {
+      console.log("⏳ Belum waktunya membuat record otomatis");
       return NextResponse.json({ message: "Belum waktunya membuat record otomatis" });
     }
 
     const users = await prisma.user.findMany({
-      where: { role: { not: "OWNER" } },
+      where: {
+        role: { not: "OWNER" },
+        customId: { notIn: ["USR-001", "USR-002", "USR-008"] }
+      },
       select: { customId: true, kantorId: true, role: true },
     });
+    console.log("👥 Users found:", users.map(u => u.customId));
+    console.log("Start of day WIB:", startOfDayWIB(now));
+    console.log("End of day WIB:", endOfDayWIB(now));
 
     const createdRecords: any[] = [];
 
@@ -32,8 +43,9 @@ export async function GET() {
           },
         },
       });
+      console.log("🔍 Checking user:", user.customId, "Existing:", existing ? true : false);
 
-      if (existing) continue; 
+      if (existing) continue;
 
       const created = await prisma.attendance.create({
         data: {
@@ -59,10 +71,17 @@ export async function GET() {
       createdRecords.push(created);
     }
 
+    console.log("✅ Records created:", createdRecords.length);
+
     return NextResponse.json({
       message: `Record TIDAK_HADIR dibuat untuk ${createdRecords.length} user`,
       records: createdRecords,
+    },{
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
+      }
     });
+      
   } catch (error) {
     console.error("❌ Error autoabsent:", error);
     return NextResponse.json(
