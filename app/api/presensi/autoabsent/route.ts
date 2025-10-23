@@ -1,22 +1,22 @@
+
+
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { nowWIB, startOfDayWIB, endOfDayWIB, isWeekendWIB } from "@/lib/timezone";
 import { AttendanceMasuk } from "@prisma/client";
 
+
 export async function GET() {
   try {
     const now = nowWIB();
-    console.log("⏰ Now WIB:", now);
 
     if (isWeekendWIB(now)) {
-      console.log("⚠️ Hari ini weekend, tidak membuat record");
       return NextResponse.json({ message: "Hari ini libur (weekend)" });
     }
 
     const minutes = now.getHours() * 60 + now.getMinutes();
-    console.log("🕒 Minutes:", minutes);
     if (minutes <= 9 * 60) {
-      console.log("⏳ Belum waktunya membuat record otomatis");
       return NextResponse.json({ message: "Belum waktunya membuat record otomatis" });
     }
 
@@ -27,7 +27,6 @@ export async function GET() {
       },
       select: { customId: true, kantorId: true, role: true },
     });
-    console.log("👥 Users found:", users.map(u => u.customId));
 
     const createdRecords: any[] = [];
 
@@ -41,7 +40,6 @@ export async function GET() {
           },
         },
       });
-      console.log("🔍 Checking user:", user.customId, "Existing:", existing ? true : false);
 
       if (existing) continue;
 
@@ -69,14 +67,15 @@ export async function GET() {
       createdRecords.push(created);
     }
 
-    console.log("✅ Records created:", createdRecords.length);
 
-    return NextResponse.json( {
+    return NextResponse.json({
       message: `Record TIDAK_HADIR dibuat untuk ${createdRecords.length} user`,
-      records: createdRecords,},{
+      records: createdRecords,
+    },{
       headers: {
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
-      }});
+      }
+    });
       
   } catch (error) {
     console.error("❌ Error autoabsent:", error);
