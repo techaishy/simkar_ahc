@@ -147,16 +147,16 @@ export const menuItems: MenuItem[] = [
     name: 'Generate QR Code',
     href: '/barcode',
     icon: Barcode,
-    allowedRoles: ['ADMIN', 'DIREKTUR', 'TEKNISI']
+    allowedRoles: ['ADMIN', 'TEKNISI']
   }, 
   {
     name: 'Scan QR Code',
     href: '/barcode/scanner',
     icon: Barcode,
-    allowedRoles: ['ADMIN', 'DIREKTUR', 'TEKNISI']
+    allowedRoles: ['ADMIN', 'TEKNISI', 'MANAJER']
   }],
 
-  allowedRoles: ['ADMIN', 'DIREKTUR', 'TEKNISI']
+  allowedRoles: ['ADMIN', 'TEKNISI']
   },
   {
     name: 'Pengaturan',
