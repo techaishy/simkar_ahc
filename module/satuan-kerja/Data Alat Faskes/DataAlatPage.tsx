@@ -128,15 +128,20 @@ export default function DataAlatPage() {
     setDeleteTarget(null);
   };
 
-  const handleSave = (payload: Alat) => {
-    if (editItem) {
-      setAllAlat((prev) => prev.map((p) => (p.id === payload.id ? payload : p)));
-      setEditItem(null);
-    } else {
-      setAllAlat((prev) => [payload, ...prev]);
-    }
+
+  const handleSave = (payload: Alat[]) => {
+    setAllAlat((prev) => {
+      const updated = [...prev];
+      payload.forEach((alat) => {
+        const index = updated.findIndex((a) => a.id === alat.id);
+        if (index >= 0) updated[index] = alat;
+        else updated.push(alat);
+      });
+      return updated;
+    });
     setShowForm(false);
   };
+  
 
   return (
     <Card className="p-4 w-full">
@@ -161,8 +166,14 @@ export default function DataAlatPage() {
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
             <Button
-              className="px-4 py-2 rounded-md bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-lg font-semibold text-white transition-all duration-300 shadow-md"
+             disabled={!selectedWilayah}
+              className={`px-4 py-2 rounded-md bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-lg font-semibold text-white transition-all duration-300 shadow-md ${
+                !selectedWilayah
+                  ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  : "bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-white"
+}`}
               onClick={() => {
+                if (!selectedWilayah) return;
                 setEditItem(null);
                 setShowForm(true);
               }}
