@@ -106,13 +106,13 @@ export const menuItems: MenuItem[] = [
         allowedRoles: ['ADMIN', 'DIREKTUR', 'KEPALA_GUDANG', 'TEKNISI'],
         available: true,
       },
-      {
-        name: 'Sparepart',
-        href: '/inventory/spare_part',
-        icon: IconArchive,
-        allowedRoles: ['ADMIN', 'KEPALA_GUDANG', 'TEKNISI'],
-        available: true,
-      }
+      // {
+      //   name: 'Sparepart',
+      //   href: '/inventory/spare_part',
+      //   icon: IconArchive,
+      //   allowedRoles: ['ADMIN', 'KEPALA_GUDANG', 'TEKNISI'],
+      //   available: true,
+      // }
     ],
     allowedRoles: ['ADMIN', 'DIREKTUR', 'KEPALA_GUDANG', 'TEKNISI']
   },
@@ -158,17 +158,17 @@ export const menuItems: MenuItem[] = [
 
   allowedRoles: ['ADMIN', 'TEKNISI']
   },
-  {
-    name: 'Pengaturan',
-    href: '/settings',
-    icon: IconSettings,
-    allowedRoles: ['ADMIN']
-  },
-  {
-    name: 'Laporan',
-    href: '/laporan',
-    icon: IconReport,
-    allowedRoles: ['ADMIN'],
-    available: false,
-  }
+  // {
+  //   name: 'Pengaturan',
+  //   href: '/settings',
+  //   icon: IconSettings,
+  //   allowedRoles: ['ADMIN']
+  // },
+  // {
+  //   name: 'Laporan',
+  //   href: '/laporan',
+  //   icon: IconReport,
+  //   allowedRoles: ['ADMIN'],
+  //   available: false,
+  // }
 ];
