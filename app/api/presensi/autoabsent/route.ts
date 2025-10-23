@@ -1,7 +1,11 @@
+
+
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { nowWIB, startOfDayWIB, endOfDayWIB, isWeekendWIB } from "@/lib/timezone";
 import { AttendanceMasuk } from "@prisma/client";
+
 
 export async function GET() {
   try {
