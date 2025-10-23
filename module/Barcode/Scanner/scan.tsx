@@ -6,6 +6,8 @@ import CryptoJS from 'crypto-js';
 import HmacSHA256 from 'crypto-js/hmac-sha256';
 import Base64 from 'crypto-js/enc-base64';
 import AlertMessage from '@/components/ui/alert';
+import { useCallback } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 
 interface DecodedData {
@@ -51,6 +53,8 @@ const QRCodeScanner: React.FC = () => {
 
   const SECRET_KEY = process.env.NEXT_PUBLIC_SECRET_KEY || 'DEFAULT_KALIBRASI_KEY_DEV';
 
+  
+
   const tryDecryptAndVerify = (encryptedText: string): DecodedData => {
     let decryptedUtf8: string;
     try {
@@ -86,21 +90,23 @@ const QRCodeScanner: React.FC = () => {
   const startCamera = async (): Promise<void> => {
     try {
       setError('');
+      setIsScanning(true); 
+  
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
       });
-
+  
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        await videoRef.current.play().catch(()=>{});
+        await videoRef.current.play().catch(() => {});
         setStream(mediaStream);
-        setIsScanning(true);
       }
     } catch (err) {
       setError('Tidak dapat mengakses kamera. Pastikan izin kamera sudah diberikan.');
       console.error('Camera error:', err);
     }
   };
+  
 
   const stopCamera = (): void => {
     if (stream) {
@@ -110,9 +116,13 @@ const QRCodeScanner: React.FC = () => {
     setIsScanning(false);
   };
 
-  const captureAndScan = (): void => {
+  const captureAndScan = useCallback ((): void => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
+    
+
+    if (video.readyState < 2) return;
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -146,7 +156,7 @@ const QRCodeScanner: React.FC = () => {
     } catch (e) {
       console.error('capture error', e);
     }
-  };
+  }, []);
 
   
 
@@ -279,12 +289,13 @@ const QRCodeScanner: React.FC = () => {
   }, [stream]);
 
   useEffect(() => {
-    if (isScanning) {
-      const interval = setInterval(() => {
-        captureAndScan();
-      }, 700); 
-      return () => clearInterval(interval);
-    }
+    if (!isScanning) return;
+  
+    const interval = setInterval(() => {
+      captureAndScan();
+    }, 700); 
+  
+    return () => clearInterval(interval);
   }, [isScanning]);
 
   const resetScanner = (): void => {
@@ -342,28 +353,43 @@ const QRCodeScanner: React.FC = () => {
               )}
   
               {/* Camera View - Responsive */}
+              
               {isScanning ? (
-                <div className="space-y-3 sm:space-y-4">
-                  <div className="relative border-4 border-purple-500 rounded-lg overflow-hidden bg-black">
-                    <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      className="w-full h-auto"
-                      style={{ maxHeight: '400px', objectFit: 'contain' }}
-                    />
-                    <div className="absolute inset-0 border-4 border-purple-500" style={{
-                      clipPath: 'polygon(0 0, 100% 0, 100% 20%, 80% 20%, 80% 80%, 100% 80%, 100% 100%, 0 100%, 0 80%, 20% 80%, 20% 20%, 0 20%)'
-                    }}></div>
-                  </div>
-                  <button
-                    onClick={stopCamera}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 sm:py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
-                  >
-                    Stop Camera
-                  </button>
-                </div>
-              ) : (
+  <div className="space-y-3 sm:space-y-4">
+  <div className="relative border-2 border-purple-500 rounded-lg overflow-hidden bg-black flex justify-center items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh]">
+    <video
+      ref={videoRef}
+      autoPlay
+      playsInline
+      muted
+      className="w-full h-full object-cover rounded-lg"
+    />
+    <div
+      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+    >
+      <div
+        className="border-4 border-cyan-400 border-dashed rounded-xl opacity-90"
+        style={{
+          width: 'clamp(200px, 80vw, 400px)',
+          height: 'clamp(200px, 80vw, 400px)',
+          maxHeight: '80%',
+        }}
+      ></div>
+    </div>
+    <div className="absolute bottom-12 left-0 right-0 text-center text-white text-sm pointer-events-none px-4">
+      Tempatkan QR Code di dalam kotak
+    </div>
+  </div>
+
+  <button
+    onClick={stopCamera}
+    className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 sm:py-3 px-4 rounded-lg transition-colors text-sm sm:text-base"
+  >
+    Stop Camera
+  </button>
+</div>
+
+)  : (
                 <div className="space-y-3 sm:space-y-4">
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 sm:p-10 md:p-12 text-center bg-gray-50">
                     <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-gray-400 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
