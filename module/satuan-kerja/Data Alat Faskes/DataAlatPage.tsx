@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import FilterBar from "./components/FilterBar";
 import DataTable from "@/module/satuan-kerja/Data Alat Faskes/components/DataAlatTable";
 import FormAlat from "./components/FormAlat";
+import FormEditAlat from "./components/FormEditAlat";
 import DeleteConfirmModal from "./components/DeleteConfirmModal";
 import { Card } from "@/components/ui/card";
 import { Alat } from "@/lib/types/AlatFaskes";
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import PaginationControl from "@/components/ui/PaginationControl";
+
 export type Wilayah = {
   id: string;
   nama: string;
@@ -32,10 +34,11 @@ export default function DataAlatPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(5);
   const [wilayahList, setWilayahList] = useState<Wilayah[]>([]);
+  const [editTarget, setEditTarget] = useState<Alat | null>(null);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   const abortController = useRef<AbortController | null>(null);
 
-  // --- FETCH WILAYAH ---
   useEffect(() => {
     let active = true;
     (async () => {
@@ -54,7 +57,6 @@ export default function DataAlatPage() {
     };
   }, []);
 
-  // --- RESTORE FILTER WILAYAH ---
   useEffect(() => {
     try {
       const saved = localStorage.getItem("selectedWilayah");
@@ -86,11 +88,9 @@ export default function DataAlatPage() {
         let url = "";
 
         if (selectedWilayah) {
-          // fetch detail berdasarkan wilayah
           const encoded = encodeURIComponent(selectedWilayah.nama);
           url = `/api/satuan-kerja/data-alat/detail/${encoded}`;
         } else {
-          // fetch summary default
           url = `/api/satuan-kerja/data-alat/summary`;
         }
 
@@ -120,7 +120,6 @@ export default function DataAlatPage() {
     return () => abortController.current?.abort();
   }, [selectedWilayah]);
 
-  // --- FILTER ---
   useEffect(() => {
     const q = query.trim().toLowerCase();
     setFilteredAlat(
@@ -135,9 +134,7 @@ export default function DataAlatPage() {
     currentPage * perPage
   );
 
-  // --- HANDLE SAVE DARI FORM ---
   const handleSaveLocal = (newAlat: Alat[]) => {
-    // Update state lokal aja, tidak panggil API
     setAllAlat((prev) => {
       const map = new Map<string, Alat>();
       prev.forEach((a) => map.set(a.nama, a));
@@ -145,6 +142,11 @@ export default function DataAlatPage() {
       return Array.from(map.values());
     });
     setShowForm(false);
+  };
+
+  const handleSaveEdit = (updated: Alat) => {
+    setAllAlat((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
+    setShowEditForm(false);
   };
 
   return (
@@ -162,14 +164,13 @@ export default function DataAlatPage() {
           <FilterBar
             wilayahList={wilayahList}
             selectedWilayah={selectedWilayah}
-            onWilayahChange={(wil) => {
-              setSelectedWilayah(wil);
-            }}
+            onWilayahChange={(wil) => setSelectedWilayah(wil)}
             query={query}
             onQueryChange={setQuery}
           />
         </div>
 
+        {/* Tambah Alat */}
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
             <Button
@@ -191,7 +192,6 @@ export default function DataAlatPage() {
             <DialogHeader>
               <DialogTitle>Tambah Data Alat</DialogTitle>
             </DialogHeader>
-
             <FormAlat
               wilayahId={selectedWilayah?.id || "default"}
               onClose={() => setShowForm(false)}
@@ -211,7 +211,10 @@ export default function DataAlatPage() {
           <DataTable
             alatList={paginatedAlat}
             selectedWilayah={selectedWilayah}
-            onEdit={() => {}}
+            onEdit={(a: Alat) => {
+              setEditTarget(a);
+              setShowEditForm(true);
+            }}
             onDeleteConfirm={(a) => setDeleteTarget(a)}
           />
         )}
@@ -227,16 +230,25 @@ export default function DataAlatPage() {
         }}
       />
 
+      {/* Hapus */}
       {deleteTarget && (
         <DeleteConfirmModal
           name={deleteTarget.nama}
           onClose={() => setDeleteTarget(null)}
           onConfirm={() => {
-            setAllAlat((prev) =>
-              prev.filter((a) => a.id !== deleteTarget.id)
-            );
+            setAllAlat((prev) => prev.filter((a) => a.id !== deleteTarget.id));
             setDeleteTarget(null);
           }}
+        />
+      )}
+
+      {/* Edit */}
+      {showEditForm && editTarget && (
+        <FormEditAlat
+          initial={editTarget}
+          wilayahId={selectedWilayah?.id || "default"}
+          onClose={() => setShowEditForm(false)}
+          onSave={handleSaveEdit}
         />
       )}
     </Card>

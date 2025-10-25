@@ -8,6 +8,7 @@ type Props = {
   wilayahId: string;
   onClose: () => void;
   onSave: (payload: Alat[]) => void; 
+  mode?: "add" | "edit";
 };
 
 export default function FormAlat({ initial = [], wilayahId, onClose, onSave }: Props) {
