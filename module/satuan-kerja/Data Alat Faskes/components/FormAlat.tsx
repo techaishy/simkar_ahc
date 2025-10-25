@@ -7,7 +7,7 @@ type Props = {
   initial?: Alat[];
   wilayahId: string;
   onClose: () => void;
-  onSave: (payload: Alat[]) => void;
+  onSave: (payload: Alat[]) => void; 
 };
 
 export default function FormAlat({ initial = [], wilayahId, onClose, onSave }: Props) {
@@ -25,16 +25,11 @@ export default function FormAlat({ initial = [], wilayahId, onClose, onSave }: P
           },
         ]
   );
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = <K extends keyof Alat>(
-    index: number,
-    field: K,
-    value: Alat[K]
-  ) => {
+  const handleChange = <K extends keyof Alat>(index: number, field: K, value: Alat[K]) => {
     setAlatList((prev) =>
-      prev.map((item, i) =>
-        i === index ? ({ ...item, [field]: value } as Alat) : item
-      )
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
   };
 
@@ -45,58 +40,75 @@ export default function FormAlat({ initial = [], wilayahId, onClose, onSave }: P
         id: `a${Date.now()}`,
         nama: "",
         jumlah: 1,
-        tanggalKalibrasi: "",
-        tanggalExpired: "",
+        tanggalKalibrasi: alatList[0].tanggalKalibrasi,
+        tanggalExpired: alatList[0].tanggalExpired,
         satuanKerja: "",
       },
     ]);
   };
 
   const handleRemove = (index: number) => {
-    const newList = [...alatList];
-    newList.splice(index, 1);
-    setAlatList(newList);
+    setAlatList((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const key = `alat_${wilayahId}`;
-    const existing = localStorage.getItem(key);
-    let storedList: Alat[] = existing ? JSON.parse(existing) : [];
+    if (!wilayahId) return;
 
-    alatList.forEach((a) => {
-      const index = storedList.findIndex((s) => s.id === a.id);
-      if (index >= 0) storedList[index] = a;
-      else storedList.push(a);
-    });
+    setLoading(true);
+    try {
+      const payload = alatList.map((a) => ({
+        nama_alat: a.nama.trim(),
+        jumlah: a.jumlah,
+        tanggalKalibrasi: a.tanggalKalibrasi,
+        tanggalExpired: a.tanggalExpired,
+      }));
 
-    localStorage.setItem(key, JSON.stringify(storedList));
-    onSave(alatList);
+      const res = await fetch("/api/satuan-kerja/data-alat/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lokasiId: wilayahId, alatList: payload }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Gagal menambahkan alat");
+
+      const newData: Alat[] = json.added.map((x: any, i: number) => ({
+        id: `${x.nama_alat}-${wilayahId}-${i}`,
+        nama: x.nama_alat,
+        jumlah: x.wilayahKerja.unit,
+        tanggalKalibrasi: x.wilayahKerja.tanggalKalibrasi,
+        tanggalExpired: x.wilayahKerja.tanggal_expired,
+      }));
+
+      onSave(newData);
+      onClose();
+    } catch (err: any) {
+      console.error("❌ Gagal tambah alat:", err);
+      alert(err.message || "Gagal menambahkan alat");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const isDisabled = !wilayahId;
+  const isDisabled = !wilayahId || loading;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 sm:p-6">
-      <div className="bg-white text-black rounded-xl w-full max-w-3xl p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
-        <h3 className="text-lg font-semibold mb-4 text-center sm:text-left">
-          Tambah / Edit Alat
-        </h3>
-
+    <div className=" inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      {/* <DialogContent className="bg-gradient-to-br from-black via-gray-950 to-gray-800 z-[9999] max-w-6xl w-full p-6"> */}
         {!wilayahId && (
-          <p className="text-center text-gray-500 italic mb-4">
+          <p className="text-center text-gray-500 italic mb-6">
             Pilih satuan kerja terlebih dahulu untuk menambahkan alat.
           </p>
         )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6 ">
           {alatList.map((alat, i) => (
             <div
               key={alat.id}
-              className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end border-b pb-3"
+              className="grid grid-cols-12 gap-4 gap-y-4 items-end border-b pb-4"
             >
               {/* Nama Alat */}
-              <div className="sm:col-span-7">
+              <div className="col-span-3">
                 <label className="text-sm block mb-1">Nama Alat</label>
                 <input
                   type="text"
@@ -110,15 +122,13 @@ export default function FormAlat({ initial = [], wilayahId, onClose, onSave }: P
               </div>
 
               {/* Jumlah */}
-              <div className="sm:col-span-3">
+              <div className="col-span-2">
                 <label className="text-sm block mb-1">Jumlah</label>
                 <input
                   type="number"
                   min={1}
                   value={alat.jumlah}
-                  onChange={(e) =>
-                    handleChange(i, "jumlah", Number(e.target.value))
-                  }
+                  onChange={(e) => handleChange(i, "jumlah", Number(e.target.value))}
                   className="w-full px-3 py-2 border rounded-md"
                   placeholder="0"
                   required
@@ -126,8 +136,38 @@ export default function FormAlat({ initial = [], wilayahId, onClose, onSave }: P
                 />
               </div>
 
-              {/* Tombol Add/Remove */}
-              <div className="sm:col-span-2 flex justify-start sm:justify-end pt-2 sm:pt-6">
+              {/* Tanggal Kalibrasi */}
+              <div className="col-span-3">
+                <label className="text-sm block mb-1">Tanggal Kalibrasi</label>
+                <input
+                  type="date"
+                  value={alat.tanggalKalibrasi}
+                  onChange={(e) =>
+                    handleChange(i, "tanggalKalibrasi", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border rounded-md"
+                  required
+                  disabled={isDisabled}
+                />
+              </div>
+
+              {/* Tanggal Expired */}
+              <div className="col-span-3">
+                <label className="text-sm block mb-1">Tanggal Expired</label>
+                <input
+                  type="date"
+                  value={alat.tanggalExpired}
+                  onChange={(e) =>
+                    handleChange(i, "tanggalExpired", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border rounded-md"
+                  required
+                  disabled={isDisabled}
+                />
+              </div>
+
+              {/* Tombol + / - di ujung kanan */}
+             <div className="col-span-1 ">
                 {i === 0 ? (
                   <button
                     type="button"
@@ -155,42 +195,12 @@ export default function FormAlat({ initial = [], wilayahId, onClose, onSave }: P
                     -
                   </button>
                 )}
-              </div>
+             </div>
             </div>
           ))}
 
-          {/* Tanggal */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm block mb-1">Tanggal Kalibrasi</label>
-              <input
-                type="date"
-                value={alatList[0].tanggalKalibrasi}
-                onChange={(e) =>
-                  handleChange(0, "tanggalKalibrasi", e.target.value)
-                }
-                className="w-full px-3 py-2 border rounded-md"
-                required
-                disabled={isDisabled}
-              />
-            </div>
-            <div>
-              <label className="text-sm block mb-1">Tanggal Expired</label>
-              <input
-                type="date"
-                value={alatList[0].tanggalExpired}
-                onChange={(e) =>
-                  handleChange(0, "tanggalExpired", e.target.value)
-                }
-                className="w-full px-3 py-2 border rounded-md"
-                required
-                disabled={isDisabled}
-              />
-            </div>
-          </div>
-
-          {/* Tombol Aksi */}
-          <div className="flex flex-col sm:flex-row justify-end gap-2 mt-6">
+          {/* Tombol Batal / Simpan */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
             <button
               type="button"
               onClick={onClose}
@@ -207,11 +217,12 @@ export default function FormAlat({ initial = [], wilayahId, onClose, onSave }: P
                   : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
-              Simpan
+              {loading ? "Menyimpan..." : "Simpan"}
             </button>
           </div>
         </form>
-      </div>
+      {/* </DialogContent> */}
     </div>
   );
+
 }

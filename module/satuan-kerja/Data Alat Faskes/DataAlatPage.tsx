@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import FilterBar from "./components/FilterBar";
 import DataTable from "@/module/satuan-kerja/Data Alat Faskes/components/DataAlatTable";
 import FormAlat from "./components/FormAlat";
@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import PaginationControl from "@/components/ui/PaginationControl";
-
 export type Wilayah = {
   id: string;
   nama: string;
@@ -28,64 +27,79 @@ export default function DataAlatPage() {
   const [selectedWilayah, setSelectedWilayah] = useState<Wilayah | null>(null);
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editItem, setEditItem] = useState<Alat | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Alat | null>(null);
   const [loading, setLoading] = useState(true);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(5);
   const [wilayahList, setWilayahList] = useState<Wilayah[]>([]);
 
-  // Fetch list wilayah
+  const abortController = useRef<AbortController | null>(null);
+
+  // --- FETCH WILAYAH ---
   useEffect(() => {
-    async function fetchWilayah() {
+    let active = true;
+    (async () => {
       try {
         const res = await fetch("/api/satuan-kerja/data-alat/data-lokasi");
-        if (!res.ok) throw new Error("Gagal mengambil daftar wilayah");
         const data = await res.json();
+        if (!active) return;
         const mapped = data.map((w: any) => ({ id: w.id, nama: w.name }));
         setWilayahList(mapped);
       } catch (err) {
-        console.error(err);
+        console.error("❌ Gagal ambil wilayah:", err);
       }
-    }
-    fetchWilayah();
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
 
-  // Ambil selectedWilayah dari localStorage
+  // --- RESTORE FILTER WILAYAH ---
   useEffect(() => {
-    const saved = localStorage.getItem("selectedWilayah");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setSelectedWilayah(parsed.id === "all" ? null : parsed);
+    try {
+      const saved = localStorage.getItem("selectedWilayah");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.id && parsed?.nama)
+          setSelectedWilayah(parsed.id === "all" ? null : parsed);
+      }
+    } catch {
+      console.warn("⚠️ LocalStorage selectedWilayah corrupt");
     }
   }, []);
 
   useEffect(() => {
-    if (selectedWilayah)
+    if (selectedWilayah) {
       localStorage.setItem("selectedWilayah", JSON.stringify(selectedWilayah));
-    else localStorage.removeItem("selectedWilayah");
+    } else {
+      localStorage.removeItem("selectedWilayah");
+    }
   }, [selectedWilayah]);
 
-  // Fetch data alat summary atau detail per wilayah
   useEffect(() => {
+    if (abortController.current) abortController.current.abort();
+    abortController.current = new AbortController();
+
     async function fetchData() {
       setLoading(true);
-      setAllAlat([]); // reset data lama saat filter berubah
       try {
-        let res;
+        let url = "";
+
         if (selectedWilayah) {
-          const nama = encodeURIComponent(selectedWilayah.nama);
-          res = await fetch(`/api/satuan-kerja/data-alat/detail/${nama}`);
+          // fetch detail berdasarkan wilayah
+          const encoded = encodeURIComponent(selectedWilayah.nama);
+          url = `/api/satuan-kerja/data-alat/detail/${encoded}`;
         } else {
-          res = await fetch("/api/satuan-kerja/data-alat/summary");
+          // fetch summary default
+          url = `/api/satuan-kerja/data-alat/summary`;
         }
 
-        if (!res.ok) throw new Error("Gagal mengambil data alat");
-        const json = await res.json();
+        const res = await fetch(url, { signal: abortController.current?.signal });
+        if (!res.ok) throw new Error("Gagal ambil data alat");
 
-        const mapped: Alat[] = json.map((item: any, index: number) => ({
-          id: `alat-${index}`,
+        const json = await res.json();
+        const mapped: Alat[] = json.map((item: any, i: number) => ({
+          id: `${item.nama_alat}-${selectedWilayah?.id || i}`,
           nama: item.nama_alat,
           jumlah: item.total_unit,
           tanggalKalibrasi: item.tanggalKalibrasi,
@@ -93,108 +107,101 @@ export default function DataAlatPage() {
         }));
 
         setAllAlat(mapped);
-      } catch (err) {
-        console.error(err);
+      } catch (err: any) {
+        if (err.name !== "AbortError")
+          console.error("❌ Fetch alat error:", err);
         setAllAlat([]);
       } finally {
         setLoading(false);
       }
     }
+
     fetchData();
+    return () => abortController.current?.abort();
   }, [selectedWilayah]);
 
-  // Filter alat berdasarkan query
+  // --- FILTER ---
   useEffect(() => {
     const q = query.trim().toLowerCase();
-    const res = q ? allAlat.filter((a) => a.nama.toLowerCase().includes(q)) : allAlat;
-    setFilteredAlat(res);
+    setFilteredAlat(
+      q ? allAlat.filter((a) => a.nama.toLowerCase().includes(q)) : allAlat
+    );
     setCurrentPage(1);
   }, [query, allAlat]);
 
-  // Pagination
   const totalPages = Math.ceil(filteredAlat.length / perPage);
   const paginatedAlat = filteredAlat.slice(
     (currentPage - 1) * perPage,
     currentPage * perPage
   );
 
-  const handlePageChange = (page: number, per: number) => {
-    setCurrentPage(page);
-    setPerPage(per);
-  };
-
-  const handleDelete = (id: string) => {
-    setAllAlat((prev) => prev.filter((p) => p.id !== id));
-    setDeleteTarget(null);
-  };
-
-
-  const handleSave = (payload: Alat[]) => {
+  // --- HANDLE SAVE DARI FORM ---
+  const handleSaveLocal = (newAlat: Alat[]) => {
+    // Update state lokal aja, tidak panggil API
     setAllAlat((prev) => {
-      const updated = [...prev];
-      payload.forEach((alat) => {
-        const index = updated.findIndex((a) => a.id === alat.id);
-        if (index >= 0) updated[index] = alat;
-        else updated.push(alat);
-      });
-      return updated;
+      const map = new Map<string, Alat>();
+      prev.forEach((a) => map.set(a.nama, a));
+      newAlat.forEach((a) => map.set(a.nama, a));
+      return Array.from(map.values());
     });
     setShowForm(false);
   };
-  
 
   return (
     <Card className="p-4 w-full">
       <div className="flex text-black items-center">
-        <h2 className="text-lg font-semibold mb-4">Data Alat Fasilitas Kesehatan</h2>
+        <h2 className="text-lg font-semibold mb-4">
+          Data Alat Fasilitas Kesehatan
+        </h2>
       </div>
 
-      {/* Filter */}
+      {/* FILTER */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <p className="text-black font-semibold text-lg">Satuan Kerja :</p>
         <div className="flex-1 min-w-[250px]">
           <FilterBar
             wilayahList={wilayahList}
             selectedWilayah={selectedWilayah}
-            onWilayahChange={setSelectedWilayah}
+            onWilayahChange={(wil) => {
+              setSelectedWilayah(wil);
+            }}
             query={query}
             onQueryChange={setQuery}
           />
         </div>
 
-        {/* Tambah Data */}
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
             <Button
-             disabled={!selectedWilayah}
-              className={`px-4 py-2 rounded-md bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-lg font-semibold text-white transition-all duration-300 shadow-md ${
-                !selectedWilayah
-                  ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-white"
-}`}
-              onClick={() => {
-                if (!selectedWilayah) return;
-                setEditItem(null);
-                setShowForm(true);
-              }}
+              onClick={() => selectedWilayah && setShowForm(true)}
+              disabled={!selectedWilayah}
+              className={`px-4 py-2 rounded-md text-lg font-semibold shadow-md transition-all duration-300
+                ${
+                  selectedWilayah
+                    ? "bg-gradient-to-br from-black to-gray-800 hover:from-[#d2e67a] hover:to-[#f9fc4f] hover:text-black text-white"
+                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                }`}
             >
               Tambah Alat
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-gradient-to-br from-black via-gray-950 to-gray-800">
+          <DialogContent
+            className="bg-gradient-to-br from-black via-gray-950 to-gray-800 z-[9999] max-w-6xl w-full p-6 max-h-[90vh] overflow-y-auto custom-scrollbar"
+          >
             <DialogHeader>
               <DialogTitle>Tambah Data Alat</DialogTitle>
             </DialogHeader>
+
             <FormAlat
               wilayahId={selectedWilayah?.id || "default"}
               onClose={() => setShowForm(false)}
-              onSave={handleSave}
+              onSave={handleSaveLocal}
             />
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Tabel */}
+      {/* TABLE */}
       <div className="mt-4">
         {loading ? (
           <p className="text-gray-400">Loading data...</p>
@@ -204,26 +211,32 @@ export default function DataAlatPage() {
           <DataTable
             alatList={paginatedAlat}
             selectedWilayah={selectedWilayah}
-            onEdit={(a) => { setEditItem(a); setShowForm(true); }}
+            onEdit={() => {}}
             onDeleteConfirm={(a) => setDeleteTarget(a)}
           />
         )}
       </div>
 
-      {/* Pagination */}
       <PaginationControl
         totalPages={totalPages}
         currentPage={currentPage}
         perPage={perPage}
-        onPageChange={handlePageChange}
+        onPageChange={(p, per) => {
+          setCurrentPage(p);
+          setPerPage(per);
+        }}
       />
 
-      {/* Modal Hapus */}
       {deleteTarget && (
         <DeleteConfirmModal
           name={deleteTarget.nama}
           onClose={() => setDeleteTarget(null)}
-          onConfirm={() => handleDelete(deleteTarget.id)}
+          onConfirm={() => {
+            setAllAlat((prev) =>
+              prev.filter((a) => a.id !== deleteTarget.id)
+            );
+            setDeleteTarget(null);
+          }}
         />
       )}
     </Card>
