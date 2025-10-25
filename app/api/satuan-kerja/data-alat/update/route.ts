@@ -21,19 +21,27 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    
-    const lokasi = await prisma.lokasiDinas.findUnique({ where: { id: lokasiId } });
-    if (!lokasi) return NextResponse.json({ error: "Lokasi tidak ditemukan" }, { status: 404 });
 
-    let alat = await prisma.alatKalibrasi.findFirst({
+    const lokasi = await prisma.lokasiDinas.findUnique({ where: { id: lokasiId } });
+    if (!lokasi) {
+      return NextResponse.json({ error: "Lokasi tidak ditemukan" }, { status: 404 });
+    }
+
+    const alat = await prisma.alatKalibrasi.findFirst({
       where: { nama_alat: { equals: nama_alat, mode: "insensitive" } },
     });
-    if (!alat) return NextResponse.json({ error: "Alat tidak ditemukan" }, { status: 404 });
 
-    const wk = await prisma.wilayahKerja.findFirst({
+    if (!alat) {
+      return NextResponse.json({ error: "Alat tidak ditemukan" }, { status: 404 });
+    }
+
+    let wk = await prisma.wilayahKerja.findFirst({
       where: { id_AK: alat.id, id_LK: lokasi.id },
     });
-    if (!wk) return NextResponse.json({ error: "Wilayah kerja untuk alat ini tidak ditemukan" }, { status: 404 });
+
+    if (!wk) {
+      return NextResponse.json({ error: "WilayahKerja untuk alat ini tidak ditemukan" }, { status: 404 });
+    }
 
     const updatedWK = await prisma.wilayahKerja.update({
       where: { id: wk.id },

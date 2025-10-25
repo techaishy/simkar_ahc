@@ -59,7 +59,7 @@ export default function FormEditAlat({ initial, wilayahId, onClose, onSave }: Pr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white text-black rounded-lg w-full max-w-md p-6">
+      <div className="bg-gradient-to-br from-black via-gray-950 to-gray-800 rounded-lg w-full max-w-md p-6">
         <h3 className="text-lg font-medium mb-4">
           {initial ? "Edit Alat" : "Tambah Alat"}
         </h3>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, AuthPayload } from "@/lib/requestaAuth";
 
-export async function PATCH(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const auth = requireAuth(req);
   if (auth instanceof NextResponse) return auth;
   const user = auth as AuthPayload;
@@ -13,58 +13,100 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { lokasiId, nama_alat, jumlah, tanggalKalibrasi, tanggalExpired } = body;
+    const { lokasiId, alatList } = body;
 
-    if (!lokasiId || !nama_alat || jumlah === undefined) {
+    if (!lokasiId || !Array.isArray(alatList) || alatList.length === 0) {
       return NextResponse.json(
-        { error: "lokasiId, nama_alat, dan jumlah wajib diisi" },
+        { error: "lokasiId dan alatList wajib diisi" },
         { status: 400 }
       );
     }
 
-    const lokasi = await prisma.lokasiDinas.findUnique({ where: { id: lokasiId } });
+    const lokasi = await prisma.lokasiDinas.findUnique({
+      where: { id: lokasiId },
+    });
     if (!lokasi) {
-      return NextResponse.json({ error: "Lokasi tidak ditemukan" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Lokasi tidak ditemukan" },
+        { status: 404 }
+      );
     }
 
-    const alat = await prisma.alatKalibrasi.findFirst({
-      where: { nama_alat: { equals: nama_alat, mode: "insensitive" } },
-    });
+    const mergedAlat: Record<string, any> = {};
+    for (const a of alatList) {
+      const key = a.nama_alat?.trim();
+      if (!key) continue;
 
-    if (!alat) {
-      return NextResponse.json({ error: "Alat tidak ditemukan" }, { status: 404 });
+      if (mergedAlat[key]) {
+        mergedAlat[key].jumlah += a.jumlah;
+        mergedAlat[key].tanggalKalibrasi =
+          a.tanggalKalibrasi || mergedAlat[key].tanggalKalibrasi;
+        mergedAlat[key].tanggalExpired =
+          a.tanggalExpired || mergedAlat[key].tanggalExpired;
+      } else {
+        mergedAlat[key] = { ...a };
+      }
     }
 
-    let wk = await prisma.wilayahKerja.findFirst({
-      where: { id_AK: alat.id, id_LK: lokasi.id },
-    });
+    const finalAlatList = Object.values(mergedAlat);
+    const result: any[] = [];
 
-    if (!wk) {
-      return NextResponse.json({ error: "WilayahKerja untuk alat ini tidak ditemukan" }, { status: 404 });
+    for (const a of finalAlatList) {
+      const { nama_alat, jumlah, tanggalKalibrasi, tanggalExpired } = a;
+      const jumlahValid = Number(jumlah) || 0;
+      if (!nama_alat || jumlahValid <= 0) continue;
+
+      let alat = await prisma.alatKalibrasi.findFirst({
+        where: { nama_alat: { equals: nama_alat, mode: "insensitive" } },
+      });
+
+      if (!alat) {
+        console.log("🆕 Buat alat baru:", nama_alat);
+        alat = await prisma.alatKalibrasi.create({
+          data: { nama_alat },
+        });
+      }
+
+      let wk = await prisma.wilayahKerja.findFirst({
+        where: { id_AK: alat.id, id_LK: lokasi.id },
+      });
+
+      if (wk) {
+        wk = await prisma.wilayahKerja.update({
+          where: { id: wk.id },
+          data: {
+            unit: wk.unit + jumlahValid,
+            tanggalKalibrasi,
+            tanggal_expired: tanggalExpired,
+          },
+        });
+      } else {
+        wk = await prisma.wilayahKerja.create({
+          data: {
+            id_AK: alat.id,
+            id_LK: lokasi.id,
+            unit: jumlahValid,
+            tanggalKalibrasi,
+            tanggal_expired: tanggalExpired,
+          },
+        });
+      }
+
+      result.push({
+        nama_alat: alat.nama_alat,
+        wilayahKerja: wk,
+      });
     }
-
-    // Update wilayahKerja
-    const updatedWK = await prisma.wilayahKerja.update({
-      where: { id: wk.id },
-      data: {
-        unit: jumlah,
-        tanggalKalibrasi,
-        tanggal_expired: tanggalExpired,
-      },
-    });
 
     return NextResponse.json({
       success: true,
-      message: "Alat berhasil diperbarui",
-      nama_alat: alat.nama_alat,
-      jumlah: updatedWK.unit,
-      tanggalKalibrasi: updatedWK.tanggalKalibrasi,
-      tanggalExpired: updatedWK.tanggal_expired,
+      message: "Data alat berhasil ditambahkan / diperbarui.",
+      added: result,
     });
   } catch (error) {
-    console.error("❌ Error update alat:", error);
+    console.error("❌ Error:", error);
     return NextResponse.json(
-      { error: "Gagal update alat", detail: String(error) },
+      { error: "Gagal menambahkan alat", detail: String(error) },
       { status: 500 }
     );
   }
