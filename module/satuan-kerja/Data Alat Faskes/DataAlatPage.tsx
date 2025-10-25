@@ -235,9 +235,36 @@ export default function DataAlatPage() {
         <DeleteConfirmModal
           name={deleteTarget.nama}
           onClose={() => setDeleteTarget(null)}
-          onConfirm={() => {
-            setAllAlat((prev) => prev.filter((a) => a.id !== deleteTarget.id));
-            setDeleteTarget(null);
+          onConfirm={async () => {
+            if (!selectedWilayah) return;
+
+            try {
+              const res = await fetch("/api/satuan-kerja/data-alat/delete", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  lokasiId: selectedWilayah.id,
+                  nama_alat: deleteTarget.nama,
+                }),
+              });
+
+              const result = await res.json();
+
+              if (!res.ok) {
+                console.error("❌ Gagal hapus:", result.error || result);
+                alert(result.error || "Gagal menghapus data");
+                return;
+              }
+
+              // Jika berhasil
+              setAllAlat((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+              alert("✅ Data berhasil dihapus");
+            } catch (err) {
+              console.error("❌ Error hapus data:", err);
+              alert("Terjadi kesalahan saat menghapus data");
+            } finally {
+              setDeleteTarget(null);
+            }
           }}
         />
       )}

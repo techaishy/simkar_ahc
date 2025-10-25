@@ -25,7 +25,7 @@ export default function FormEditAlat({ initial, wilayahId, onClose, onSave }: Pr
 
     try {
       const res = await fetch("/api/satuan-kerja/data-alat/update", {
-        method: "POST",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lokasiId: wilayahId,
